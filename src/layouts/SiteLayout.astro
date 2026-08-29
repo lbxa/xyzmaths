@@ -1,14 +1,19 @@
 ---
 import "../styles/global.css";
+import SeoHead from "../components/SeoHead.astro";
 
 interface Props {
   title: string;
   description?: string;
+  image?: string;
+  imageAlt?: string;
 }
 
 const {
   title,
   description = "XYZ Mathematics Club",
+  image,
+  imageAlt,
 } = Astro.props;
 ---
 
@@ -16,12 +21,14 @@ const {
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={description} />
-    <title>{title}</title>
+    <SeoHead
+      title={title}
+      description={description}
+      image={image}
+      imageAlt={imageAlt}
+    />
   </head>
   <body class="flex min-h-screen bg-frame p-phi-1 text-ink sm:p-phi-2 md:h-dvh md:min-h-0 md:overflow-hidden">
     <div
