@@ -1,17 +1,173 @@
 ---
-
+import SiteLayout from "../layouts/SiteLayout.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<SiteLayout
+  title="XYZ Mathematics Club"
+  description="A community for exploring mathematics together."
+>
+  <div
+    slot="left-aside"
+    class="flex h-full flex-col gap-phi-4 text-meta leading-copy [&_a]:text-link [&_a]:underline [&_a:visited]:text-link-visited [&_h2]:mb-phi-1 [&_h2]:font-bold"
+  >
+    <section>
+      <h2>On this page</h2>
+      <ol class="list-decimal pl-phi-3">
+        <li><a href="#origin">The origin</a></li>
+        <li><a href="#first-evening">The first evening</a></li>
+        <li><a href="#sessions">What we studied</a></li>
+        <li><a href="#community">A community forms</a></li>
+        <li><a href="#legacy">The butterfly effect</a></li>
+      </ol>
+    </section>
+
+    <section class="border-t border-rule pt-phi-2">
+      <h2>At a glance</h2>
+      <dl class="grid grid-cols-[auto_1fr] gap-x-phi-2 gap-y-phi-0">
+        <dt class="font-bold">Founded</dt>
+        <dd>Oakhill College</dd>
+        <dt class="font-bold">Format</dt>
+        <dd>After-hours seminars</dd>
+        <dt class="font-bold">Focus</dt>
+        <dd>Mathematics beyond the curriculum</dd>
+      </dl>
+    </section>
+
+    <footer class="mt-auto border-t border-rule pt-phi-2">
+      <p>XYZ Mathematics Club archive</p>
+      <p>Student-founded. Student-led.</p>
+    </footer>
+  </div>
+
+  <article class="max-w-reading leading-copy [&_h1]:mb-phi-2 [&_h1]:text-title [&_h1]:font-bold [&_h2]:mb-phi-1 [&_h2]:mt-phi-4 [&_h2]:text-heading [&_h2]:font-bold [&_hr]:my-phi-4 [&_hr]:border-rule [&_p]:my-phi-2">
+    <header class="border-b border-rule pb-phi-3">
+      <p class="font-mono text-meta">XYZ / CLUB ARCHIVE / HOME</p>
+      <h1>XYZ Mathematics Club</h1>
+      <p class="text-lede">
+        A student-founded forum for studying the mathematics left outside the
+        school curriculum—and for making academic curiosity part of the culture.
+      </p>
+    </header>
+
+    <section id="origin" aria-labelledby="origin-heading">
+      <h2 id="origin-heading">1. The origin</h2>
+      <p>
+        Oakhill College had a long-standing emphasis on sport. The rugby jocks
+        were the cool kids. Mathematics had classrooms and timetables, but it did
+        not yet have a community of its own.
+      </p>
+      <p>
+        One day, two best friends asked their HSC Extension 2 Mathematics teacher
+        whether they could keep studying after hours in her classroom. Her answer
+        was simple: “Yes—so long as it’s maths related.” That was the lightbulb
+        moment.
+      </p>
+      <p>
+        The next day, they chose a name, sketched a logo, printed a sign-up sheet,
+        and went door-knocking through the top mathematics classes in each year
+        group. In thirty minutes, the inaugural XYZ Mathematics Club was at full
+        capacity.
+      </p>
+    </section>
+
+    <section id="first-evening" aria-labelledby="first-evening-heading">
+      <h2 id="first-evening-heading">2. The first evening</h2>
+      <p>
+        Every registered student arrived. Teachers came too. The premise was not
+        exam preparation or accelerated coursework; it was to fill the holes in
+        the Australian mathematics curriculum.
+      </p>
+      <blockquote class="my-phi-3 border-l-4 border-ink pl-phi-3 text-lede">
+        <p>
+          Few things felt better than watching mathematical intuition suddenly
+          click for someone else.
+        </p>
+      </blockquote>
+      <p>
+        The first session derived differential and integral calculus from first
+        principles. As the argument unfolded, there were visible “aha” moments
+        around the room—the reason the club existed became immediately clear.
+      </p>
+    </section>
+
+    <section id="sessions" aria-labelledby="sessions-heading">
+      <h2 id="sessions-heading">3. What we studied</h2>
+      <p>
+        Sessions moved beyond the syllabus while remaining accessible to curious
+        students. Early topics included:
+      </p>
+      <ul class="my-phi-2 list-disc pl-phi-3 marker:text-ink">
+        <li>deriving differential and integral calculus from first principles;</li>
+        <li>linear algebra through matrices;</li>
+        <li>the geometry and structure behind complex numbers; and</li>
+        <li>general frameworks for solving difficult geometry problems.</li>
+      </ul>
+      <p>
+        The subject mattered, but so did the method: derive rather than memorise,
+        exchange solutions rather than guard them, and make room for questions
+        that did not fit inside a lesson plan.
+      </p>
+    </section>
+
+    <section id="community" aria-labelledby="community-heading">
+      <h2 id="community-heading">4. A community forms</h2>
+      <p>
+        Students began volunteering to teach. They compared solutions, proposed
+        future topics, and learned from one another. What started as permission to
+        use a classroom after hours became a durable student community.
+      </p>
+      <p>
+        XYZ was not built by experts with an institutional plan. It was built by
+        two maths nerds, an open classroom, and enough shared curiosity to fill it.
+      </p>
+    </section>
+
+    <section id="legacy" aria-labelledby="legacy-heading">
+      <h2 id="legacy-heading">5. The butterfly effect</h2>
+      <p>
+        It was not long before coding and hardware clubs emerged. The nerds were
+        becoming the cool kids. Five years later, the school principal reflected
+        that academics had come to occupy a much larger place in Oakhill’s culture
+        alongside sport.
+      </p>
+      <p>
+        The club’s legacy is a modest but powerful proposition: give students a
+        room, a difficult idea, and permission to take learning seriously, and a
+        school’s culture can begin to change.
+      </p>
+    </section>
+
+    <hr />
+
+    <p class="font-mono text-meta">END OF DOCUMENT / XYZ-001</p>
+  </article>
+
+  <nav
+    slot="right-aside"
+    aria-label="Primary navigation"
+    class="text-meta leading-copy [&_a]:text-link [&_a]:underline [&_a:visited]:text-link-visited [&_h2]:mb-phi-1 [&_h2]:font-bold [&_li]:border-t [&_li]:border-rule [&_li]:py-phi-1"
+  >
+    <h2>Navigation</h2>
+    <ul class="border-b border-rule">
+      <li><a href="/" aria-current="page">Home</a></li>
+      <li><a href="#sessions">Session index</a></li>
+      <li><a href="#community">Community</a></li>
+      <li><a href="#legacy">Legacy</a></li>
+    </ul>
+
+    <section class="mt-phi-4">
+      <h2>Early syllabus</h2>
+      <ol class="list-decimal pl-phi-3">
+        <li>Calculus</li>
+        <li>Linear algebra</li>
+        <li>Complex numbers</li>
+        <li>Geometry</li>
+      </ol>
+    </section>
+
+    <section class="mt-phi-4 border-t border-rule pt-phi-2">
+      <h2>Principle</h2>
+      <p>Mathematics is something students can derive, teach, and build together.</p>
+    </section>
+  </nav>
+</SiteLayout>

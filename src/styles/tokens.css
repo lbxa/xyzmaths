@@ -1,0 +1,50 @@
+@theme {
+  /* Delegate unstyled text to the browser's configured default serif face. */
+  --font-sans: serif;
+  --font-serif: serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /*
+   * Golden-ratio spatial scale, centered on a 1rem text interval.
+   * 6, 10, 16, 26, 42, 68, 110, 178, 288px at a 16px root.
+   */
+  --spacing-phi-0: 0.375rem;
+  --spacing-phi-1: 0.625rem;
+  --spacing-phi-2: 1rem;
+  --spacing-phi-3: 1.625rem;
+  --spacing-phi-4: 2.625rem;
+  --spacing-phi-5: 4.25rem;
+  --spacing-phi-6: 6.875rem;
+  --spacing-phi-7: 11.125rem;
+  --spacing-phi-8: 18rem;
+
+  /* Phi-derived type hierarchy. Body copy remains at the browser default. */
+  --text-meta: 0.786rem;
+  --text-meta--line-height: 1.272;
+  --text-lede: 1.272rem;
+  --text-lede--line-height: 1.618;
+  --text-heading: 1.618rem;
+  --text-heading--line-height: 1.272;
+  --text-title: 2.618rem;
+  --text-title--line-height: 1;
+  --leading-copy: 1.618;
+
+  --container-reading: 72ch;
+  --container-display: 100rem;
+
+  /* Web 1.0 document palette. */
+  --color-canvas: #ffffff;
+  --color-ink: #000000;
+  --color-link: #0000ee;
+  --color-link-visited: #551a8b;
+  --color-frame: #111111;
+  --color-rule: #767676;
+
+  /* Restrained terminal/display framing. */
+  --radius-display: var(--spacing-phi-3);
+  --shadow-display: 0 0 0 1px rgb(255 255 255 / 0.12);
+}
+
+:root {
+  --layout-site-columns: minmax(var(--spacing-phi-7), var(--spacing-phi-8)) minmax(0, 1fr) minmax(var(--spacing-phi-7), var(--spacing-phi-8));
+}
