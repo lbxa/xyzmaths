@@ -23,28 +23,230 @@ const {
     <meta name="description" content={description} />
     <title>{title}</title>
   </head>
-  <body class="flex min-h-screen bg-frame p-phi-1 text-ink sm:p-phi-2 xl:h-dvh xl:min-h-0 xl:overflow-hidden">
-    <div class="mx-auto grid w-full max-w-display grow overflow-hidden rounded-display border border-rule bg-frame shadow-display xl:h-full xl:min-h-0 xl:grid-rows-[minmax(0,1fr)] xl:[grid-template-columns:var(--layout-site-columns)]">
+  <body class="flex min-h-screen bg-frame p-phi-1 text-ink sm:p-phi-2 md:h-dvh md:min-h-0 md:overflow-hidden">
+    <div
+      data-site-shell
+      class="mx-auto grid w-full max-w-display grow overflow-hidden rounded-display border border-rule bg-frame shadow-display md:h-full md:min-h-0 md:grid-rows-[minmax(0,1fr)] md:[grid-template-columns:minmax(0,1fr)_var(--spacing-phi-8)] xl:[grid-template-columns:var(--layout-site-columns)]"
+    >
+      <button
+        type="button"
+        data-drawer-backdrop
+        data-open="false"
+        aria-label="Close side panel"
+        class="pointer-events-none fixed inset-0 z-30 bg-frame/70 opacity-0 data-[open=true]:pointer-events-auto data-[open=true]:opacity-100"
+      ></button>
+
       <aside
+        id="left-aside"
+        data-drawer="left"
+        data-open="false"
         aria-label="Additional information"
-        class="order-3 border-t border-rule bg-canvas p-phi-3 xl:sticky xl:top-0 xl:order-1 xl:h-full xl:min-h-0 xl:overflow-y-auto xl:overscroll-contain xl:border-r xl:border-t-0"
+        tabindex="-1"
+        class="fixed inset-y-0 left-0 z-40 order-3 w-[min(85vw,var(--spacing-phi-8))] -translate-x-full overflow-y-auto overscroll-contain border-r border-rule bg-canvas p-phi-3 shadow-display data-[open=true]:translate-x-0 xl:sticky xl:inset-y-auto xl:top-0 xl:z-auto xl:order-1 xl:h-full xl:min-h-0 xl:w-auto xl:translate-x-0 xl:border-t-0 xl:shadow-none"
       >
+        <div class="mb-phi-3 flex justify-end xl:hidden">
+          <button
+            type="button"
+            data-drawer-close="left"
+            class="cursor-pointer border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta"
+          >
+            Close <span aria-hidden="true">×</span>
+          </button>
+        </div>
         <slot name="left-aside" />
       </aside>
 
       <main
         id="main-content"
-        class="order-1 bg-canvas p-phi-3 sm:p-phi-4 xl:order-2 xl:h-full xl:min-h-0 xl:overflow-y-auto xl:overscroll-contain xl:p-phi-5"
+        class="order-1 bg-canvas p-phi-3 sm:p-phi-4 md:h-full md:min-h-0 md:overflow-y-auto md:overscroll-contain xl:order-2 xl:p-phi-5"
       >
+        <nav
+          aria-label="Side panel controls"
+          class="sticky top-0 z-20 mb-phi-3 flex justify-between gap-phi-2 border-b border-rule bg-canvas pb-phi-2 xl:hidden"
+        >
+          <button
+            type="button"
+            data-drawer-toggle="left"
+            aria-controls="left-aside"
+            aria-expanded="false"
+            class="cursor-pointer border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta"
+          >
+            <span aria-hidden="true">☰</span> Information
+          </button>
+          <button
+            type="button"
+            data-drawer-toggle="right"
+            aria-controls="right-aside"
+            aria-expanded="false"
+            class="cursor-pointer border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta md:hidden"
+          >
+            Navigation <span aria-hidden="true">☰</span>
+          </button>
+        </nav>
         <slot />
       </main>
 
       <aside
+        id="right-aside"
+        data-drawer="right"
+        data-open="false"
         aria-label="Site navigation"
-        class="order-2 border-t border-rule bg-canvas p-phi-3 xl:sticky xl:top-0 xl:order-3 xl:h-full xl:min-h-0 xl:overflow-y-auto xl:overscroll-contain xl:border-l xl:border-t-0"
+        tabindex="-1"
+        class="fixed inset-y-0 right-0 z-40 order-2 w-[min(85vw,var(--spacing-phi-8))] translate-x-full overflow-y-auto overscroll-contain border-l border-rule bg-canvas p-phi-3 shadow-display data-[open=true]:translate-x-0 md:sticky md:inset-y-auto md:top-0 md:z-auto md:order-3 md:h-full md:min-h-0 md:w-auto md:translate-x-0 md:shadow-none xl:order-3"
       >
+        <div class="mb-phi-3 flex justify-start md:hidden">
+          <button
+            type="button"
+            data-drawer-close="right"
+            class="cursor-pointer border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta"
+          >
+            <span aria-hidden="true">×</span> Close
+          </button>
+        </div>
         <slot name="right-aside" />
       </aside>
     </div>
+
+    <script>
+      const tabletQuery = window.matchMedia("(min-width: 48rem)");
+      const wideQuery = window.matchMedia("(min-width: 80rem)");
+
+      document.querySelectorAll<HTMLElement>("[data-site-shell]").forEach((shell) => {
+        if (shell.dataset.drawerReady === "true") return;
+        shell.dataset.drawerReady = "true";
+
+        const panels = Array.from(
+          shell.querySelectorAll<HTMLElement>("[data-drawer]"),
+        );
+        const triggers = Array.from(
+          shell.querySelectorAll<HTMLButtonElement>("[data-drawer-toggle]"),
+        );
+        const closeButtons = Array.from(
+          shell.querySelectorAll<HTMLButtonElement>("[data-drawer-close]"),
+        );
+        const backdrop = shell.querySelector<HTMLButtonElement>(
+          "[data-drawer-backdrop]",
+        );
+        let returnFocus: HTMLElement | null = null;
+
+        const isPermanent = (name: string) =>
+          name === "left" ? wideQuery.matches : tabletQuery.matches;
+
+        const activeDrawer = () =>
+          panels.find(
+            (panel) =>
+              panel.dataset.open === "true" &&
+              !isPermanent(panel.dataset.drawer ?? ""),
+          );
+
+        const sync = () => {
+          panels.forEach((panel) => {
+            const name = panel.dataset.drawer ?? "";
+            const visible = isPermanent(name) || panel.dataset.open === "true";
+            panel.inert = !visible;
+            panel.setAttribute("aria-hidden", String(!visible));
+
+            if (isPermanent(name)) {
+              panel.removeAttribute("role");
+              panel.removeAttribute("aria-modal");
+            } else {
+              panel.setAttribute("role", "dialog");
+              panel.setAttribute("aria-modal", "true");
+            }
+          });
+
+          triggers.forEach((trigger) => {
+            const name = trigger.dataset.drawerToggle ?? "";
+            const panel = panels.find((item) => item.dataset.drawer === name);
+            trigger.setAttribute(
+              "aria-expanded",
+              String(panel?.dataset.open === "true"),
+            );
+          });
+
+          const drawerOpen = Boolean(activeDrawer());
+          if (backdrop) backdrop.dataset.open = String(drawerOpen);
+          document.body.style.overflow = drawerOpen ? "hidden" : "";
+        };
+
+        const closeDrawers = (restoreFocus = true) => {
+          panels.forEach((panel) => {
+            panel.dataset.open = "false";
+          });
+          sync();
+
+          if (restoreFocus) returnFocus?.focus();
+          returnFocus = null;
+        };
+
+        const openDrawer = (name: string, trigger: HTMLElement) => {
+          closeDrawers(false);
+          const panel = panels.find((item) => item.dataset.drawer === name);
+          if (!panel || isPermanent(name)) return;
+
+          returnFocus = trigger;
+          panel.dataset.open = "true";
+          sync();
+          panel.focus();
+        };
+
+        triggers.forEach((trigger) => {
+          trigger.addEventListener("click", () => {
+            openDrawer(trigger.dataset.drawerToggle ?? "", trigger);
+          });
+        });
+
+        closeButtons.forEach((button) => {
+          button.addEventListener("click", () => closeDrawers());
+        });
+        backdrop?.addEventListener("click", () => closeDrawers());
+
+        panels.forEach((panel) => {
+          panel.querySelectorAll("a").forEach((link) => {
+            link.addEventListener("click", () => {
+              if (!isPermanent(panel.dataset.drawer ?? "")) closeDrawers(false);
+            });
+          });
+        });
+
+        document.addEventListener("keydown", (event) => {
+          const drawer = activeDrawer();
+          if (!drawer) return;
+
+          if (event.key === "Escape") {
+            event.preventDefault();
+            closeDrawers();
+            return;
+          }
+
+          if (event.key !== "Tab") return;
+          const focusable = Array.from(
+            drawer.querySelectorAll<HTMLElement>(
+              'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            ),
+          );
+          if (focusable.length === 0) {
+            event.preventDefault();
+            drawer.focus();
+            return;
+          }
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        });
+
+        const handleBreakpointChange = () => closeDrawers(false);
+        tabletQuery.addEventListener("change", handleBreakpointChange);
+        wideQuery.addEventListener("change", handleBreakpointChange);
+        sync();
+      });
+    </script>
   </body>
 </html>
