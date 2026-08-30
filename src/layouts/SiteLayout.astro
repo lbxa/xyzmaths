@@ -83,14 +83,14 @@ const {
       >
         <nav
           aria-label="Side panel controls"
-          class="sticky top-0 z-20 mb-phi-3 flex justify-between gap-phi-2 border-b border-rule bg-canvas pb-phi-2 xl:hidden"
+          class="sticky top-0 z-20 mb-phi-3 flex items-center justify-between gap-phi-2 border-b border-rule bg-canvas pb-phi-2 md:-mt-phi-2 xl:hidden"
         >
           <button
             type="button"
             data-drawer-toggle="left"
             aria-controls="left-aside"
             aria-expanded="false"
-            class="cursor-pointer border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta"
+            class="inline-flex cursor-pointer items-center gap-phi-1 border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta"
           >
             <span aria-hidden="true">☰</span> Information
           </button>
@@ -99,7 +99,7 @@ const {
             data-drawer-toggle="right"
             aria-controls="right-aside"
             aria-expanded="false"
-            class="cursor-pointer border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta md:hidden"
+            class="inline-flex cursor-pointer items-center gap-phi-1 border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta md:hidden"
           >
             Navigation <span aria-hidden="true">☰</span>
           </button>

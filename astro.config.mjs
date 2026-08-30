@@ -4,13 +4,13 @@ import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-const site = process.env.PUBLIC_SITE_URL;
+const site = 'https://xyzmaths.org';
 
 // https://astro.build/config
-export default defineConfig({
+	export default defineConfig({
 	adapter: cloudflare(),
-	...(site ? { site } : {}),
-	integrations: site ? [sitemap()] : [],
+	site,
+	integrations: [sitemap()],
 	vite: {
 		plugins: [tailwindcss()],
 	},
