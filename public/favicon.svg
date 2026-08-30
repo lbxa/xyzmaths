@@ -1,7 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="10" fill="#111111" />
   <rect x="7" y="7" width="50" height="50" rx="2" fill="#ffffff" />
-  <path d="M16 48H51M17 49V15" fill="none" stroke="#111111" stroke-width="3" stroke-linecap="square" />
-  <path d="M19 43C26 41 27 22 34 21C41 20 42 42 50 18" fill="none" stroke="#0000ee" stroke-width="3.5" stroke-linecap="round" />
-  <circle cx="34" cy="21" r="2.5" fill="#111111" />
+  <text
+    x="30"
+    y="49"
+    fill="#111111"
+    font-family="Latin Modern Math, STIX Two Math, Cambria Math, Times New Roman, serif"
+    font-size="47"
+    font-style="italic"
+    font-weight="600"
+    text-anchor="middle"
+  >Z</text>
 </svg>

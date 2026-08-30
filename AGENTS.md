@@ -2,6 +2,8 @@
 
 Always use Tailwind CSS utility classes for styling. Do not add component-scoped `<style>` blocks, CSS modules, or new handwritten CSS rules unless the user explicitly requests them or Tailwind cannot express the required styling. Keep `src/styles/global.css` limited to the Tailwind import and truly global theme or base styles.
 
+Treat `DESIGN_SYSTEM.md` as the canonical visual and interaction specification. New pages and components must preserve its hacker-academic character rather than introducing a separate aesthetic.
+
 Use `src/styles/tokens.css` as the source of truth for design tokens. Extend existing tokens instead of scattering arbitrary color, font, radius, or shadow values through components.
 
 Use the `phi-*` spacing tokens for all padding, margin, gaps, and layout intervals. The scale follows the golden ratio: 6, 10, 16, 26, 42, 68, 110, 178, and 288px at the default root size. Choose the token by semantic scale—compact, text, section, panel, or layout—and do not use Tailwind's numeric spacing utilities or arbitrary spacing values. Use the named `meta`, `lede`, `heading`, and `title` type tokens for hierarchy.

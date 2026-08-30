@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 import SeoHead from "../components/SeoHead.astro";
 
 interface Props {
@@ -29,8 +30,21 @@ const {
       image={image}
       imageAlt={imageAlt}
     />
+    <ClientRouter />
   </head>
   <body class="flex min-h-screen bg-frame p-phi-1 text-ink sm:p-phi-2 md:h-dvh md:min-h-0 md:overflow-hidden">
+    <div
+      data-ascii-intro
+      aria-hidden="true"
+      hidden
+      class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-frame p-phi-3 motion-reduce:hidden"
+    >
+      <pre
+        data-ascii-output
+        class="m-0 max-w-full select-none overflow-hidden font-mono text-meta leading-none text-canvas sm:text-lede md:text-heading"
+      ></pre>
+    </div>
+
     <div
       data-site-shell
       class="mx-auto grid w-full max-w-display grow overflow-hidden rounded-display border border-rule bg-frame shadow-display md:h-full md:min-h-0 md:grid-rows-[minmax(0,1fr)] md:[grid-template-columns:minmax(0,1fr)_var(--spacing-phi-8)] xl:[grid-template-columns:var(--layout-site-columns)]"
@@ -115,12 +129,72 @@ const {
     </div>
 
     <script>
+      const asciiIntro = document.querySelector<HTMLElement>(
+        "[data-ascii-intro]",
+      );
+      const asciiOutput = asciiIntro?.querySelector<HTMLElement>(
+        "[data-ascii-output]",
+      );
+
+      if (asciiIntro && asciiOutput) {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          asciiIntro.remove();
+        } else {
+          const asciiFrames = [
+            [
+              " __  __                ",
+              " \\ \\/ /                ",
+              "  >  <                 ",
+              " /_/\\_\\                ",
+            ].join("\n"),
+            [
+              " __  __ __   __        ",
+              " \\ \\/ / \\ \\ / /        ",
+              "  >  <   \\ V /         ",
+              " /_/\\_\\   |_|          ",
+            ].join("\n"),
+            [
+              " __  __ __   __ ______ ",
+              " \\ \\/ / \\ \\ / /|___  / ",
+              "  >  <   \\ V /    / /  ",
+              " /_/\\_\\   |_|    /____| ",
+            ].join("\n"),
+          ];
+          const asciiStepDuration = 280;
+          const asciiHoldDuration = 720;
+          let asciiFrameIndex = 0;
+
+          const drawAsciiFrame = () => {
+            asciiOutput.textContent = asciiFrames[asciiFrameIndex];
+            asciiFrameIndex += 1;
+
+            if (asciiFrameIndex < asciiFrames.length) {
+              window.setTimeout(drawAsciiFrame, asciiStepDuration);
+              return;
+            }
+
+            window.setTimeout(() => asciiIntro.remove(), asciiHoldDuration);
+          };
+
+          asciiOutput.textContent = asciiFrames[asciiFrameIndex];
+          asciiFrameIndex += 1;
+          asciiIntro.hidden = false;
+          window.setTimeout(drawAsciiFrame, asciiStepDuration);
+        }
+      }
+    </script>
+
+    <script>
       const tabletQuery = window.matchMedia("(min-width: 48rem)");
       const wideQuery = window.matchMedia("(min-width: 80rem)");
+      let drawerController: AbortController | undefined;
 
-      document.querySelectorAll<HTMLElement>("[data-site-shell]").forEach((shell) => {
-        if (shell.dataset.drawerReady === "true") return;
-        shell.dataset.drawerReady = "true";
+      const setupDrawers = () => {
+        drawerController?.abort();
+        drawerController = new AbortController();
+        const { signal } = drawerController;
+        const shell = document.querySelector<HTMLElement>("[data-site-shell]");
+        if (!shell) return;
 
         const panels = Array.from(
           shell.querySelectorAll<HTMLElement>("[data-drawer]"),
@@ -198,61 +272,81 @@ const {
         };
 
         triggers.forEach((trigger) => {
-          trigger.addEventListener("click", () => {
-            openDrawer(trigger.dataset.drawerToggle ?? "", trigger);
-          });
+          trigger.addEventListener(
+            "click",
+            () => {
+              openDrawer(trigger.dataset.drawerToggle ?? "", trigger);
+            },
+            { signal },
+          );
         });
 
         closeButtons.forEach((button) => {
-          button.addEventListener("click", () => closeDrawers());
+          button.addEventListener("click", () => closeDrawers(), { signal });
         });
-        backdrop?.addEventListener("click", () => closeDrawers());
+        backdrop?.addEventListener("click", () => closeDrawers(), { signal });
 
         panels.forEach((panel) => {
           panel.querySelectorAll("a").forEach((link) => {
-            link.addEventListener("click", () => {
-              if (!isPermanent(panel.dataset.drawer ?? "")) closeDrawers(false);
-            });
+            link.addEventListener(
+              "click",
+              () => {
+                if (!isPermanent(panel.dataset.drawer ?? "")) {
+                  closeDrawers(false);
+                }
+              },
+              { signal },
+            );
           });
         });
 
-        document.addEventListener("keydown", (event) => {
-          const drawer = activeDrawer();
-          if (!drawer) return;
+        document.addEventListener(
+          "keydown",
+          (event) => {
+            const drawer = activeDrawer();
+            if (!drawer) return;
 
-          if (event.key === "Escape") {
-            event.preventDefault();
-            closeDrawers();
-            return;
-          }
+            if (event.key === "Escape") {
+              event.preventDefault();
+              closeDrawers();
+              return;
+            }
 
-          if (event.key !== "Tab") return;
-          const focusable = Array.from(
-            drawer.querySelectorAll<HTMLElement>(
-              'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-            ),
-          );
-          if (focusable.length === 0) {
-            event.preventDefault();
-            drawer.focus();
-            return;
-          }
+            if (event.key !== "Tab") return;
+            const focusable = Array.from(
+              drawer.querySelectorAll<HTMLElement>(
+                'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+              ),
+            );
+            if (focusable.length === 0) {
+              event.preventDefault();
+              drawer.focus();
+              return;
+            }
 
-          const first = focusable[0];
-          const last = focusable[focusable.length - 1];
-          if (event.shiftKey && document.activeElement === first) {
-            event.preventDefault();
-            last.focus();
-          } else if (!event.shiftKey && document.activeElement === last) {
-            event.preventDefault();
-            first.focus();
-          }
-        });
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault();
+              last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault();
+              first.focus();
+            }
+          },
+          { signal },
+        );
 
         const handleBreakpointChange = () => closeDrawers(false);
-        tabletQuery.addEventListener("change", handleBreakpointChange);
-        wideQuery.addEventListener("change", handleBreakpointChange);
+        tabletQuery.addEventListener("change", handleBreakpointChange, { signal });
+        wideQuery.addEventListener("change", handleBreakpointChange, { signal });
         sync();
+      };
+
+      document.addEventListener("astro:page-load", setupDrawers);
+      document.addEventListener("astro:before-swap", () => {
+        drawerController?.abort();
+        document.body.style.overflow = "";
       });
     </script>
   </body>
