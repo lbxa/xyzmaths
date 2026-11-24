@@ -1,0 +1,20 @@
+---
+import type { CollectionEntry } from "astro:content";
+import ProblemNavigation from "./ProblemNavigation.astro";
+import { readerLinkStyle } from "@/lib/reader-links";
+import { formatProblemDate, problemHref } from "@/lib/weekly-problems";
+
+interface Props {
+  problem: CollectionEntry<"weeklyProblems">;
+  heading?: "h3" | "h4";
+  featured?: boolean;
+}
+const { problem: { id, data }, heading: Heading = "h3", featured = false } = Astro.props;
+---
+<p class="font-mono text-meta">
+  {featured && "Latest problem · "}<time datetime={data.date.toISOString().slice(0, 10)}>{formatProblemDate(data.date)}</time>
+  {!featured && <><span aria-hidden="true"> · </span>{data.sourceLabel}</>}
+</p>
+<Heading class="mt-phi-0 text-lede font-bold"><a href={problemHref(id)} class={readerLinkStyle}>{data.title}</a></Heading>
+<p class="mt-phi-0 leading-copy">{data.description}</p>
+<ProblemNavigation id={id} title={data.title} />

@@ -1,0 +1,64 @@
+::::::div{class="proof"}
+
+*Solution.* *(a)* First consider $x=0$. For every $n\in\mathbb{N}$,
+
+$$
+f_n(0)=0,
+$$
+
+so the limit at this input is zero. Now fix $x\in(0,1]$. Since $1+n^2x^2\ge n^2x^2>0$,
+
+$$
+0\le f_n(x)=\frac{nx}{1+n^2x^2}
+      \le\frac{nx}{n^2x^2}=\frac{1}{nx}.
+$$
+
+With $x>0$ fixed, $1/(nx)\to0$. The squeeze theorem therefore gives $f_n(x)\to0$. Together with the case $x=0$, this proves pointwise convergence to the zero function on $[0,1]$.
+
+*(b)* Pointwise convergence keeps $x$ fixed while $n$ grows. To test uniform convergence, we may instead look for a different troublesome input at each $n$. Set $x_n=1/n\in[0,1]$. Then
+
+$$
+f_n(x_n)=\frac{n(1/n)}{1+n^2(1/n)^2}=\frac12.
+$$
+
+Choose $\varepsilon_0=1/4$. For any proposed $N\in\mathbb{N}$, take $n\ge N$ and $x=x_n$. We have
+
+$$
+|f_n(x)-0|=\frac12>\varepsilon_0.
+$$
+
+Hence there is no $N$ after which all the values of $f_n$ are within $\varepsilon_0$ of zero. The convergence is not uniform.
+
+We can also see exactly how large the largest error is. Since $(nx-1)^2\ge0$, we have $2nx\le1+n^2x^2$ and therefore
+
+$$
+0\le f_n(x)\le\frac12,\qquad x\in[0,1].
+$$
+
+Equality holds at $x=1/n$, so
+
+$$
+\sup_{x\in[0,1]}|f_n(x)-0|=\frac12
+$$
+
+for every $n$. As [Figure C.33](/notes/maths-analysis/appendices/exercise-solutions/#fig:hw05:moving-peaks) shows, the peak moves towards zero while its height stays fixed. This does not contradict pointwise convergence, since a fixed positive input does not follow the moving peak, and $f_n(0)$ is always zero.
+
+:::::div{class="margin-figure"}
+
+::::figure{id="fig:hw05:moving-peaks"}
+
+[![ The graphs for n=2,4,8 have peaks at (1/n,1/2). The peaks move towards the origin without losing height. Uniform convergence to zero would require the entire graph eventually to lie in every horizontal band about the x-axis.](/notes/maths-analysis/figures/moving-peaks.svg){.tikz-diagram}](/notes/maths-analysis/figures/moving-peaks.svg "Open original SVG"){.diagram-link data-astro-reload=""}
+
+:::figcaption
+
+Figure C.33. The graphs for $n=2,4,8$ have peaks at $(1/n,1/2)$. The peaks move towards the origin without losing height. Uniform convergence to zero would require the entire graph eventually to lie in every horizontal band about the $x$-axis.
+
+:::
+
+::::
+
+:::::
+
+ ◻
+
+::::::

@@ -284,7 +284,9 @@ def partition(markdown, book, pagination, base):
         refs[key] = base + page_id + "/#" + key
 
     def append(fragment):
-        content = fragment.strip()
+        # Pandoc indents blocks inside list items. Keep that indentation on
+        # both sides of a figure or note, including the next display equation.
+        content = fragment.lstrip("\n").rstrip()
         if not content:
             return
         if not page:
@@ -301,11 +303,12 @@ def partition(markdown, book, pagination, base):
         else:
             page["blocks"].append({"markdown": content})
 
-    pieces = re.split(r"<!--xyz-web:(\d+)-->", markdown)
-    events = [(book.markers[int(index)], fragment) for index, fragment in zip(pieces[1::2], pieces[2::2])]
+    pieces = re.split(r"(?m)(^[ \t]*)?<!--xyz-web:(\d+)-->", markdown)
+    events = [(book.markers[int(index)], indent or "", fragment)
+              for indent, index, fragment in zip(pieces[1::3], pieces[2::3], pieces[3::3])]
     # Markdown container directives use a longer fence around nested directives.
     fences, stack = {}, []
-    for pos, ((kind, _), _) in enumerate(events):
+    for pos, ((kind, _), _, _) in enumerate(events):
         if kind == "open":
             stack.append(pos)
             fences[pos] = 3
@@ -316,13 +319,13 @@ def partition(markdown, book, pagination, base):
     if stack:
         raise ValueError("Unclosed manuscript container")
     append(pieces[0])
-    for pos, ((kind, value), fragment) in enumerate(events):
+    for pos, ((kind, value), indent, fragment) in enumerate(events):
         if kind == "open":
             tag, attrs = value
             # Keep the identifier first, including for manuscript-defined result environments.
-            append(":" * fences[pos] + tag + attributes({"id": attrs.get("id"), **attrs}))
+            append(indent + ":" * fences[pos] + tag + attributes({"id": attrs.get("id"), **attrs}))
         elif kind == "close":
-            append(":" * fences[pos])
+            append(indent + ":" * fences[pos])
         elif kind == "part":
             group, part_id = value
             number = book.labels[part_id][0] if part_id in book.labels else ""

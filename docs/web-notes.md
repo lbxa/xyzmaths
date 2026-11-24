@@ -27,6 +27,10 @@ at least 42rem of usable width. In a narrower pane, in print, or with
 JavaScript disabled, each note follows its source passage. The note number
 and return link work in both layouts. Pages without text notes use the full pane.
 
+In Analysis, paired portraits follow the left-to-right order in their shared
+caption, which links to the image credits. The subject index uses the manuscript’s
+index entries. Each print page number links to the corresponding passage online.
+
 ## Build and verify
 
 Use the repository’s Node 26 environment, Bun and Python 3.10 or later.
@@ -64,7 +68,8 @@ and notes on a wide screen. Set `CHROME_BIN` to select a specific executable.
 To repeat the checks after building, run `python3 -B tests/verify_web_notes.py`.
 
 Run `bun run notes:test:changes` with the full conversion toolchain to test
-changes in temporary copies of the Linear Algebra book. The suite builds
+changes in temporary copies of the books. The suite checks that a shared
+exercise key resolves independently in each book. It also builds
 Astro pages after moving exercises, adding nested lists and margin notes,
 filling a pending solution, changing shared notation or citations, and
 replacing artwork. It compares a moved exercise’s number and the starting

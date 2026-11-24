@@ -41,7 +41,11 @@ export function setReaderPreference<K extends Preference>(key: K, value: ReaderP
 }
 
 export function syncStoredPreference(event: StorageEvent) {
-  if (event.storageArea !== window.localStorage) return;
+  try {
+    if (event.storageArea !== window.localStorage) return;
+  } catch {
+    return;
+  }
   if (event.key === null) {
     Object.assign(document.documentElement.dataset, readerDefaults);
   } else {

@@ -37,7 +37,7 @@ const readingOrderLink = `${readerLinkStyle} inline-flex w-full min-w-0 max-w-fu
     <div data-reading-body class="min-w-0">
       <ReadingControls markdownHref={markdownHref} />
       <div id="reading-column" class="mx-auto w-full min-w-0 max-w-reading font-serif [@media_screen]:in-data-[reading-width=wide]:max-w-none">
-        <article class:list={[
+        <article id="reader-manuscript" class:list={[
           "reader-prose min-w-0 leading-copy [overflow-wrap:break-word]",
           "[&_h1]:mb-phi-3 [&_h1]:text-title [&_h1]:font-bold [&_h2]:mt-phi-4 [&_h2]:text-heading [&_h2]:font-bold",
           "[&_h3]:mt-phi-3 [&_h3]:text-lede [&_h3]:font-bold [&_h4]:mt-phi-2 [&_h4]:font-bold [&_p]:my-phi-2",
@@ -48,6 +48,7 @@ const readingOrderLink = `${readerLinkStyle} inline-flex w-full min-w-0 max-w-fu
           "[&_figcaption]:mt-phi-1 [&_figcaption]:text-meta [&_figure:target_figcaption]:bg-ink/5 [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto",
           "[&_td]:border-b [&_td]:border-rule [&_td]:p-phi-1 [&_th]:p-phi-1",
           "[&_.katex]:[font-size:inherit]! [&_.katex-display]:overflow-x-auto [&_.katex-display]:overflow-y-hidden [&_.katex-display>.katex]:min-w-max",
+          "[@media_screen]:[&_:is(p,figcaption,h1,h2,h3,h4,dt,dd):has(.katex)]:overflow-x-auto",
           "[&_.equation_.katex-html]:flex! [&_.equation_.katex-html]:items-baseline [&_.equation_.katex-html>.katex-base:first-child]:ms-auto",
           "[&_.equation_.katex-tag]:static! [&_.equation_.katex-tag]:ms-auto [&_.equation_.katex-tag]:ps-phi-1",
           "[&_.exercise]:my-phi-3 [&_.exercise]:border-t [&_.exercise]:border-rule [&_.result]:my-phi-3",

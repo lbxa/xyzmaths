@@ -6,6 +6,7 @@ import { manuscriptLinkStyles } from "@/lib/reader-links";
     "block min-w-0 grid-cols-1 items-start gap-x-phi-3 [@media_screen]:@2xl/reader:grid data-[margin-active]:grid-cols-[minmax(0,1fr)_var(--layout-margin)]",
     "[&_.footnotes:not(:has(li))]:m-0 [&_.footnotes:not(:has(li))]:border-0 [&_.footnotes:not(:has(li))]:p-0",
     "[&_[data-margin-note]:target]:bg-ink/5 [&_.footnote-ref:target]:bg-ink/5 [&_.footnote-back]:ms-phi-tight",
+    "[&_span[style^='color:red;']]:text-manuscript-red! [&_span[style='color:_red']]:text-manuscript-red!",
   ]}>
     <slot />
     <aside id="right-aside" aria-label="Margin notes" hidden class:list={[

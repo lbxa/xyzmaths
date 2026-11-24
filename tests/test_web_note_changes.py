@@ -151,8 +151,11 @@ class BookChanges(unittest.TestCase):
         analysis_export = self.export.with_name("maths-analysis")
         analysis_stamp = (analysis_export / MANIFEST).read_bytes()
         self.env.pop("SOURCE_DATE_EPOCH", None)
-        self.replace(self.book / SOURCE / "problem.tex", KEY, common_key)
-        self.replace(self.book / "sections/appendices/exercise-solutions.tex", KEY, common_key)
+        statement = self.book / SOURCE / "problem.tex"
+        self.replace(statement, rf"\label{{ex:{KEY}}}", rf"\label{{ex:{common_key}}}")
+        self.replace(statement, rf"\solutionlink{{{KEY}}}", rf"\solutionlink{{{common_key}}}")
+        appendix = self.book / "sections/appendices/exercise-solutions.tex"
+        self.replace(appendix, rf"\solutionheading{{{KEY}}}", rf"\solutionheading{{{common_key}}}")
         offline = {**self.env, "PATH": str(self.root / "empty-path"), "PANDOC": "absent-pandoc"}
         self.generate("--check", book="maths-analysis", env=offline)
         self.assertIn("linear-algebra", self.generate("--check", book=None, env=offline, success=False))

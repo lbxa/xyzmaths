@@ -89,9 +89,10 @@ def toolchain(previous, tool_env):
 
 
 def run(args, cwd, env=None):
-    proc = subprocess.run(args, cwd=cwd, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    proc = subprocess.run(args, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if proc.returncode:
-        raise ValueError(f"{args[0]} failed in {cwd}:\n{proc.stdout[-5000:]}")
+        log = proc.stdout[-5000:].decode(errors="replace")
+        raise ValueError(f"{args[0]} failed in {cwd}:\n{log}")
 
 
 def graphics(manuscript, work, env):

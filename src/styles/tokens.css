@@ -2,6 +2,7 @@
   /* Delegate unstyled text to the browser's configured default serif face. */
   --font-sans: serif;
   --font-serif: "Times New Roman", Times, serif;
+  --font-interface: system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
   /*
@@ -34,7 +35,9 @@
   --radius-control: var(--spacing-phi-0);
   --radius-panel: var(--spacing-phi-1);
   --radius-display: var(--spacing-phi-3);
+  --radius-swatch: var(--spacing-phi-2);
   --shadow-display: 0 0 0 1px rgb(255 255 255 / 0.12);
+  --shadow-settings: 0 var(--spacing-phi-tight) var(--spacing-phi-3) rgb(0 0 0 / 0.18);
 }
 
 @theme inline {
@@ -45,7 +48,10 @@
   --color-frame: var(--frame);
   --color-rule: var(--rule);
   --color-pending-review: var(--pending);
+  --color-settings-panel: light-dark(color-mix(in srgb, var(--paper) 96%, var(--ink)), color-mix(in srgb, var(--paper) 72%, black));
+  --color-settings-control: color-mix(in srgb, var(--paper) 88%, var(--ink));
   --color-diagram-paper: light-dark(transparent, #f5f3ed);
+  --color-manuscript-red: light-dark(#922323, #ffb2ac);
 
   --text-meta: calc(0.786 * var(--type-unit, 1rem));
   --text-meta--line-height: 1.272;
@@ -67,6 +73,16 @@
 
 :root[data-color-mode="light"] { color-scheme: light; }
 :root[data-color-mode="dark"] { color-scheme: dark; }
+
+/* Tailwind's dark utilities follow the same choice as native color-scheme. */
+@custom-variant dark {
+  @media screen {
+    &:where([data-color-mode="dark"], [data-color-mode="dark"] *) { @slot; }
+  }
+  @media screen and (prefers-color-scheme: dark) {
+    &:where(:root:not([data-color-mode="light"]), :root:not([data-color-mode="light"]) *) { @slot; }
+  }
+}
 
 /* The site and its theme swatches use the same light/dark pairs. */
 :root, [data-reader-theme="original"] {

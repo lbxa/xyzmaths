@@ -19,3 +19,4 @@ Hugeicons supplies the Stroke Rounded artwork for the reader’s controls and na
 | `chevron-right.svg` | [Chevron Right](https://hugeicons.com/icon/chevron-right) | [Source](https://github.com/hugeicons/hugeicons/blob/81a4218a4e9c209285d579d97fd6da75a2cfb48f/icons/chevron-right.svg) |
 | `chevron-down.svg` | [Chevron Down](https://hugeicons.com/icon/chevron-down) | [Source](https://github.com/hugeicons/hugeicons/blob/81a4218a4e9c209285d579d97fd6da75a2cfb48f/icons/chevron-down.svg) |
 | `chevron-up.svg` | [Chevron Up](https://hugeicons.com/icon/chevron-up) | [Source](https://github.com/hugeicons/hugeicons/blob/81a4218a4e9c209285d579d97fd6da75a2cfb48f/icons/chevron-up.svg) |
+| `contrast.svg` | [Contrast](https://hugeicons.com/icon/contrast) | [Source](https://github.com/hugeicons/hugeicons/blob/81a4218a4e9c209285d579d97fd6da75a2cfb48f/icons/contrast.svg) |

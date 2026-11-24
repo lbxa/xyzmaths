@@ -1,0 +1,40 @@
+:::div{class="proof"}
+
+*Solution.* We take the limit from the right because the real-power expression here is defined for $x>0$. Applying the same transformation from [Exercise 6.1.10](/notes/maths-analysis/analysis-i/differentiation-and-applications/#ex:hw07:self-power-derivative) gives
+
+$$
+\lim_{x\to0^+}x^x
+      =\lim_{x\to0^+}e^{\ln(x^x)}
+      =\lim_{x\to0^+}e^{x\ln x}.
+$$
+
+Since the exponential function is continuous everywhere on $\mathbb{R}$, we may interchange it with the limit, provided the inner limit exists and is finite,
+
+$$
+\lim_{x\to0^+}e^{x\ln x}
+      =e^{\lim_{x\to0^+}x\ln x}.
+$$
+
+We now evaluate the exponent. Rewriting the product as a quotient gives the indeterminate form $-\infty/\infty$, allowing us to apply L’Hôpital’s rule. More precisely, apply the $+\infty/+\infty$ version to $(-\ln x)/(1/x)$ and then restore the minus sign. The functions are differentiable for $x>0$, the denominator derivative $-1/x^2$ is nonzero, and the derivative ratio below has a limit.
+
+$$
+\begin{aligned}
+      \lim_{x\to0^+}x\ln x
+        &=\lim_{x\to0^+}\frac{\ln x}{1/x}\\
+        &\overset{\mathrm{L'H}}{=}
+          \lim_{x\to0^+}\frac{1/x}{-1/x^2}\\
+        &=\lim_{x\to0^+}(-x)\\
+        &=0.
+    \end{aligned}
+$$
+
+Therefore, substituting this result into the original expression,
+
+$$
+\lim_{x\to0^+}x^x
+      =e^{\lim_{x\to0^+}x\ln x}=e^0=1.
+$$
+
+ ◻
+
+:::

@@ -8,6 +8,7 @@ export { default as ChevronDownIcon } from "@/assets/icons/chevron-down.svg?reac
 export { default as ChevronRightIcon } from "@/assets/icons/chevron-right.svg?react";
 export { default as ChevronUpIcon } from "@/assets/icons/chevron-up.svg?react";
 export { default as CloseIcon } from "@/assets/icons/close.svg?react";
+export { default as ContrastIcon } from "@/assets/icons/contrast.svg?react";
 export { default as CopyIcon } from "@/assets/icons/copy.svg?react";
 export { default as FolderIcon } from "@/assets/icons/folder.svg?react";
 export { default as PageIcon } from "@/assets/icons/page.svg?react";

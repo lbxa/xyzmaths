@@ -1,0 +1,46 @@
+::::::div{class="proof"}
+
+*Solution.* Let $\varepsilon>0$. Our goal is to make $|g(f(x))-g(f(x_0))|<\varepsilon$ by taking $x$ sufficiently close to $x_0$. We first find how close $f(x)$ must be to $f(x_0)$.
+
+Write $y_0=f(x_0)$. Since $g$ is continuous at $y_0$, there is an $\eta>0$ such that
+
+$$
+|y-y_0|<\eta
+      \quad\Longrightarrow\quad |g(y)-g(y_0)|<\varepsilon.
+$$
+
+Since $f$ is continuous at $x_0$, there is a $\delta>0$ such that
+
+$$
+|x-x_0|<\delta
+      \quad\Longrightarrow\quad |f(x)-f(x_0)|<\eta.
+$$
+
+The choices are made in this order because the tolerance $\eta$ for $f$ comes from the continuity of $g$. [Figure C.23](/notes/maths-analysis/appendices/exercise-solutions/#fig:hw05:composition-neighbourhoods) illustrates the two steps.
+
+:::::div{class="margin-figure"}
+
+::::figure{id="fig:hw05:composition-neighbourhoods"}
+
+[![ Schematic neighbourhoods for a composition. First choose \\eta to reach the required output tolerance \\varepsilon. Then choose \\delta to reach that intermediate tolerance \\eta. The arrows show the order in which inputs pass through the maps.](/notes/maths-analysis/figures/composition-neighbourhoods.svg){.tikz-diagram}](/notes/maths-analysis/figures/composition-neighbourhoods.svg "Open original SVG"){.diagram-link data-astro-reload=""}
+
+:::figcaption
+
+Figure C.23. Schematic neighbourhoods for a composition. First choose $\eta$ to reach the required output tolerance $\varepsilon$. Then choose $\delta$ to reach that intermediate tolerance $\eta$. The arrows show the order in which inputs pass through the maps.
+
+:::
+
+::::
+
+:::::
+
+If $|x-x_0|<\delta$, the second implication places $y=f(x)$ within $\eta$ of $y_0$. Applying the first implication with this value of $y$ gives
+
+$$
+|h(x)-h(x_0)|
+      =|g(f(x))-g(f(x_0))|<\varepsilon.
+$$
+
+This is the definition of continuity of $h=g\circ f$ at $x_0$. ◻
+
+::::::

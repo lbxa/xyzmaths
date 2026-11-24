@@ -1,8 +1,7 @@
 ---
-import ProblemNavigation from "@/components/ProblemNavigation.astro";
+import WeeklyProblemPreview from "@/components/WeeklyProblemPreview.astro";
 import CollectionLayout from "@/layouts/CollectionLayout.astro";
-import { readerLinkStyle } from "@/lib/reader-links";
-import { formatProblemDate, getWeeklyProblems, problemHref } from "@/lib/weekly-problems";
+import { getWeeklyProblems } from "@/lib/weekly-problems";
 
 export const prerender = true;
 const problems = await getWeeklyProblems();
@@ -17,14 +16,8 @@ const description = "Mathematics and programming problems with solutions and wor
   </header>
   <h2 class="border-b border-ink pb-phi-1 text-heading font-bold">Problem archive</h2>
   <ol class="divide-y divide-rule/50">
-    {problems.map(({ id, data }) => <li class="py-phi-3">
-      <p class="font-mono text-meta">
-        <time datetime={data.date.toISOString().slice(0, 10)}>{formatProblemDate(data.date)}</time>
-        <span aria-hidden="true"> · </span> {data.sourceLabel}
-      </p>
-      <h3 class="mt-phi-0 text-lede font-bold"><a href={problemHref(id)} class={readerLinkStyle}>{data.title}</a></h3>
-      <p class="mt-phi-0 leading-copy">{data.description}</p>
-      <ProblemNavigation id={id} title={data.title} />
+    {problems.map(problem => <li class="py-phi-3">
+      <WeeklyProblemPreview problem={problem} />
     </li>)}
   </ol>
 </CollectionLayout>
