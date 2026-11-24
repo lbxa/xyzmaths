@@ -1,0 +1,171 @@
+% !TEX root = ../../../main.tex
+\section{L'H\^opital's rules}
+\label{sec:analysis-i:lhopital-rules}
+
+L'H\^opital's rules resolve certain indeterminate quotients by comparing
+derivatives.
+\historynote*{On 17 March 1694 the marquis de L'H\^opital offered
+Johann Bernoulli a retainer of 300 French livres and requested
+exclusive communication of discoveries~\cite{LHopital1694Letter}.
+The correspondence, reviewed by Truesdell, supports Bernoulli's
+mathematical contribution~\cite{Truesdell1958}. Financial need is
+part of that historical interpretation, rather than a clause
+proving his motive. See \autoref{fig:portrait:lhopital-bernoulli}.}
+\historyportraitpair*{de-lhopital}{Guillaume de L'H\^opital}{PortraitDeLHopital}{bernoulli-johann}{Johann Bernoulli}{PortraitBernoulliJohann}{lhopital-bernoulli}
+
+\historynote*{The rule supplied by Johann Bernoulli appeared in
+L'H\^opital's 1696 textbook~\cite{Truesdell1958},
+section IX, article 163. Its preface acknowledges a special debt
+to Bernoulli~\cite{LHopital1696}. Patronage and textbook publication
+help explain the familiar name. The episode distinguishes discovering
+mathematics from teaching and disseminating it. The rule became a
+standard tool for evaluating limits.}
+
+% Source: images/LEC06/IMG_9356--IMG_9357.
+% Rephotographed as images/LEC06/IMG_9417--IMG_9418.
+We distinguish the forms $0/0$ and $\infty/\infty$. The first
+has the following mean-value proof.
+\begin{theorem}[L'H\^opital's rule for $0/0$]
+  \label{thm:analysis-i:lhopital-zero}
+  Let $f$ and $g$ be differentiable on $(a,b)$, with $g'(x)\ne0$
+  throughout that interval. Suppose $f(x)\to0$ and $g(x)\to0$ as
+  $x\to a^+$. If
+  \[
+    \lim_{x\to a^+}\frac{f'(x)}{g'(x)}=L\in\R\cup\{-\infty,+\infty\},
+  \]
+  then $g(x)\ne0$ on $(a,b)$ and
+  \[
+    \lim_{x\to a^+}\frac{f(x)}{g(x)}=L.
+  \]
+  A corresponding left-sided statement holds.
+\end{theorem}
+\begin{proof}
+  Define $f(a)=g(a)=0$, making both functions continuous at $a$.
+  If $g(x)=0$ at some $x\in(a,b)$, \autoref{thm:analysis-i:rolle}
+  on $[a,x]$ would give a zero of $g'$, a contradiction.
+  For any $x\in(a,b)$, \autoref{thm:analysis-i:cauchy-mean-value}
+  supplies a point $z\in(a,x)$ for which
+  \[
+    \frac{f(x)}{g(x)}
+      =\frac{f(x)-f(a)}{g(x)-g(a)}
+      =\frac{f'(z)}{g'(z)}.
+  \]
+  As $x\to a^+$, the inequalities $a<z<x$ force
+  $z\to a^+$. The assumed derivative-ratio limit therefore gives the
+  asserted quotient limit, also when $L$ is infinite.
+\end{proof}
+
+For the $\infty/\infty$ form, suppose instead that both $f(x)$ and
+$g(x)$ tend to $+\infty$, with the same differentiability and nonzero
+denominator-derivative assumptions. If $f'(x)/g'(x)$ has a limit $L$,
+the corresponding rule gives $f(x)/g(x)\to L$. This version is stated
+without proof here. Writing
+\[
+  \frac{f(x)}{g(x)}=\frac{1/g(x)}{1/f(x)}
+\]
+does turn the expression into $0/0$, but it does not by itself prove
+the rule, since differentiating these reciprocals introduces additional
+factors of $f$ and $g$.
+% IMG_9356 reverses the reciprocal quotient and supplies no infinity-case
+% proof. No unprovided infinity-endpoint theorem is inferred from the sketch.
+
+\subsection{Logarithms and limits of variable powers}
+
+Taking a logarithm turns a power into a product. To recover the original
+limit, we use continuity of the exponential. The required continuity and
+positive-base power identities are developed in
+\autoref{thm:analysis-i:exponential-properties} and
+\autoref{thm:analysis-i:logarithm-real-powers}.
+
+First distinguish the two directions of this argument. If $u(x)>0$ near
+$a$ and $u(x)\to A>0$, continuity of $\ln$ on $(0,\infty)$ gives
+\[
+  \lim_{x\to a}\ln u(x)
+    =\ln\left(\lim_{x\to a}u(x)\right)=\ln A.
+\]
+The condition $A>0$ matters because $\ln0$ is not a real number.
+When the original limit is unknown, the useful direction starts by
+finding the logarithmic limit and then applying the exponential.
+
+\begin{proposition}[Logarithmic method for power limits]
+  \label{thm:analysis-i:logarithmic-power-limits}
+  Let $g$ and $h$ be real-valued functions defined near $a$, possibly
+  excluding $a$ itself, with $g(x)>0$ there. If
+  \[
+    \lim_{x\to a}h(x)\ln g(x)=L\in\R,
+  \]
+  then
+  \[
+    \lim_{x\to a}g(x)^{h(x)}=e^L.
+  \]
+\end{proposition}
+\begin{proof}
+  For each $x$ under consideration, positivity of the base gives
+  \[
+    g(x)^{h(x)}=e^{h(x)\ln g(x)}.
+  \]
+  The exponent tends to the finite real number $L$. Since the exponential
+  is continuous at $L$, we obtain
+  \[
+    \lim_{x\to a}g(x)^{h(x)}
+      =\exp\left(\lim_{x\to a}h(x)\ln g(x)\right)=e^L.
+  \]
+  Thus convergence of the logarithmic expression establishes convergence
+  of the original power.
+\end{proof}
+
+This method replaces a variable exponent by multiplication. The product
+$h(x)\ln g(x)$ can often be rewritten as a quotient and evaluated with
+limit laws or L'H\^opital's rule, after checking the rule's hypotheses.
+The same continuity argument applies to one-sided limits and limits at
+infinity.
+
+For sequences, positivity is needed only for all sufficiently large
+indices. If $u_n>0$ eventually and $v_n\ln u_n\to L\in\R$, then
+\[
+  u_n^{v_n}=\exp(v_n\ln u_n)\longrightarrow e^L.
+\]
+Finitely many initial terms do not affect the limit. We first establish
+the limit of the exponent and then use continuity to pass that limit
+inside the exponential.
+
+\begin{example}[The limit of the exponential approximants]
+  \label{ex:analysis-i:euler-approximant-limit}
+  For $x>0$, put $t=1/x$. The logarithm of $(1+1/x)^x$ is
+  \[
+    x\ln(1+1/x)=\frac{\ln(1+t)}{t}.
+  \]
+  As $t\to0^+$, numerator and denominator tend to zero. Applying
+  \autoref{thm:analysis-i:lhopital-zero} gives
+  \[
+    \lim_{t\to0^+}\frac{\ln(1+t)}{t}
+      =\lim_{t\to0^+}\frac{1/(1+t)}{1}=1.
+  \]
+  Applying
+  \autoref{thm:analysis-i:logarithmic-power-limits} to this logarithmic
+  limit therefore yields
+  \[
+    \lim_{x\to+\infty}(1+1/x)^x=e.
+  \]
+  The monotonicity of these approximants was established in
+  \autoref{ex:analysis-i:increasing-euler-approximants}.
+\end{example}
+
+\subsection{Exercises on difference quotients and indeterminate forms}
+Symmetric differences use values on both sides of the input. The
+following question can be approached using the zero-quotient rule,
+with differentiation performed with respect to $h$ while $x$ is fixed.
+Taylor's theorem supplies another route.
+\input{problems/hw07/04-symmetric-differences/problem}
+The elementary derivative formulas in
+\autoref{sec:analysis-i:differentiation} provide the trigonometric and
+logarithmic tools needed for the next limits.
+\input{problems/hw07/07-trigonometric-logarithmic-limits/problem}
+
+\input{problems/hw07/08-power-sequence-limits/problem}
+\newthought{Check your understanding.} Fix $x\in\R$ and denote the first
+sequence in \autoref{ex:hw07:power-sequence-limits} by $(y_n)$. For all
+sufficiently large $n$, what product do you obtain for $\ln y_n$? Rewrite
+it as a quotient suitable for a real-variable limit. Which continuity
+property will recover the limit of $y_n$ from the limit of $\ln y_n$?
+\input{problems/hw07/10-self-power-limit/problem}

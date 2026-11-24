@@ -1,0 +1,12 @@
+\documentclass{article}
+\usepackage{biblatex}
+\usepackage{hyperref}
+\addbibresource{references.bib}
+\title{Release fixture}
+\begin{document}
+\input{sections/first topic}
+\href{https://example.org/first}{Course website}
+\cite{notes}
+\IfFileExists{supplement.tex}{\input{supplement}}{}
+\printbibliography
+\end{document}

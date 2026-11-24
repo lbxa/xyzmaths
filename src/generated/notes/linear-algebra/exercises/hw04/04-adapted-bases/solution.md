@@ -1,0 +1,104 @@
+:::div{class="proof"}
+
+*Solution.* **(a)** The condition $L(x,y,z)=0$ gives the system
+
+$$
+x+y+z=0,
+      \qquad
+      x+2y+3z=0.
+$$
+
+Subtracting the first equation from the second gives $y+2z=0$. Hence $y=-2z$, and the first equation then gives $x=z$. The solutions are exactly
+
+$$
+(x,y,z)=(z,-2z,z)=z(1,-2,1).
+$$
+
+Therefore
+
+$$
+\ker L=\operatorname{span}\{(1,-2,1)\}.
+$$
+
+The equation $a(1,-2,1)=0$ forces $a=0$, so this single vector is linearly independent and forms a basis of the kernel.
+
+**(b)** Choose the ordered list
+
+$$
+E=(e_1,e_2,e_3)
+        =\bigl((1,-2,1),(1,0,0),(0,1,0)\bigr).
+$$
+
+If $ae_1+be_2+ce_3=0$, then
+
+$$
+(a+b,-2a+c,a)=(0,0,0),
+$$
+
+giving $a=b=c=0$. Thus these vectors are linearly independent and form a basis of $\mathbb{R}^3$, with the kernel basis first.
+
+**(c)** Set
+
+$$
+f_1=L(e_2)=(1,1),
+      \qquad
+      f_2=L(e_3)=(1,2).
+$$
+
+If $af_1+bf_2=0$, then
+
+$$
+a+b=0,
+      \qquad
+      a+2b=0.
+$$
+
+These equations imply $a=b=0$. Hence $F=(f_1,f_2)=\bigl((1,1),(1,2)\bigr)$ is an ordered basis of $\mathbb{R}^2$.
+
+**(d)** Since
+
+$$
+L(e_1)=0,
+      \qquad
+      L(e_2)=f_1,
+      \qquad
+      L(e_3)=f_2,
+$$
+
+their $F$-coordinate columns give
+
+$$
+M=\begin{pmatrix}0&1&0\\0&0&1\end{pmatrix}.
+$$
+
+[^14]
+
+**(e)** Applying $L$ to each column of $E$ gives
+
+$$
+L(E)=[\,0\ \ f_1\ \ f_2\,]
+        =\begin{pmatrix}0&1&1\\0&1&2\end{pmatrix}.
+$$
+
+On the other hand,
+
+$$
+\begin{aligned}
+      FM
+        &=[\,f_1\ \ f_2\,]
+          \begin{pmatrix}0&1&0\\0&0&1\end{pmatrix}\\
+        &=[\,0\ \ f_1\ \ f_2\,]
+          =\begin{pmatrix}0&1&1\\0&1&2\end{pmatrix}.
+    
+\end{aligned}
+$$
+
+Thus $L(E)=FM$. ◻
+
+:::
+
+:::notes{id="footnotes-13"}
+
+[^14]: Each column of $M$ records $L(e_j)$ in the basis $F$. The kernel vector gives the zero first column.
+
+:::

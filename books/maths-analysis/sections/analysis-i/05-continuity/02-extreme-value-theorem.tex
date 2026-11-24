@@ -1,0 +1,72 @@
+% !TEX root = ../../../main.tex
+\section{Maximum (extreme value theorem)}
+\label{sec:analysis-i:extreme-value-theorem}
+
+% Sources: LEC05/IMG_9252, property 1; IMG_9253, boundedness and maximum proof.
+% Editorial additions awaiting review supply the lower-bound and minimum cases.
+\begin{theorem}[Extreme value theorem]
+  \label{thm:analysis-i:extreme-value}
+  Let $a<b$ be real numbers and let $f:[a,b]\to\R$ be continuous.
+  Then $f$ is bounded, and both its supremum and its infimum are attained.
+  Thus there are $x_{\min},x_{\max}\in[a,b]$ such that
+  \[
+    \forall x\in[a,b]\quad
+    f(x_{\min})\le f(x)\le f(x_{\max}).
+  \]
+\end{theorem}
+
+
+  Boundedness gives a finite supremum. Attainment says more. There must
+  actually be a point of the domain at which the function has this value.
+  \autoref{fig:continuity:attained-extrema} illustrates the distinction
+  used in the proof.
+
+\begin{marginfigure}
+  \centering
+  \input{figures/continuity/attained-extrema}
+  \caption[Attaining the extreme values.]{Schematic graph
+    on a closed interval. The maximum $M$ and minimum $m$ are values of
+    the function. The gray points illustrate values approaching $M$.}
+  \label{fig:continuity:attained-extrema}
+\end{marginfigure}
+
+\begin{proof}
+  Suppose first that $f$ is unbounded above. For each $n\in\N$, choose
+  $x_n\in[a,b]$ such that $f(x_n)>n$. By
+  \autoref{thm:analysis-i:bolzano-weierstrass}, the bounded sequence
+  $(x_n)$ has a convergent subsequence $(x_{n_k})$ with
+  $x_{n_k}\to x_0\in[a,b]$. Continuity and
+  \autoref{thm:analysis-i:sequential-continuity} give
+  \[
+    f(x_{n_k})\longrightarrow f(x_0).
+  \]
+  But $f(x_{n_k})>n_k\to\infty$, which is a contradiction. Hence $f$
+  is bounded above.
+
+
+    The function $-f$ is also continuous. The same argument shows that
+    $-f$ is bounded above, so $f$ is bounded below as well.
+
+
+  Put $M=\sup\{f(x)\mid x\in[a,b]\}$. This is a finite real number.
+  Since $M-1/n$ is not an upper bound, for each $n\in\N$ there is
+  $x_n\in[a,b]$ such that
+  \[
+    M-\frac1n<f(x_n)\le M.
+  \]
+  Again take a convergent subsequence $x_{n_k}\to x_{\max}\in[a,b]$.
+  Continuity gives
+  \[
+    f(x_{\max})=\lim_{k\to\infty}f(x_{n_k})\ge M.
+  \]
+  On the other hand, $f(x_{\max})\le M$ by the definition of the
+  supremum. Therefore $f(x_{\max})=M$.
+
+
+    Apply the maximum argument to $-f$. There is $x_{\min}\in[a,b]$
+    such that $-f(x)\le-f(x_{\min})$ for every $x\in[a,b]$. Thus
+    $f(x_{\min})$ is the minimum of $f$.
+
+\end{proof}
+
+\input{problems/hw05/10-coercive-minimum/problem}

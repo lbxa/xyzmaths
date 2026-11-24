@@ -1,0 +1,135 @@
+% !TEX root = ../../hw05.tex
+\begin{proof}[Solution]
+
+\textbf{Claim.} Let $I\subseteq \mathbb{R}$ be an interval with finite endpoints $a$, $b$. If
+$f: I \rightarrow \mathbb{R}$ is uniformly continuous then $f$ is bounded on $I$.
+
+Suppose $f$ is uniformly continuous on $I$. By definition, for every
+$\varepsilon > 0$ there is a $\delta > 0$ such that
+\[
+\forall x,y \in I,\quad |x - y| < \delta \implies |f(x) - f(y)| < \varepsilon.
+\]
+Choose $\varepsilon = 1$. Then there exists a $\delta > 0$ such that
+\[
+|x - y| < \delta \implies |f(x) - f(y)| < 1.
+\]
+Our goal is to show that there exists a finite constant $M > 0$ such that
+\[
+|f(x)| \le M,\quad \forall x \in I.
+\]
+
+If $I$ is empty, the claim is immediate. Otherwise, fix $x_0\in I$ once
+and for all.
+
+Since $a$ and $b$ are finite endpoints, we consider
+an arbitrary point $x\in I$.
+We will connect $x_0$ to $x$ by $N$ steps, each shorter
+than $\delta$. Uniform continuity then bounds each output change by $1$.
+
+% a figure showing this interval
+\autoref{fig:hw05:uniform-continuity-chain} illustrates
+the finite chain of small steps.
+
+\begin{marginfigure}
+  \centering
+  \input{figures/hw05/uniform-continuity-chain}
+  \caption[Chaining small steps across a bounded interval.]{%
+    A schematic chain inside $I$, with the open-interval
+    case shown. Every successive gap is less than $\delta$, so each
+    corresponding output change is less than $1$. The dots omit
+    intermediate steps in the finite chain.}
+  \label{fig:hw05:uniform-continuity-chain}
+\end{marginfigure}
+
+Since $I\subseteq[a,b]$, taking $N$ equally spaced steps
+between $x_0$ and $x$ makes each step no longer than
+\[
+\dfrac{b - a}{N}.
+\]
+To apply the uniform-continuity bound at each step,
+choose $N$ so that
+\[
+\dfrac{b - a}{N} < \delta \iff \dfrac{b - a}{\delta} < N.
+\]
+Since $b - a$ and $\delta$ are both fixed, we can select
+an integer $N\ge2$ that
+works for every pair of points in $I$.
+
+Such an integer exists by the Archimedean property. Set
+\[
+  x_k=x_0+\frac{k}{N}(x-x_0),\qquad k=0,\ldots,N.
+\]
+Each $x_k$ lies between $x_0$ and $x$, so it belongs to $I$ because $I$
+is an interval. For $k=1,\ldots,N$,
+\[
+  |x_k-x_{k-1}|=\frac{|x-x_0|}{N}
+  \le\frac{b-a}{N}<\delta.
+\]
+Uniform continuity therefore gives $|f(x_k)-f(x_{k-1})|<1$ at every
+step. This construction also works when $x\le x_0$.
+
+
+
+The output changes telescope along the chain,
+\[
+  f(x)-f(x_0)=f(x_N)-f(x_0)
+    =\sum_{k=1}^N\bigl(f(x_k)-f(x_{k-1})\bigr).
+\]
+The triangle inequality and the bound of $1$ at every step give
+\[
+  |f(x)-f(x_0)|
+    \le\sum_{k=1}^N|f(x_k)-f(x_{k-1})|<N.
+\]
+Taking one more triangle inequality yields
+\[
+  |f(x)|\le |f(x)-f(x_0)|+|f(x_0)|<N+|f(x_0)|.
+\]
+Set $M=N+|f(x_0)|>0$.
+
+Both $N$ and $x_0$ are fixed, so $M$ does not depend on $x$.
+Since $N$ and $|f(x_0)|$ are both finite, $f$ is bounded on $I$. Therefore we have
+proved that if $f$ is uniformly continuous over $I$, then it is bounded.
+
+For $f(x)=1/(1+x)$ on $(-1,1)$, we will prove
+continuity and unboundedness. The contrapositive of the claim will then
+rule out uniform continuity on this bounded interval.
+
+% insert diagram of the function itself with special focus on the the limit point
+% at x = -1
+\autoref{fig:hw05:unbounded-reciprocal} shows the graph
+near the excluded endpoint $-1$.
+
+\begin{marginfigure}
+  \centering
+  \input{figures/hw05/unbounded-reciprocal}
+  \caption[An unbounded continuous function on an open interval.]{%
+    The graph of $f(x)=1/(1+x)$ on $(-1,1)$ rises
+    without bound as $x$ approaches $-1$ from the right. The dashed line
+    is the vertical asymptote. The open point at $(1,1/2)$ is also
+    excluded from the graph.}
+  \label{fig:hw05:unbounded-reciprocal}
+\end{marginfigure}
+
+The numerator $1$ and denominator $1+x$ are continuous,
+and $1+x>0$ on $(-1,1)$.
+The quotient of two continuous functions is continuous wherever the denominator is
+not equal to zero, so for $x \in (-1, 1)$ the function $f(x)$ is continuous.
+
+At the excluded left endpoint,
+\[
+\lim_{x \rightarrow -1^+} \dfrac{1}{1 + x} = +\infty.
+\]
+
+This means that there is no finite upper bound for $f$ on $(-1,1)$.
+More explicitly, for any $B>0$, choose an integer $n>\max\{B,1\}$.
+Then
+\[
+  x_n=-1+\frac1n\in(-1,1),\qquad
+  f(x_n)=\frac{1}{1+x_n}=n>B.
+\]
+Thus $f$ is unbounded on $(-1,1)$.
+
+By the contrapositive of the above claim, if $f$ is not bounded, then it cannot be
+uniformly continuous over $(-1,1)$.
+
+\end{proof}

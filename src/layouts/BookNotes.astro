@@ -1,0 +1,70 @@
+---
+import BookContents from "../components/BookContents";
+import BookMargin from "../components/BookMargin.astro";
+import ReadingControls from "../components/ReadingControls.astro";
+import { ArrowLeftIcon, ArrowRightIcon } from "../components/ui/icons";
+import { getBookContents } from "../lib/book-contents";
+import type { Book } from "../lib/books";
+import { readerLinkStyle } from "../lib/reader-links";
+import { TooltipLink } from "../components/TooltipControls";
+import SiteLayout from "./SiteLayout.astro";
+import "katex/dist/katex.min.css";
+
+interface Props {
+  book: Book;
+  title: string;
+}
+const { book, title } = Astro.props;
+const currentPath = Astro.url.pathname.replace(/\/?$/, "/");
+const markdownHref = currentPath === book.href ? book.href + "index.md" : currentPath.slice(0, -1) + ".md";
+const { entries, readingOrder } = await getBookContents(book);
+const position = readingOrder.findIndex(page => page.href === currentPath);
+const previous = position > 0 ? readingOrder[position - 1] : undefined;
+const next = position >= 0 ? readingOrder[position + 1] : undefined;
+const readingOrderLink = `${readerLinkStyle} inline-flex w-full min-w-0 max-w-full items-start gap-phi-0 [overflow-wrap:anywhere] sm:w-auto [&_svg]:mt-phi-tight [&_svg]:size-phi-2 [&_svg]:shrink-0`;
+---
+
+<SiteLayout
+  title={title === book.title ? title : `${title} · ${book.title}`}
+  description={title === book.title ? book.description : `${title} in ${book.author}’s ${book.title}.`}
+  currentBook={book.slug}
+  section="books"
+  canonicalPath={currentPath}
+  contentsLabel="Book contents"
+>
+  <BookContents client:load slot="left-aside" entries={entries} currentPath={currentPath} bookHref={book.href} />
+  <BookMargin>
+    <div data-reading-body class="min-w-0">
+      <ReadingControls markdownHref={markdownHref} />
+      <div id="reading-column" class="mx-auto w-full min-w-0 max-w-reading font-serif [@media_screen]:in-data-[reading-width=wide]:max-w-none">
+        <article class:list={[
+          "min-w-0 leading-copy [overflow-wrap:break-word]",
+          "[&_h1]:mb-phi-3 [&_h1]:text-title [&_h1]:font-bold [&_h2]:mt-phi-4 [&_h2]:text-heading [&_h2]:font-bold",
+          "[&_h3]:mt-phi-3 [&_h3]:text-lede [&_h3]:font-bold [&_h4]:mt-phi-2 [&_h4]:font-bold [&_p]:my-phi-2",
+          "[&_ul]:list-disc [&_ul]:pl-phi-3 [&_ol]:list-decimal [&_ol]:pl-phi-3 [&_.book-list]:list-none",
+          "[&_figure]:my-phi-3 [&_figure_img]:mx-auto [&_figure_img]:h-auto [&_figure_img]:max-w-full [&_figure_img:not(.tikz-diagram)]:max-h-phi-8",
+          "[&_.tikz-diagram]:[zoom:1.5] print:[&_.tikz-diagram]:[zoom:1] [&_.diagram-link]:mx-auto [&_.diagram-link]:block [&_.diagram-link]:w-fit [&_.diagram-link]:max-w-full",
+          "[&_figcaption]:mt-phi-1 [&_figcaption]:text-meta [&_figure:target_figcaption]:bg-ink/5 [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto",
+          "[&_td]:border-b [&_td]:border-rule [&_td]:p-phi-1 [&_th]:p-phi-1",
+          "[&_.katex]:[font-size:inherit]! [&_.katex-display]:overflow-x-auto [&_.katex-display]:overflow-y-hidden [&_.katex-display>.katex]:min-w-max",
+          "[&_.equation_.katex-html]:flex! [&_.equation_.katex-html]:items-baseline [&_.equation_.katex-html>.katex-base:first-child]:ms-auto",
+          "[&_.equation_.katex-tag]:static! [&_.equation_.katex-tag]:ms-auto [&_.equation_.katex-tag]:ps-phi-1",
+          "[&_.exercise]:my-phi-3 [&_.exercise]:border-t [&_.exercise]:border-rule [&_.result]:my-phi-3",
+          "[&_.pending-review]:text-pending-review [&_.footnotes]:my-phi-2 [&_.footnotes]:border-s [&_.footnotes]:border-rule/50 [&_.footnotes]:ps-phi-2 [&_.footnotes]:text-sidenote [&_.footnotes_p]:my-phi-0",
+        ]}>
+          <slot />
+        </article>
+        {(previous || next) && <nav aria-label="Reading order" class="mt-phi-5 grid grid-cols-2 border-t border-rule/50 pt-phi-2 sm:gap-x-phi-2 print:hidden">
+          {previous && <TooltipLink client:load tip="Read the previous page" href={previous.href} rel="prev" className={`${readingOrderLink} max-sm:pe-phi-0 sm:justify-self-start`}>
+            <ArrowLeftIcon />
+            <span><span class="sr-only">Previous page, </span>{previous.title}</span>
+          </TooltipLink>}
+          {next && <TooltipLink client:load tip="Read the next page" href={next.href} rel="next" className={`${readingOrderLink} col-start-2 justify-end text-end max-sm:ps-phi-0 sm:justify-self-end`}>
+            <span><span class="sr-only">Next page, </span>{next.title}</span>
+            <ArrowRightIcon />
+          </TooltipLink>}
+        </nav>}
+      </div>
+    </div>
+  </BookMargin>
+</SiteLayout>

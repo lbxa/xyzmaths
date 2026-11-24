@@ -1,0 +1,15 @@
+---
+import CopyMarkdown from "./CopyMarkdown.astro";
+import ReadingWidthControl from "./ReadingWidthControl";
+
+interface Props {
+  markdownHref: string;
+}
+
+const { markdownHref } = Astro.props;
+---
+
+<div role="group" aria-label="Reading controls" class="mb-phi-2 flex flex-wrap items-stretch justify-end gap-phi-0 font-mono text-meta pointer-coarse:gap-phi-2 print:hidden [@media(scripting:none)]:hidden">
+  <ReadingWidthControl client:load />
+  <CopyMarkdown href={markdownHref} />
+</div>

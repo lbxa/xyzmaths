@@ -8,6 +8,7 @@ dist/
 
 # dependencies
 node_modules/
+/.tools/pandoc
 
 # logs
 npm-debug.log*
@@ -25,3 +26,61 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Local sources and generated output for the books
+/books/*/images/
+/books/*/**/build/
+/books/*/**/*.pdf
+/books/*/**/*.dvi
+/books/*/**/*.xdv
+/books/*/**/*.ps
+!/books/*/figures/**/*.pdf
+!/books/*/figures/**/*.ps
+
+# LaTeX, bibliography, index, glossary, and editor output
+/books/*/**/*.aux
+/books/*/**/*.bbl
+/books/*/**/*.bcf
+/books/*/**/*.blg
+/books/*/**/*.fdb_latexmk
+/books/*/**/*.fls
+/books/*/**/*.idx
+/books/*/**/*.ilg
+/books/*/**/*.ind
+/books/*/**/*.lof
+/books/*/**/*.log
+/books/*/**/*.lol
+/books/*/**/*.lot
+/books/*/**/*.loa
+/books/*/**/*.loe
+/books/*/**/*.out
+/books/*/**/*.run.xml
+/books/*/**/*.toc
+/books/*/**/*.acn
+/books/*/**/*.acr
+/books/*/**/*.alg
+/books/*/**/*.glg
+/books/*/**/*.glo
+/books/*/**/*.gls
+/books/*/**/*.glsdefs
+/books/*/**/*.nlg
+/books/*/**/*.nlo
+/books/*/**/*.nls
+/books/*/**/*.nav
+/books/*/**/*.snm
+/books/*/**/*.vrb
+/books/*/**/*.brf
+/books/*/**/*.thm
+/books/*/**/*.tdo
+/books/*/**/*.spl
+/books/*/**/*-SAVE-ERROR
+/books/*/**/*.auxlock
+/books/*/**/*.pdfsync
+/books/*/**/*.aux.bak
+/books/*/**/*.bbl.bak
+/books/*/**/*.bcf.bak
+/books/*/**/*.run.xml.bak
+/books/*/**/*.synctex
+/books/*/**/*.synctex.gz
+/books/*/**/*.synctex(busy)
+/books/*/**/*.synctex.gz(busy)

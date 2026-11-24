@@ -1,0 +1,47 @@
+% !TEX root = ../../../main.tex
+% Recall of the completeness result already proved in Chapter 1.
+\section{Bolzano--Weierstrass theorem}
+\label{sec:analysis-i:bolzano-weierstrass-theorem}
+\historynote*{Bolzano's 1817 search for an analytic proof of the
+intermediate value theorem led him to boundedness and limiting-point
+arguments~\cite{Bolzano1817}. The familiar name also honours
+Weierstrass's later development of rigorous analysis. The sequence form
+used here is modern. Its role is to extract a convergent subsequence,
+the mechanism behind many compactness arguments. See \autoref{fig:portrait:bolzano-weierstrass}.}
+\historyportraitpair*{bolzano}{Bernard Bolzano}{PortraitBolzano}{weierstrass}{Karl Weierstrass}{PortraitWeierstrass}{bolzano-weierstrass}
+
+
+\begin{theorem}[Bolzano--Weierstrass]
+  \label{thm:analysis-i:bolzano-weierstrass}
+  Every bounded real sequence has a convergent subsequence.
+\end{theorem}
+
+\begin{marginfigure}[22mm]
+  \centering
+  \input{figures/sequences/bolzano-weierstrass-selection}
+  \caption[Selecting a subsequence in nested intervals.]{Schematic selection in nested intervals. Each $I_k$
+    contains infinitely many terms, so we can choose $a_{n_k}\in I_k$
+    with $n_1<n_2<\cdots$. The shrinking intervals share the point $L$.
+    The construction continues beyond the rows shown.}
+  \label{fig:bolzano-weierstrass-selection}
+\end{marginfigure}
+
+A subsequence $(a_{n_k})$ uses strictly increasing indices
+$n_1<n_2<\cdots$. It keeps some terms in their original order.
+The nested-interval proof in
+\autoref{sec:analysis-i:completeness-equivalences} repeatedly retains
+a half-interval containing infinitely many terms, then chooses a term
+in each retained interval with index larger than the previous one.
+\autoref{fig:bolzano-weierstrass-selection} shows these choices.
+If $L$ is the common point of the retained intervals $I_k$, then
+\[
+  |a_{n_k}-L|\le |I_k|\longrightarrow0,
+\]
+where $|I_k|$ denotes the length of $I_k$. Thus the shrinking intervals
+force the chosen subsequence to converge to $L$.
+
+The theorem guarantees a convergent subsequence, rather than convergence
+of the original sequence. For instance, $(-1)^n$ is bounded and has
+constant subsequences with limits $1$ and $-1$, although the whole
+sequence does not converge. These subsequential limits are the limit
+points introduced in \autoref{sec:analysis-i:denseness}.

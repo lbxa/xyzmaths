@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Illustrated notes and manuscript figures</title>
+<book-margin>
+  <article data-reading-body>
+    <p id="first" data-position>The ordinary diagram follows.</p>
+    <figure id="ordinary" data-position><figcaption>Ordinary figure.</figcaption></figure>
+    <p id="middle" data-position>See <a href="#margin-figure">the next diagram</a>.</p>
+    <div class="margin-figure">
+      <figure id="margin-figure" data-position><figcaption>Printed margin figure.</figcaption></figure>
+    </div>
+    <p id="last" data-position>
+      References <a id="ref1" href="#math-note">1</a>, <a id="ref2" href="#figure-note">2</a>,
+      and <a id="ref3" href="#image-note">3</a>.
+    </p>
+    <section class="footnotes">
+      <ol>
+        <li id="math-note" value="1" data-margin-note>
+          A text note with typeset maths <span class="katex"><svg aria-hidden="true"></svg></span>.
+          <a class="footnote-back" href="#ref1">Return</a>
+        </li>
+        <li id="figure-note" value="2" data-margin-note>
+          <figure id="nested-figure"><figcaption>Figure inside a note.</figcaption></figure>
+          <a class="footnote-back" href="#ref2">Return</a>
+        </li>
+        <li id="image-note" value="3" data-margin-note>
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Point">
+          <a class="footnote-back" href="#ref3">Return</a>
+        </li>
+      </ol>
+    </section>
+  </article>
+  <aside id="right-aside" hidden><ol data-margin-items></ol></aside>
+</book-margin>
+<output></output>
+<script type="module">
+  import { mountBookMargin } from "./book-margin.js";
+
+  const ids = (selector) => Array.from(document.querySelectorAll(selector), (node) => node.id);
+  function placement() {
+    return {
+      passages: ids("article [data-position]"),
+      figures: ids("article figure"),
+      inlineNotes: ids("article li[data-margin-note]"),
+      rail: ids("#right-aside li[data-margin-note]"),
+      asideFiguresAndImages: document.querySelectorAll("#right-aside :is(figure, img)").length,
+    };
+  }
+  const inline = placement();
+  const spread = document.querySelector("book-margin");
+  spread.style.display = "grid";
+  const cleanup = mountBookMargin(spread);
+  const wide = placement();
+  cleanup?.();
+  document.querySelector("output").textContent = JSON.stringify({ inline, wide, restored: placement() });
+</script>
+</html>

@@ -1,0 +1,18 @@
+---
+import SiteLayout from "./SiteLayout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  section?: "books" | "pow";
+  type?: "website" | "article";
+  wide?: boolean;
+}
+const { wide, ...page } = Astro.props;
+---
+
+<SiteLayout {...page}>
+  <div class:list={["mx-auto w-full min-w-0 font-serif", wide ? "max-w-directory" : "max-w-reading"]}>
+    <slot />
+  </div>
+</SiteLayout>

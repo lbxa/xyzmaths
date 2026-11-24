@@ -1,7 +1,8 @@
 ---
 interface Props {
-  title: string;
+  documentTitle: string;
   description: string;
+  canonicalPath?: string;
   image?: string;
   imageAlt?: string;
   type?: "website" | "article";
@@ -9,18 +10,18 @@ interface Props {
 }
 
 const {
-  title,
+  documentTitle,
   description,
+  canonicalPath = Astro.url.pathname,
   image = "/og/xyzmaths-social-v4.png",
   imageAlt = "A large serif Z beside a derivative from first principles, a definite integral, and a three-by-three matrix.",
   type = "website",
   noindex = false,
 } = Astro.props;
 
-const siteName = "XYZ Mathematics Club";
-const documentTitle = title === siteName ? title : `${title} | ${siteName}`;
+const siteName = "XYZ Maths";
 const baseURL = Astro.site ?? Astro.url;
-const canonicalURL = new URL(Astro.url.pathname, baseURL);
+const canonicalURL = new URL(canonicalPath, baseURL);
 const imageURL = new URL(image, baseURL);
 const homeURL = new URL("/", baseURL);
 

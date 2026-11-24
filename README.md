@@ -1,43 +1,38 @@
-# Astro Starter Kit: Minimal
+# XYZ Maths
 
-```sh
-bun create astro@latest -- --template minimal
-```
+XYZ Maths is the home of Lucas Barbosa's mathematics books and problem
+editorials, and the source for [xyzmaths.org](https://xyzmaths.org).
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+| Book                                                                    | Build from the repository root      |
+| ----------------------------------------------------------------------- | ----------------------------------- |
+| [Linear Algebra](books/linear-algebra/README.md)                        | `make -C books/linear-algebra book` |
+| [Introduction to Mathematical Analysis](books/maths-analysis/README.md) | `make -C books/maths-analysis book` |
 
-## 🚀 Project Structure
+`make books` builds both PDFs. Each is written to `build/main.pdf` inside
+its book directory. `make check` also builds both formula sheets and the
+standalone homework handouts. See the [book tooling guide](docs/book-tooling.md)
+for prerequisites, editor setup, and release artifacts.
 
-Inside of your Astro project, you'll see the following folders and files:
+The homepage links to two collections.
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+- **XYZ Books** at `/books/` lists published web editions and their LaTeX
+  manuscripts on GitHub Releases. Linear Algebra keeps its reader, chapter and
+  exercise URLs under `/notes/linear-algebra/`. See the
+  [web notes guide](docs/web-notes.md) to generate and verify it.
+- **XYZ PoW** at `/pow/` gives each Problem of the Week a statement, a
+  worked solution and an editorial explaining the method.
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+To publish a weekly problem, add a Markdown file to [src/content/pow](src/content/pow)
+using an existing entry as a model. Put the self-contained problem in
+`statement`, the direct calculation or proof in `solution`, and the full
+editorial in the Markdown body. For a C++ implementation, add a `.cpp` file
+with the same basename beside the entry. The solution and editorial both
+display that source. Include the problem source, publication date, topic,
+difficulty and estimated solving time. The filename supplies its public URL.
+The archive and homepage pick up the entry on the next website build.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+The books share [authoring skills and conventions](AGENTS.md#books). Each book
+maintains its own course outline, source records, homework placement map, and
+third-party notices. The original text and illustrations are available under
+[CC BY-NC-ND 4.0](books/maths-analysis/LICENSE-CC-BY-NC-ND-4.0.txt).
+The shared book build scripts retain their [Apache 2.0 licence](books/linear-algebra/LICENSE).

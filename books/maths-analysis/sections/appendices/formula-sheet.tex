@@ -1,0 +1,49 @@
+% !TEX root = ../../main.tex
+% Layout inspiration: Dave Richeson's LaTeX cheat sheet,
+% divisbyzero.com, Dickinson College, as credited in the supplied example.
+% Scope audit: all 32 questions in HW01--HW04. Shared by the book and
+% the standalone root formula-sheet.tex. Keep topic order, not HW order.
+\begingroup
+\titleformat{\chapter}[block]{\normalfont\Large\itshape}{}{0pt}{}
+\titlespacing*{\chapter}{0pt}{0pt}{6pt}
+\chapter{Formula sheet}
+\label{ch:appendix:formula-sheet}
+
+\footnotesize
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\columnsep}{24pt}
+\setlength{\multicolsep}{8pt}
+\setlength{\abovedisplayskip}{2pt plus 1pt minus 1pt}
+\setlength{\belowdisplayskip}{2pt plus 1pt minus 1pt}
+\setlength{\abovedisplayshortskip}{1pt}
+\setlength{\belowdisplayshortskip}{1pt}
+\titleformat{\section}{\normalfont\small\itshape}{\thesection}{0.5em}{}
+\titlespacing*{\section}{0pt}{3pt}{3pt}
+\newcommand{\formulagroup}[1]{%
+  \par\addvspace{3pt}\noindent\textbf{#1}\par\nobreak
+}
+% Side limits keep reference sums compact without reducing the font.
+\newcommand{\sheetsum}{\sum\nolimits}
+\newcommand{\formulacolumnbreak}{%
+  \ifdefined\standaloneformulasheet\columnbreak\fi
+}
+
+\begin{fullwidth}
+  Throughout, limits are taken as the index tends to infinity and $N$ is
+  a positive integer.
+  Here $\N=\{1,2,\ldots\}$. Conditions are part of each result.
+
+  \begin{multicols}{2}
+    \raggedcolumns
+    \input{sections/appendices/formula-sheet/01-sets-and-counting}
+    \input{sections/appendices/formula-sheet/02-bounds-and-algebra}
+    \input{sections/appendices/formula-sheet/03-sequences}
+    \formulacolumnbreak
+    \input{sections/appendices/formula-sheet/04-series}
+    \input{sections/appendices/formula-sheet/05-power-series}
+    \formulacolumnbreak
+    \input{sections/appendices/formula-sheet/06-proof-moves}
+  \end{multicols}
+\end{fullwidth}
+\endgroup

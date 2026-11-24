@@ -1,0 +1,108 @@
+name: Build and release one book
+
+on:
+  workflow_call:
+    inputs:
+      book:
+        description: Book directory name under books/
+        required: true
+        type: string
+
+concurrency:
+  group: publish-book-${{ inputs.book }}
+  queue: max
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      tag: ${{ steps.book.outputs.tag }}
+      title: ${{ steps.book.outputs.title }}
+      filename: ${{ steps.book.outputs.filename }}
+      manuscript_sha256: ${{ steps.book.outputs.manuscript_sha256 }}
+    steps:
+      - name: Check out sources and release tags
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check whether this push touched the book
+        id: changes
+        env:
+          BOOK: ${{ inputs.book }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          directory="books/$BOOK"
+          if [[ -f "$directory/main.tex" ]]; then
+            current=$(git rev-parse --verify "$GITHUB_SHA:$directory")
+            previous=$(git rev-parse --verify --quiet "$BEFORE:$directory" ||
+                       git rev-parse --verify --quiet "$BEFORE:content/$BOOK") || previous=
+            if [[ "$current" != "$previous" ]]; then
+              echo 'changed=true' >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Install LaTeX dependencies
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            latexmk biber texlive-bibtex-extra texlive-fonts-recommended \
+            texlive-latex-extra texlive-pictures texlive-science
+
+      - name: Prepare PDF if the manuscript changed
+        id: book
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          BOOK: ${{ inputs.book }}
+          GH_TOKEN: ${{ github.token }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: python3 scripts/prepare-book-release.py "$BOOK"
+
+      - name: Upload versioned PDF artifact
+        if: steps.book.outputs.tag != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: ${{ steps.book.outputs.tag }}
+          path: books/${{ inputs.book }}/build/release/${{ steps.book.outputs.filename }}
+          if-no-files-found: error
+          retention-days: 90
+          overwrite: true
+
+  publish:
+    needs: build
+    if: needs.build.outputs.tag != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Download this book's PDF
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: ${{ needs.build.outputs.tag }}
+          path: release
+
+      - name: Publish this edition
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.build.outputs.tag }}
+          TITLE: ${{ needs.build.outputs.title }}
+          FILENAME: ${{ needs.build.outputs.filename }}
+          MANUSCRIPT_SHA256: ${{ needs.build.outputs.manuscript_sha256 }}
+        run: |
+          if draft=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" \
+              --json isDraft --jq '.isDraft' 2>/dev/null) && [[ "$draft" == false ]]; then
+            echo "$TAG is already published."
+            exit 0
+          fi
+          printf 'Built from commit %s on main.\n\n<!-- xyzmaths-inputs-v1: %s -->\n' \
+            "$GITHUB_SHA" "$MANUSCRIPT_SHA256" > "$RUNNER_TEMP/release-notes.md"
+          gh release create "$TAG" "release/$FILENAME" \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$TITLE" --notes-file "$RUNNER_TEMP/release-notes.md"

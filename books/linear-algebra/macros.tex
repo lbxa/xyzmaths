@@ -1,0 +1,133 @@
+% Shared notation and environments. Keep topic-specific macros local.
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+
+% Reusable draft styling. Existing author-requested red reviews stay red.
+\definecolor{pendingreviewcolor}{HTML}{486581}
+\newenvironment{pendingreview}{\par\color{pendingreviewcolor}}{\par}
+\newcommand{\pendingreviewtext}[1]{\textcolor{pendingreviewcolor}{#1}}
+
+% The same linked reference typography as Maths Analysis.
+\renewcommand*{\figureautorefname}{Figure}
+\renewcommand*{\tableautorefname}{Table}
+\renewcommand*{\partautorefname}{Part}
+\renewcommand*{\chapterautorefname}{Chapter}
+\renewcommand*{\appendixautorefname}{Appendix}
+\renewcommand*{\sectionautorefname}{\S}
+\renewcommand*{\subsectionautorefname}{\S}
+\renewcommand*{\subsubsectionautorefname}{\S}
+\renewcommand*{\theoremautorefname}{Theorem}
+\def\equationautorefname~#1\null{Equation~(#1)\null}
+
+% Keep submission-specific layout hints out of shared book exercises.
+\makeatletter
+\newcommand{\handoutonly}[1]{\@ifclassloaded{tufte-handout}{#1}{}}
+% Append after the complete statement and hints, before the exercise ends.
+% The handouts print solutions immediately; only the book needs these links.
+\newcommand{\solutionlink}[1]{%
+  \@ifclassloaded{tufte-book}{%
+    \ifhmode\unskip\space\else\noindent\fi
+    \textit{\hyperref[sol:#1]{Solution on \autopageref*{sol:#1}.}}%
+  }{}%
+}
+\makeatother
+
+% Select the original exercise number for the next appendix restatement.
+\newcommand{\restatedexercisekey}{}
+\newcommand{\solutionheading}[1]{%
+  \renewcommand{\restatedexercisekey}{#1}%
+}
+
+% Reuse the exercise's theorem styling and original number. Register only
+% the solution anchor, not a second exercise label or solution link.
+\newenvironment{restatedproblem}{%
+  \let\restatedproblemlabel\label
+  \renewenvironment{exercise}[1][]{%
+    \ifstrempty{##1}{%
+      \begin{restatedexercise}%
+    }{%
+      \begin{restatedexercise}[##1]%
+    }%
+    \phantomsection
+    \restatedproblemlabel{sol:\restatedexercisekey}%
+  }{\end{restatedexercise}}%
+  \renewcommand{\label}[1]{}%
+  \renewcommand{\solutionlink}[1]{}%
+}{\par}
+
+% Publication month and year used on the copyright page.
+\newcommand{\monthyear}{%
+  \ifcase\month\or January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or December\fi
+  \space\number\year
+}
+
+% One shared counter makes results unambiguous within each section.
+% Alias counters let autoref identify each environment without renumbering it.
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newaliascnt{lemma}{theorem}
+\newtheorem{lemma}[lemma]{Lemma}
+\aliascntresetthe{lemma}
+\newaliascnt{proposition}{theorem}
+\newtheorem{proposition}[proposition]{Proposition}
+\aliascntresetthe{proposition}
+\newaliascnt{corollary}{theorem}
+\newtheorem{corollary}[corollary]{Corollary}
+\aliascntresetthe{corollary}
+\theoremstyle{definition}
+\newaliascnt{definition}{theorem}
+\newtheorem{definition}[definition]{Definition}
+\aliascntresetthe{definition}
+\newaliascnt{example}{theorem}
+\newtheorem{example}[example]{Example}
+\aliascntresetthe{example}
+\newaliascnt{exercise}{theorem}
+\newtheorem{exercise}[exercise]{Exercise}
+\aliascntresetthe{exercise}
+\newtheorem*{restatedexercise}{\autoref{ex:\restatedexercisekey}}
+\theoremstyle{remark}
+\newaliascnt{remark}{theorem}
+\newtheorem{remark}[remark]{Remark}
+\aliascntresetthe{remark}
+\providecommand*{\lemmaautorefname}{Lemma}
+\providecommand*{\propositionautorefname}{Proposition}
+\providecommand*{\corollaryautorefname}{Corollary}
+\providecommand*{\definitionautorefname}{Definition}
+\providecommand*{\exampleautorefname}{Example}
+\providecommand*{\exerciseautorefname}{Exercise}
+\providecommand*{\remarkautorefname}{Remark}
+\providecommand*{\homeworkproblemautorefname}{Problem}
+
+% Build the theorem catalogue from existing numbered theorem headings.
+\makeatletter
+\@ifclassloaded{tufte-book}{%
+  \newcommand{\listoftheorems}{%
+    \begingroup
+    \let\cleardoublepage\clearpage
+    \chapter*{List of Theorems}%
+    \@starttoc{loe}%
+    \endgroup
+  }
+  \let\l@theorem\@tufte@lof@line
+  \providecommand*{\toclevel@theorem}{2}
+}{}
+\ifdefined\listoftheorems
+  % Keep the catalogue write inside the deferred heading box so a page
+  % break before the theorem cannot leave its list entry on the prior page.
+  \patchcmd{\@begintheorem}{\the\thm@headfont}{%
+    \ifstrequal{#1}{Theorem}{%
+      \ifblank{#2}{}{%
+        \addcontentsline{loe}{theorem}{\protect\numberline{#2}#3}%
+      }%
+    }{}%
+    \the\thm@headfont
+  }{}{%
+    \PackageError{linear-algebra-notes}{Could not register theorem list entries}
+      {Check the amsthm definition of \string\@begintheorem.}%
+  }
+\fi
+\makeatother

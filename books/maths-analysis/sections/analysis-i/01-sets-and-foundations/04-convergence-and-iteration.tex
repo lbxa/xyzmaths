@@ -1,0 +1,191 @@
+% !TEX root = ../../../main.tex
+% Sources: LEC02, IMG_9118--IMG_9119.
+\section{Convergence and iteration}
+\label{sec:analysis-i:convergence-preview}
+
+\newthought{A sequence may approach a number that its terms never reach.}
+This is why a field containing all the rational numbers can still be
+missing limits. We now make the meaning of ``approach'' precise.
+
+\subsection{Distance and the triangle inequality}
+For a real number $x$, define
+\begin{marginfigure}
+  \centering
+  \input{figures/foundations/absolute-value}
+  \caption[The absolute value function.]{The graph of $y=|x|$ consists
+    of the ray $y=-x$ for $x\leq0$ and the ray $y=x$ for $x\geq0$.
+    Its vertex is the origin.}
+  \label{fig:absolute-value}
+\end{marginfigure}
+\[
+  |x|=\begin{cases}
+    x,&x\geq0,\\
+    -x,&x<0.
+  \end{cases}
+\]
+\autoref{fig:absolute-value} shows the graph of $y=|x|$.
+It measures distance from zero, so $|x-y|$ measures distance between
+$x$ and $y$. We have $|x|\geq0$, with equality exactly when $x=0$,
+and $-|x|\leq x\leq|x|$.
+
+\begin{proposition}
+  \label{thm:analysis-i:absolute-value-inequalities}
+  For real $x,y$,
+  \[
+    |xy|=|x|\,|y|,\qquad |x+y|\leq|x|+|y|.
+  \]
+\end{proposition}
+\begin{proof}
+  If either factor is zero, the product identity is immediate.
+  Otherwise, writing each factor as its sign times its positive absolute
+  value shows that the absolute value of the product is $|x|\,|y|$.
+  For the second assertion, add the inequalities
+  $-|x|\leq x\leq|x|$ and $-|y|\leq y\leq|y|$ to obtain
+  \[
+    -(|x|+|y|)\leq x+y\leq |x|+|y|.
+  \]
+  The definition of absolute value now gives the triangle inequality.
+\end{proof}
+
+\subsection{Convergence and its elementary rules}
+\begin{definition}
+  A sequence $(x_n)$ of real numbers \emph{converges} to $L\in\R$ if,
+  for every $\varepsilon>0$, there exists $N\in\N$ such that
+  \[
+    n\geq N\quad\Longrightarrow\quad |x_n-L|<\varepsilon.
+  \]
+  We write $x_n\to L$ or $\lim_{n\to\infty}x_n=L$.
+\end{definition}
+The index $N$ may depend on $\varepsilon$. After that index, every term
+lies in the $\varepsilon$-neighborhood $(L-\varepsilon,L+\varepsilon)$.
+For convergence \emph{in $\Q$}, the limit must belong to $\Q$ as well.
+We will later construct rational sequences with irrational real limits.
+
+We will use two elementary consequences of this definition. Limits are
+unique, since if $L\ne M$, the disjoint neighborhoods of radius
+$|L-M|/3$ cannot both contain all sufficiently late terms. Also, if
+$x_n\leq y_n$, $x_n\to x$, and $y_n\to y$, then $x\leq y$.
+Otherwise neighborhoods of radius $(x-y)/3$ contradict $x_n\leq y_n$.
+
+We also need the basic rules for calculating a limit.
+\begin{proposition}
+  \label{thm:analysis-i:limit-laws}
+  If $x_n\to L$ and $y_n\to M$, then
+  \[
+    x_n+y_n\to L+M,\qquad x_ny_n\to LM.
+  \]
+  If $M\ne0$, then $y_n\ne0$ for all sufficiently large $n$, and
+  $x_n/y_n\to L/M$ on that tail.
+\end{proposition}
+\begin{proof}
+  For the sum, the triangle inequality bounds the error by
+  $|x_n-L|+|y_n-M|$. Make each term smaller than $\varepsilon/2$.
+  For the product, convergence gives $|x_n|\leq|L|+1$ on a tail, and
+  \[
+    |x_ny_n-LM|
+      \leq (|L|+1)|y_n-M|+|M|\,|x_n-L|.
+  \]
+  On a sufficiently late tail, the two errors are smaller than
+  $\varepsilon/(2(|L|+1))$ and $\varepsilon/(2(|M|+1))$, respectively.
+  The displayed bound is then smaller than $\varepsilon$.
+
+  If $M\ne0$, choose a tail with $|y_n-M|<|M|/2$.
+  The triangle inequality gives $|y_n|>|M|/2>0$ there. Hence
+  \[
+    \left|\frac1{y_n}-\frac1M\right|
+      =\frac{|y_n-M|}{|y_n|\,|M|}
+      \leq\frac{2|y_n-M|}{|M|^2}\longrightarrow0.
+  \]
+  Apply the product rule to $x_n$ and $1/y_n$ to obtain the quotient rule.
+\end{proof}
+Changing or discarding finitely many terms does not affect a limit.
+In particular, $x_{n+1}\to L$ whenever $x_n\to L$.
+We will also use the \emph{squeeze principle}. If
+$u_n\leq v_n\leq w_n$ and $u_n,w_n\to L$, then $v_n\to L$,
+because sufficiently late $u_n$ and $w_n$ both lie between
+$L-\varepsilon$ and $L+\varepsilon$.
+
+\subsection{Newton's idea}
+\historynote*{Newton's 1669 manuscript approximates polynomial roots by
+successive corrections~\cite{Newton1669}. Raphson made the calculation
+iterative in 1690~\cite{Raphson1690}. Simpson presented the general derivative formulation
+in 1740~\cite{Simpson1740,Kollerstrom1992}. Thus the modern
+Newton--Raphson method has several contributors. Its lasting role is
+numerical equation solving, including problems without a closed-form root. See \autoref{fig:portrait:newton-simpson}.}
+\historyportraitpair*{newton}{Isaac Newton}{PortraitNewton}{simpson}{Thomas Simpson}{PortraitSimpson}{newton-simpson}
+
+For the calculus motivation here, $f'(x)$ denotes the limiting slope
+$\lim_{h\to0}(f(x+h)-f(x))/h$. The two slopes needed in our examples
+follow from the identities
+\[
+  \frac{(x+h)^2-x^2}{h}=2x+h,\qquad
+  \frac{1/(x+h)-1/x}{h}=-\frac1{x(x+h)}.
+\]
+Thus $(x^2)'=2x$ and $(1/x)'=-1/x^2$ for $x\ne0$.
+These identities supply the tangent lines we use without requiring a
+general differentiation theory.
+
+Suppose we want to solve $f(x)=0$. At a current approximation $x_n$ with
+$f'(x_n)\ne0$, replace the graph by its tangent line
+\[
+  y=f(x_n)+f'(x_n)(x-x_n).
+\]
+Its horizontal intercept supplies the next approximation,
+\begin{equation}
+  x_{n+1}=x_n-\frac{f(x_n)}{f'(x_n)}.
+  \label{eq:analysis-i:newton}
+\end{equation}
+\autoref{fig:newton-square-root} illustrates one step. This is a
+motivation from calculus. A general convergence theorem for Newton's
+method is not being assumed.
+\begin{marginfigure}
+  \centering
+  \input{figures/foundations/newton-square-root}
+  \caption[One Newton step for a square root.]{For $f(x)=x^2-2$, the tangent at $x_0=2$ meets the axis at
+    $x_1=3/2$. The parabola is shown for $x\geq0$.}
+  \label{fig:newton-square-root}
+\end{marginfigure}
+
+For $f(x)=x^2-a$, where $a>0$, \autoref{eq:analysis-i:newton} becomes
+\[
+  x_{n+1}=\frac12\left(x_n+\frac{a}{x_n}\right).
+\]
+A positive limit $L$, if it exists, must satisfy $L^2=a$ by the limit
+laws. A fixed-point calculation alone does not establish that such a
+limit exists. We return to its convergence proof and the iteration
+exercises in \autoref{sec:analysis-i:roots-and-powers}, after proving
+monotone convergence and constructing the required roots.
+
+\subsection{What kind of limit can a recurrence produce?}
+Consider the recurrence
+\[
+  x_{n+1}=a+\frac{1}{x_n},\qquad a\in\N,\quad x_0>0.
+\]
+If this sequence converges, its limit is positive because $x_n>a$ for
+$n\geq1$. The limit therefore satisfies
+\[
+  L^2-aL-1=0,\qquad L=\frac{a+\sqrt{a^2+4}}{2}.
+\]
+It is algebraic and irrational. Indeed, the rational root theorem would
+force a rational root of this monic polynomial to be an integer dividing
+$1$, and neither $1$ nor $-1$ is a root for $a\geq1$.
+Repeated substitution also suggests a continued fraction. This example
+identifies a possible limit. It does not by itself prove convergence.
+
+Limits of rational sequences need not be algebraic. The factorial partial
+sums will give $e$ in \autoref{sec:analysis-i:denseness}.
+Another example is Euler's identity
+\[
+  \sum_{n=1}^{\infty}\frac{1}{n^2}=\frac{\pi^2}{6},
+\]
+stated here without proof~\cite{Waldschmidt2017}.
+\historynote*{Euler obtained this Basel-problem evaluation in 1735.
+The paper appeared in 1740~\cite{Euler1740Basel}. He compared the
+power series for sine with a product built from its zeros. This connected
+infinite sums, trigonometric functions, and what became zeta-function
+theory. The convergence proof and the exact evaluation are separate tasks. See \autoref{fig:portrait:euler}.}
+\historyportrait*{euler}{Leonhard Euler}{PortraitEuler}
+
+The number $\pi^2/6$ is transcendental, since a nonzero rational polynomial
+vanishing there would, after substituting $X^2/6$, give a nonzero rational
+polynomial vanishing at $\pi$.

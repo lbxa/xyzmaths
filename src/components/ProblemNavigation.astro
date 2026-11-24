@@ -1,0 +1,24 @@
+---
+import { cn } from "cn";
+import { buttonVariants } from "@/components/ui/button";
+import { problemHref, problemViews, type ProblemView } from "@/lib/weekly-problems";
+
+interface Props {
+  id: string;
+  title: string;
+  current?: ProblemView["segment"];
+}
+const { id, title, current } = Astro.props;
+const viewLink = cn(
+  buttonVariants({ variant: "outline", size: "sm" }),
+  "reader-link no-underline aria-[current=page]:border-ink aria-[current=page]:bg-ink aria-[current=page]:font-bold aria-[current=page]:text-canvas",
+);
+---
+
+<nav aria-label={`Read ${title}`} class="mt-phi-2 flex flex-wrap gap-phi-1 print:hidden">
+  {problemViews.map(({ segment, label }) => <a
+    href={problemHref(id, segment)}
+    aria-current={current === segment ? "page" : undefined}
+    class={viewLink}
+  >{label}</a>)}
+</nav>
