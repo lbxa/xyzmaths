@@ -16,7 +16,7 @@ const { groups: overviewGroups, firstChapter } = await getBookOverview(book);
     <p class="text-lede italic">{book.author}</p>
     <p>{book.description}</p>
     <nav aria-label="Start reading" class="flex flex-wrap items-baseline gap-x-phi-3 gap-y-phi-1">
-      {firstChapter && <TooltipLink client:load tip={firstChapter.data.title} href={book.href + firstChapter.id + "/"} className={readerLinkStyle + " inline-flex items-center gap-phi-tight font-bold [&_svg]:size-phi-2"}>Start reading <ArrowRightIcon /></TooltipLink>}
+      {firstChapter && <TooltipLink client:load tip={firstChapter.data.title} href={book.href + firstChapter.data.path + "/"} className={readerLinkStyle + " inline-flex items-center gap-phi-tight font-bold [&_svg]:size-phi-2"}>Start reading <ArrowRightIcon /></TooltipLink>}
       <TooltipLink client:load tip="Open the published PDF from GitHub Releases" href={book.manuscript.href} className={readerLinkStyle} data-astro-reload>Download manuscript (PDF)</TooltipLink>
       <TooltipLink client:load tip="Open the assignment index" href={book.href + "problems/"} className={readerLinkStyle}>Browse all problems by assignment</TooltipLink>
     </nav>
@@ -33,7 +33,7 @@ const { groups: overviewGroups, firstChapter } = await getBookOverview(book);
     const List = numbered ? "ol" : "ul";
     return <section>
       <h2 id={id}>{title}</h2>
-      <List>{entries.map(page => <li><a href={book.href + page.id + "/"} class={readerLinkStyle}>{page.data.title}</a></li>)}</List>
+      <List>{entries.map(page => <li><a href={book.href + page.data.path + "/"} class={readerLinkStyle}>{page.data.title}</a></li>)}</List>
     </section>;
   })}
 </BookNotes>

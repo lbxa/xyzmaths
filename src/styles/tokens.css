@@ -21,31 +21,14 @@
   --spacing-phi-8: 18rem;
   --spacing-touch-target: 2.75rem;
 
-  /* Phi-derived type hierarchy. Body copy remains at the browser default. */
-  --text-meta: 0.786rem;
-  --text-meta--line-height: 1.272;
-  --text-sidenote: 0.9rem;
-  --text-sidenote--line-height: 1.45;
-  --text-lede: 1.272rem;
-  --text-lede--line-height: 1.618;
-  --text-heading: 1.618rem;
-  --text-heading--line-height: 1.272;
-  --text-title: 2.618rem;
-  --text-title--line-height: 1;
   --leading-copy: 1.618;
 
   --container-reading: 72ch;
   --container-directory: 60rem;
   --container-display: 100rem;
 
-  /* Web 1.0 document palette. */
-  --color-canvas: #ffffff;
-  --color-ink: #000000;
-  --color-link: #0000ee;
-  --color-link-visited: #551a8b;
-  --color-frame: #111111;
-  --color-rule: #767676;
-  --color-pending-review: #486581;
+  --color-on-frame: #ffffff;
+  --container-settings: 20rem;
 
   /* Controls, floating panels, and the outer display. */
   --radius-control: var(--spacing-phi-0);
@@ -54,7 +37,122 @@
   --shadow-display: 0 0 0 1px rgb(255 255 255 / 0.12);
 }
 
+@theme inline {
+  --color-canvas: var(--paper);
+  --color-ink: var(--ink);
+  --color-link: var(--link);
+  --color-link-visited: var(--visited);
+  --color-frame: var(--frame);
+  --color-rule: var(--rule);
+  --color-pending-review: var(--pending);
+  --color-diagram-paper: light-dark(transparent, #f5f3ed);
+
+  --text-meta: calc(0.786 * var(--type-unit, 1rem));
+  --text-meta--line-height: 1.272;
+  --text-sidenote: calc(0.9 * var(--type-unit, 1rem));
+  --text-sidenote--line-height: 1.45;
+  --text-lede: calc(1.272 * var(--type-unit, 1rem));
+  --text-lede--line-height: 1.618;
+  --text-heading: calc(1.618 * var(--type-unit, 1rem));
+  --text-heading--line-height: 1.272;
+  --text-title: calc(2.618 * var(--type-unit, 1rem));
+  --text-title--line-height: 1;
+}
+
 :root {
+  color-scheme: light dark;
   --layout-contents: clamp(var(--spacing-phi-7), 25vw, var(--spacing-phi-8));
   --layout-margin: clamp(var(--spacing-phi-7), 18vw, var(--spacing-phi-8));
+}
+
+:root[data-color-mode="light"] { color-scheme: light; }
+:root[data-color-mode="dark"] { color-scheme: dark; }
+
+/* The site and its theme swatches use the same light/dark pairs. */
+:root, [data-reader-theme="original"] {
+  --paper: light-dark(#ffffff, #191919);
+  --ink: light-dark(#000000, #eeeeee);
+  --link: light-dark(#0000ee, #a6c8ff);
+  --visited: light-dark(#551a8b, #d3b4f9);
+  --frame: light-dark(#111111, #0b0b0b);
+  --rule: light-dark(#767676, #848484);
+  --pending: light-dark(#486581, #a4c5e1);
+  --book-weight: 400;
+}
+
+[data-reader-theme="quiet"] {
+  --paper: light-dark(#e9edf0, #21262b);
+  --ink: light-dark(#323d45, #d2d9de);
+  --link: light-dark(#254b78, #a9c8e7);
+  --visited: light-dark(#614a71, #cfb6db);
+  --frame: light-dark(#283139, #14191d);
+  --rule: light-dark(#73808a, #818e98);
+  --pending: light-dark(#455f70, #a7c3d3);
+  --book-weight: 400;
+}
+
+[data-reader-theme="paper"] {
+  --paper: light-dark(#faf2de, #302c27);
+  --ink: light-dark(#342a1f, #f1e5ce);
+  --link: light-dark(#5b4306, #eac885);
+  --visited: light-dark(#743d4d, #e2b3be);
+  --frame: light-dark(#352d24, #1c1915);
+  --rule: light-dark(#89795b, #9a8c72);
+  --pending: light-dark(#64533d, #d1bd9c);
+  --book-weight: 400;
+}
+
+[data-reader-theme="bold"] {
+  --paper: light-dark(#ffffff, #000000);
+  --ink: light-dark(#000000, #ffffff);
+  --link: light-dark(#002a8e, #b2dbff);
+  --visited: light-dark(#591075, #f1c2ff);
+  --frame: #000000;
+  --rule: light-dark(#333333, #d9d9d9);
+  --pending: light-dark(#273f56, #c6e8ff);
+  --book-weight: 700;
+}
+
+[data-reader-theme="calm"] {
+  --paper: light-dark(#e9dccb, #40382f);
+  --ink: light-dark(#403329, #f3e5d2);
+  --link: light-dark(#664021, #f6c395);
+  --visited: light-dark(#73445f, #e8b5d1);
+  --frame: light-dark(#40352c, #26211c);
+  --rule: light-dark(#82705e, #a49380);
+  --pending: light-dark(#63503d, #d5c0a8);
+  --book-weight: 400;
+}
+
+[data-reader-theme="focus"] {
+  --paper: light-dark(#eef0df, #26291e);
+  --ink: light-dark(#2d371c, #e8edda);
+  --link: light-dark(#345722, #badb91);
+  --visited: light-dark(#634572, #d8b9e3);
+  --frame: light-dark(#2b3022, #161910);
+  --rule: light-dark(#748060, #8f987a);
+  --pending: light-dark(#505f3c, #c5ceaf);
+  --book-weight: 400;
+}
+
+/* Change the manuscript's type unit independently of the page root and controls. */
+@utility reader-prose {
+  --type-unit: var(--reader-unit, 1rem);
+  font-size: var(--type-unit);
+  font-weight: var(--book-weight);
+}
+
+:root[data-reader-size="80"] { --reader-unit: 0.8rem; }
+:root[data-reader-size="90"] { --reader-unit: 0.9rem; }
+:root[data-reader-size="110"] { --reader-unit: 1.1rem; }
+:root[data-reader-size="125"] { --reader-unit: 1.25rem; }
+:root[data-reader-size="150"] { --reader-unit: 1.5rem; }
+:root[data-reader-size="175"] { --reader-unit: 1.75rem; }
+:root[data-reader-size="200"] { --reader-unit: 2rem; }
+
+@media print {
+  :root, :root[data-color-mode] {
+    color-scheme: only light;
+    --reader-unit: 1rem;
+  }
 }

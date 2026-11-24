@@ -1,0 +1,9 @@
+---
+import BookOverview from "../../../components/BookOverview.astro";
+import { getBookPaths } from "../../../lib/book-contents";
+
+export const prerender = true;
+export const getStaticPaths = getBookPaths;
+const { book } = Astro.props;
+---
+<BookOverview book={book} />

@@ -10,7 +10,6 @@ import subprocess
 from manuscript import slug
 
 
-BASE = "/notes/linear-algebra/"
 MARKDOWN_WRITER = ["-f", "json", "-t", "gfm+attributes-tex_math_gfm", "--wrap=none"]
 
 
@@ -73,7 +72,8 @@ def pandoc(binary, args, source):
 
 def render(book, binary, pagination):
     tex = book.prepare()
-    tikz_images = {BASE + "figures/" + name + ".svg"
+    base = book.base
+    tikz_images = {base + "figures/" + name + ".svg"
                    for name, path in book.figures.items() if path.suffix == ".tex"}
     document = json.loads(pandoc(binary, ["-f", "latex+raw_tex", "-t", "json", "--citeproc",
         "--bibliography", str(book.book / "bibliography.bib"), "-M", "link-citations=true"], tex))
@@ -181,6 +181,10 @@ def render(book, binary, pagination):
                 if item["t"] != "Image":
                     return {**item, "c": figure_image(item["c"], linked or item["t"] == "Link")}
                 attrs, alt, (src, _) = item["c"]
+                # Pandoc treats an explicit image alt as a literal string. Decode
+                # TeX spellings such as Schr\"oder in the authored portrait names.
+                if value[0][0].startswith("fig:portrait:") and "\\" in (name := plain(alt)):
+                    alt[:] = [{"t": "Str", "c": pandoc(binary, ["-f", "latex", "-t", "plain"], name).strip()}]
                 if not alt:
                     alt.append({"t": "Str", "c": caption})
                 if src in tikz_images:
@@ -254,7 +258,7 @@ def render(book, binary, pagination):
                 blocks[i:i+1] = adapt([bibliography])
     document["blocks"] = blocks
     markdown = pandoc(binary, MARKDOWN_WRITER, json.dumps(document))
-    pages = partition(markdown, book, pagination)
+    pages = partition(markdown, book, pagination, base)
     bodies = ["\n\n".join(block.get("markdown", "") for block in page["blocks"]) for page in pages]
     bodies.extend(record[field] for record in book.problems.values() for field in ("statement", "solution"))
     audit = {"equations": [(mode, tex, count) for (mode, tex), count in equations.items()], "bodies": bodies}
@@ -265,7 +269,7 @@ def render(book, binary, pagination):
     return pages
 
 
-def partition(markdown, book, pagination):
+def partition(markdown, book, pagination, base):
     group = "Front matter"
     part_id = None
     part = None
@@ -277,7 +281,7 @@ def partition(markdown, book, pagination):
     def register(key, page_id):
         if key in refs:
             raise ValueError(f"Duplicate HTML anchor {key}")
-        refs[key] = BASE + page_id + "/#" + key
+        refs[key] = base + page_id + "/#" + key
 
     def append(fragment):
         content = fragment.strip()

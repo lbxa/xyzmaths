@@ -4,7 +4,7 @@ import type { APIRoute } from "astro";
 export const prerender = true;
 export async function getStaticPaths() {
   return (await getCollection("bookFigures")).map((entry) => ({
-    params: { asset: entry.id }, props: { content: entry.data.content },
+    params: { book: entry.data.book, asset: entry.data.asset }, props: { content: entry.data.content },
   }));
 }
 

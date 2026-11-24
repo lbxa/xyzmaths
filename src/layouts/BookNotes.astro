@@ -38,11 +38,12 @@ const readingOrderLink = `${readerLinkStyle} inline-flex w-full min-w-0 max-w-fu
       <ReadingControls markdownHref={markdownHref} />
       <div id="reading-column" class="mx-auto w-full min-w-0 max-w-reading font-serif [@media_screen]:in-data-[reading-width=wide]:max-w-none">
         <article class:list={[
-          "min-w-0 leading-copy [overflow-wrap:break-word]",
+          "reader-prose min-w-0 leading-copy [overflow-wrap:break-word]",
           "[&_h1]:mb-phi-3 [&_h1]:text-title [&_h1]:font-bold [&_h2]:mt-phi-4 [&_h2]:text-heading [&_h2]:font-bold",
           "[&_h3]:mt-phi-3 [&_h3]:text-lede [&_h3]:font-bold [&_h4]:mt-phi-2 [&_h4]:font-bold [&_p]:my-phi-2",
           "[&_ul]:list-disc [&_ul]:pl-phi-3 [&_ol]:list-decimal [&_ol]:pl-phi-3 [&_.book-list]:list-none",
           "[&_figure]:my-phi-3 [&_figure_img]:mx-auto [&_figure_img]:h-auto [&_figure_img]:max-w-full [&_figure_img:not(.tikz-diagram)]:max-h-phi-8",
+          "[&_figure>p:has(>img+img)]:mx-auto [&_figure>p:has(>img+img)]:grid [&_figure>p:has(>img+img)]:w-fit [&_figure>p:has(>img+img)]:grid-cols-2 [&_figure>p:has(>img+img)]:items-center [&_figure>p:has(>img+img)]:gap-phi-1",
           "[&_.tikz-diagram]:[zoom:1.5] print:[&_.tikz-diagram]:[zoom:1] [&_.diagram-link]:mx-auto [&_.diagram-link]:block [&_.diagram-link]:w-fit [&_.diagram-link]:max-w-full",
           "[&_figcaption]:mt-phi-1 [&_figcaption]:text-meta [&_figure:target_figcaption]:bg-ink/5 [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto",
           "[&_td]:border-b [&_td]:border-rule [&_td]:p-phi-1 [&_th]:p-phi-1",
