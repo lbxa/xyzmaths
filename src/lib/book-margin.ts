@@ -121,8 +121,11 @@ export function mountBookMargin(spread: HTMLElement) {
   const column = body.querySelector("#reading-column");
   if (column) sizes.observe(column);
   for (const { note } of notes) sizes.observe(note);
-  const widthMode = new MutationObserver(schedule);
-  widthMode.observe(document.documentElement, { attributes: true, attributeFilter: ["data-reading-width"] });
+  const readerLayout = new MutationObserver(schedule);
+  readerLayout.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-reading-width", "data-reader-size", "data-reader-theme"],
+  });
   spread.addEventListener("load", schedule, { capture: true, signal });
   spread.addEventListener("error", schedule, { capture: true, signal });
   document.fonts?.addEventListener("loadingdone", schedule, { signal });
@@ -135,7 +138,7 @@ export function mountBookMargin(spread: HTMLElement) {
   return () => {
     listeners.abort();
     sizes.disconnect();
-    widthMode.disconnect();
+    readerLayout.disconnect();
     cancelAnimationFrame(frame);
     setWide(false);
   };

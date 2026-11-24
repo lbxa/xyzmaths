@@ -12,9 +12,21 @@ export async function getWeeklyProblems() {
   return entries.sort((a, b) => b.data.date.getTime() - a.data.date.getTime() || a.id.localeCompare(b.id));
 }
 
+export async function getWeeklyProblemPaths() {
+  const problems = await getWeeklyProblems();
+  return problems.flatMap(entry => problemViews.map(view => ({
+    params: { slug: entry.id, view: view.segment || undefined },
+    props: { entry, view },
+  })));
+}
+
 export function problemHref(id: string, segment: ProblemView["segment"] = "") {
   const base = `/pow/${id}/`;
   return segment ? base + segment + "/" : base;
+}
+
+export function problemMarkdownHref(id: string, segment: ProblemView["segment"] = "") {
+  return problemHref(id, segment) + "index.md";
 }
 
 const dateFormat = new Intl.DateTimeFormat("en-AU", {

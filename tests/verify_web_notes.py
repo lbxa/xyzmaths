@@ -1,8 +1,8 @@
-"""Check the published site, weekly problems and Linear Algebra reading edition."""
+"""Check the published site, weekly problems and both manuscript reading editions."""
 
 from collections import Counter, defaultdict
 from contextlib import contextmanager
-from functools import partial
+from functools import cache, partial
 from html.parser import HTMLParser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -22,10 +22,9 @@ from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[1]
 BOOK = ROOT / "books/linear-algebra"
-FRAGMENTS = ROOT / "src/generated/notes/linear-algebra"
 SITE = ROOT / "dist/client"
 BASE = "/notes/linear-algebra/"
-MANUSCRIPT = "/books/linear-algebra/manuscript.pdf"
+BOOK_TITLES = {"linear-algebra": "Linear Algebra", "maths-analysis": "Introduction to Mathematical Analysis"}
 WEEKLY_SOURCE = ROOT / "src/content/pow"
 WEEKLY_PROBLEMS = {
     "disc-game-prize-fund": ("2026-07-08", "https://projecteuler.net/problem=121", "£1", "£2,269"),
@@ -36,13 +35,14 @@ sys.path.insert(0, str(ROOT / "scripts/web-notes"))
 from fragments import ARTWORK, MANIFEST, atomic_write, inventory, manifest, publish
 
 
-def source(name):
-    tex = (BOOK / Path(name).with_suffix(".tex")).read_text()
+def source(name, book=BOOK):
+    path = str(name).removeprefix(r"\analysisroot/")
+    tex = (book / Path(path).with_suffix(".tex")).read_text()
     return re.sub(r"(?<!\\)%[^\n]*", "", tex)
 
 
-def expand(tex):
-    return INPUT.sub(lambda m: expand(source(m[1])), tex)
+def expand(tex, book=BOOK):
+    return INPUT.sub(lambda m: expand(source(m[1], book), book), tex)
 
 
 def markdown_parts(text):
@@ -85,9 +85,12 @@ class Document(HTMLParser):
         self.note_returns = set()
         self.copy_markdown_url = None
         self.reading_controls = []
+        self.in_book_selector = False
+        self.book_selector_text = []
         self.in_copy_control = False
         self.reading_button = None
         self.stylesheets = []
+        self.document_links = {}
         self.images = []
         self.equations = []
         self.annotation = None
@@ -127,6 +130,7 @@ class Document(HTMLParser):
             self.dates.append(attrs.get("datetime"))
         if attrs.get("role") == "combobox" and attrs.get("aria-label") == "Book":
             self.tags["book-selector"] += 1
+            self.in_book_selector = True
         if tag == "code" and "language-cpp" in attrs.get("class", "").split():
             self.cpp_block = []
         if tag == "article":
@@ -180,6 +184,8 @@ class Document(HTMLParser):
                 self.reader_links.append(attrs["href"])
         if tag == "link" and "stylesheet" in attrs.get("rel", "").split():
             self.stylesheets.append(attrs["href"])
+        if tag == "link" and attrs.get("rel") in {"describedby", "alternate"}:
+            self.document_links[attrs["rel"], attrs.get("type")] = attrs["href"]
         if tag == "span" and "katex-html" in attrs.get("class", "").split() and attrs.get("aria-hidden") == "true":
             self.tags["typeset-equation"] += 1
         if tag == "img":
@@ -204,6 +210,7 @@ class Document(HTMLParser):
             self.cpp_block = None
         if tag == "button":
             self.reading_button = None
+            self.in_book_selector = False
         if tag == "copy-markdown":
             self.in_copy_control = False
         if tag == "annotation" and self.annotation is not None:
@@ -223,6 +230,8 @@ class Document(HTMLParser):
             self.document_title += data
         if self.in_main:
             self.main_text.append(data)
+        if self.in_book_selector:
+            self.book_selector_text.append(data)
         if self.in_article_paragraph:
             self.article_prose.append(data)
         if self.nav_link is not None:
@@ -248,39 +257,24 @@ def weekly_views(slug):
     return {"Problem": base, "Solution": base + "solution/", "Editorial": base + "editorial/"}
 
 
+@cache
+def reader_pages(slug):
+    directory = SITE / "notes" / slug
+    if not (directory / "index.html").is_file():
+        raise AssertionError(f"Build the {slug} reading edition first with bun run build.")
+    return {"/" + file.parent.relative_to(SITE).as_posix() + "/": Document(file.read_text())
+            for file in directory.rglob("index.html")}
+
+
 class WebNotes(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        files = sorted(FRAGMENTS.rglob("*.md"))
-        parts = [markdown_parts(file.read_text()) for file in files]
-        fragments = {}
-        for file, (metadata, body), (html, portable) in zip(files, parts, inspect_markdown([b for _, b in parts])):
-            doc = Document(html)
-            doc.metadata = metadata
-            doc.markdown = portable
-            for kind, key in re.findall(r'^::(statement|solution)\{key="([^"]+)"\}$', body, re.M):
-                doc.placements[kind].append(key)
-            fragments[file] = doc
-        cls.pages = {file.relative_to(FRAGMENTS / "pages").with_suffix("").as_posix(): fragments[file]
-                     for file in (FRAGMENTS / "pages").rglob("*.md")}
-        cls.exercises = {}
-        for file in (FRAGMENTS / "exercises").rglob("statement.md"):
-            statement = fragments[file]
-            data = statement.metadata
-            cls.exercises[data["key"]] = {**data, "statement": statement,
-                                          "solution": fragments[file.with_name("solution.md")]}
-        directory = SITE / BASE.strip("/")
-        if not (directory / "index.html").is_file():
-            raise AssertionError("Build the notes first with bun run build.")
-        cls.docs = {"/" + file.parent.relative_to(SITE).as_posix() + "/": Document(file.read_text())
-                    for file in directory.rglob("index.html")}
+        cls.docs = {route: doc for slug in BOOK_TITLES for route, doc in reader_pages(slug).items()}
         routes = ["/", "/books/", "/pow/"]
         cls.weekly_slugs = sorted(file.stem for file in WEEKLY_SOURCE.glob("*.md"))
         for slug in cls.weekly_slugs:
             routes.extend(weekly_views(slug).values())
         cls.collections = {route: Document((SITE / route.strip("/") / "index.html").read_text()) for route in routes}
-        body = source("main").split(r"\begin{document}")[1].split(r"\end{document}")[0]
-        cls.tex = expand(body)
 
     def test_primary_navigation_and_book_controls(self):
         for route, doc in (self.collections | self.docs).items():
@@ -297,6 +291,7 @@ class WebNotes(unittest.TestCase):
                     self.assertIsNone(doc.copy_markdown_url)
                 else:
                     self.assertEqual(doc.tags["book-selector"], 1)
+                    self.assertEqual("".join(doc.book_selector_text).strip(), BOOK_TITLES[route.split("/")[2]])
 
     def test_section_brand_in_header_and_browser_title(self):
         brands = {"": "XYZ Maths", "books": "XYZ Books", "notes": "XYZ Books", "pow": "XYZ PoW"}
@@ -311,20 +306,40 @@ class WebNotes(unittest.TestCase):
                     self.assertTrue(doc.document_title.endswith(" | " + brand), doc.document_title)
 
     def test_directories_link_to_the_collections_and_manuscript(self):
-        home, books, overview = self.collections["/"], self.collections["/books/"], self.docs[BASE]
+        home, books = self.collections["/"], self.collections["/books/"]
         self.assertIn("/books/", home.main_links)
         self.assertIn("/pow/", home.main_links)
-        self.assertIn(BASE, books.main_links)
-        for doc in (home, books, overview):
-            self.assertIn(MANUSCRIPT, doc.main_links)
-            self.assertIn(MANUSCRIPT, doc.native_links)
-        self.assertIn(BASE + "linear-algebra-i/vector-spaces-and-bases/", overview.main_links)
-        self.assertIn(BASE + "problems/", overview.main_links)
+        diagrams = {
+            "linear-algebra": ("linear-map-grid-overview.svg", "linear-algebra-i/vector-spaces-and-bases/#fig:linear-algebra-i:shear-grid-overview"),
+            "maths-analysis": ("number-systems.svg", "analysis-i/sets-and-foundations/#fig:number-systems"),
+        }
+        for slug, title in BOOK_TITLES.items():
+            base = f"/notes/{slug}/"
+            manuscript = f"/books/{slug}/manuscript.pdf"
+            overview = self.docs[base]
+            with self.subTest(book=slug):
+                self.assertIn(base, books.main_links)
+                self.assertIn(base, home.main_links)
+                self.assertIn(title, books.main_text)
+                for doc in (home, books, overview):
+                    self.assertIn(manuscript, doc.main_links)
+                    self.assertIn(manuscript, doc.native_links)
+                self.assertIn(base + "problems/", overview.main_links)
+                image, target = diagrams[slug]
+                for doc in (home, overview):
+                    self.assertIn(base + "figures/" + image, [src for src, _ in doc.images])
+                    self.assertIn(base + target, doc.main_links)
+                chapter, anchor = (base + target).split("#")
+                self.assertIn(chapter, overview.main_links)
+                self.assertIn(anchor, self.docs[chapter].article_figures)
 
     def test_weekly_problem_navigation(self):
         home = self.collections["/"]
-        self.assertTrue(any(weekly_views(slug)["Problem"] in home.main_links for slug in self.weekly_slugs),
-                        "The homepage must link to its featured problem")
+        def listed_problems(page):
+            return [link.get("href") for nav in page.main_navs for link in nav
+                    if (link.text or "").strip() == "Problem"]
+
+        self.assertEqual(listed_problems(home), listed_problems(self.collections["/pow/"])[:4])
         for slug in self.weekly_slugs:
             views = weekly_views(slug)
             routes = ["/pow/", *views.values()]
@@ -339,6 +354,38 @@ class WebNotes(unittest.TestCase):
                     for label, href in views.items():
                         self.assertEqual((links[href].text or "").strip(), label)
                         self.assertEqual(links[href].get("aria-current") == "page", href == route, href)
+
+    def test_llms_index_and_markdown_navigation(self):
+        index = (SITE / "llms.txt").read_text()
+        self.assertTrue(index.startswith("# XYZ Maths\n\n> "))
+        links = re.findall(r"^- \[.+?\]\(([^)]+)\)", index, re.MULTILINE)
+        self.assertTrue(all(url.startswith("https://xyzmaths.org/") for url in links))
+        paths = {urlsplit(url).path for url in links}
+        self.assertTrue({"/books/", "/pow/"} <= paths)
+        for slug in BOOK_TITLES:
+            self.assertTrue({f"/notes/{slug}/index.md", f"/notes/{slug}/problems.md",
+                             f"/books/{slug}/manuscript.pdf"} <= paths)
+        for route, doc in (self.collections | self.docs).items():
+            self.assertEqual(doc.document_links["describedby", "text/plain"], "/llms.txt", route)
+        markdown_views = {}
+        for slug in self.weekly_slugs:
+            views = weekly_views(slug)
+            self.assertIn(views["Problem"] + "index.md", paths)
+            for view, route in views.items():
+                with self.subTest(problem=slug, view=view):
+                    doc = self.collections[route]
+                    resource = doc.document_links["alternate", "text/markdown"]
+                    self.assertEqual(resource, route + "index.md")
+                    body = (SITE / resource.lstrip("/")).read_text()
+                    markdown_views[route] = body
+                    for label, other in views.items():
+                        if other != route:
+                            self.assertIn(f"[{label}](https://xyzmaths.org{other}index.md)", body)
+                    code = re.findall(r"```cpp\n(.*?)\n```", body, re.DOTALL)
+                    self.assertEqual([block.rstrip("\n") for block in code], doc.cpp_blocks)
+        equations = inspect_markdown(list(markdown_views.values()), "equations")
+        for route, math in zip(markdown_views, equations, strict=True):
+            self.assertEqual(math, self.collections[route].equations, route)
 
     def test_worked_pages_publish_the_canonical_cpp(self):
         for slug in self.weekly_slugs:
@@ -404,23 +451,65 @@ class WebNotes(unittest.TestCase):
                         self.assertEqual(icon.get("focusable"), "false")
 
     def test_overview_and_part_links_use_reader_navigation_styles(self):
-        overview = self.docs[BASE]
-        self.assertIn(BASE + "#linear-algebra-i", overview.reader_links)
-        self.assertEqual(overview.reader_links, overview.links)
+        cases = [("linear-algebra", "linear-algebra-i/vector-spaces-and-bases/", "fig:linear-algebra-i:vector-addition", "hw01:axiom-consequences"),
+                 ("maths-analysis", "analysis-i/sets-and-foundations/", "fig:number-systems", "hw01:de-morgan")]
+        for slug, path, label, exercise in cases:
+            base = f"/notes/{slug}/"
+            overview = self.docs[base]
+            chapter = base + path
+            appendix = base + "appendices/exercise-solutions/"
+            with self.subTest(book=slug):
+                self.assertIn(base + "#" + path.split("/")[0], overview.reader_links)
+                self.assertEqual(overview.reader_links, overview.links)
+                self.assertIn(chapter + "#" + label, self.docs[chapter].links)
+                self.assertNotIn(chapter + "#" + label, self.docs[chapter].reader_links)
+                self.assertIn(appendix + "#sol:" + exercise, self.docs[chapter].reader_links)
+                self.assertIn(chapter + "#ex:" + exercise, self.docs[appendix].reader_links)
 
-        chapter = BASE + "linear-algebra-i/vector-spaces-and-bases/"
-        appendix = BASE + "appendices/exercise-solutions/"
-        figure = chapter + "#fig:linear-algebra-i:vector-addition"
-        self.assertIn(figure, self.docs[chapter].links)
-        self.assertNotIn(figure, self.docs[chapter].reader_links)
-        self.assertIn(appendix + "#sol:hw01:axiom-consequences", self.docs[chapter].reader_links)
-        self.assertIn(chapter + "#ex:hw01:axiom-consequences", self.docs[appendix].reader_links)
+    def test_published_math_uses_katex(self):
+        styles = {"/" + css.relative_to(SITE).as_posix() for css in SITE.rglob("*.css")
+                  if ".katex-mathml" in css.read_text()}
+        for page, doc in (self.collections | self.docs).items():
+            if doc.tags["math"]:
+                with self.subTest(page=page):
+                    self.assertEqual(doc.tags["typeset-equation"], doc.tags["math"])
+                    self.assertEqual(doc.tags["annotated-equation"], doc.tags["math"])
+                    linked = {urlsplit(urljoin(page, href)).path for href in doc.stylesheets}
+                    self.assertTrue(linked & styles or ".katex-mathml" in "".join(doc.text))
+
+
+class ReadingEditionChecks:
+    @classmethod
+    def setUpClass(cls):
+        cls.book = ROOT / "books" / cls.slug
+        cls.fragments = ROOT / "src/generated/notes" / cls.slug
+        cls.base = f"/notes/{cls.slug}/"
+        cls.docs = reader_pages(cls.slug)
+        files = sorted(cls.fragments.rglob("*.md"))
+        parts = [markdown_parts(file.read_text()) for file in files]
+        documents = {}
+        for file, (metadata, body), (html, portable) in zip(files, parts, inspect_markdown([b for _, b in parts])):
+            doc = Document(html)
+            doc.metadata = metadata
+            doc.markdown = portable
+            for kind, key in re.findall(r'^::(statement|solution)\{key="([^"]+)"\}$', body, re.M):
+                doc.placements[kind].append(key)
+            documents[file] = doc
+        pages = cls.fragments / "pages"
+        cls.pages = {file.relative_to(pages).with_suffix("").as_posix(): documents[file] for file in pages.rglob("*.md")}
+        cls.exercises = {}
+        for file in (cls.fragments / "exercises").rglob("statement.md"):
+            statement = documents[file]
+            data = statement.metadata
+            cls.exercises[data["key"]] = {**data, "statement": statement, "solution": documents[file.with_name("solution.md")]}
+        body = source("main", cls.book).split(r"\begin{document}")[1].split(r"\end{document}")[0]
+        cls.tex = expand(body, cls.book)
 
     def test_book_order_and_repeated_placements(self):
         pages = sorted(self.pages.values(), key=lambda p: int(p.metadata["order"]))
-        chapters = [p.metadata["title"] for p in pages if p.metadata["group"] not in ("Front matter", "References")]
+        chapters = [p.metadata["title"] for p in pages if p.metadata["group"] not in ("Front matter", "References", "Back matter")]
         self.assertEqual(chapters, re.findall(r"\\chapter\{([^{}]+)\}", self.tex))
-        self.assertEqual(set(self.docs), {BASE, BASE + "problems/", *(BASE + key + "/" for key in self.pages)})
+        self.assertEqual(set(self.docs), {self.base, self.base + "problems/", *(self.base + key + "/" for key in self.pages)})
         body = self.tex.split(r"\appendix")[0]
         expected = re.findall(r"\\solutionlink\{([^{}]+)\}", body)
         statements = [key for p in pages for key in p.placements["statement"]]
@@ -438,7 +527,7 @@ class WebNotes(unittest.TestCase):
                 meta = page.metadata
                 headings = meta.get("outline", [])
                 exported_levels.extend(h["level"] for h in headings)
-                article = self.docs[BASE + slug + "/"]
+                article = self.docs[self.base + slug + "/"]
                 self.assertEqual([(h["level"], h["id"]) for h in headings], article.article_headings)
                 self.assertTrue(all(type(h["level"]) is int and h["title"].strip() for h in headings))
                 if meta["group"] != "Front matter":
@@ -451,9 +540,9 @@ class WebNotes(unittest.TestCase):
         self.assertEqual(exported_levels, [levels[command] for command in commands])
 
     def test_handout_order_and_solution_text(self):
-        index = self.docs[BASE + "problems/"]
-        for handout in sorted((BOOK / "problems").glob("hw[0-9][0-9].tex")):
-            inputs = map(Path, INPUT.findall(source(handout.relative_to(BOOK))))
+        index = self.docs[self.base + "problems/"]
+        for handout in sorted((self.book / "problems").glob("hw[0-9][0-9].tex")):
+            inputs = map(Path, INPUT.findall(source(handout.relative_to(self.book), self.book)))
             paths = [p.with_suffix("").as_posix() for p in inputs if p.stem == "problem"]
             exercises = sorted((e for e in self.exercises.values() if e.get("assignment") == handout.stem),
                                key=lambda ex: int(ex["question"]))
@@ -462,8 +551,8 @@ class WebNotes(unittest.TestCase):
                              [ex["key"] for ex in exercises])
         for key, ex in self.exercises.items():
             with self.subTest(exercise=key):
-                chapter = self.docs[BASE + ex["statement-page"] + "/"]
-                appendix = self.docs[BASE + ex["solution-page"] + "/"]
+                chapter = self.docs[self.base + ex["statement-page"] + "/"]
+                appendix = self.docs[self.base + ex["solution-page"] + "/"]
                 statement = compact(ex["statement"].text)
                 solution = compact(ex["solution"].text)
                 self.assertTrue(statement and solution)
@@ -471,9 +560,9 @@ class WebNotes(unittest.TestCase):
                     self.assertIn(statement, compact(doc.section_text[placement]))
                 self.assertIn(solution, compact(appendix.section_text["sol:" + key]))
                 self.assertEqual("Awaitingsolution." in solution,
-                                 "Awaiting solution." in source(Path(ex["source"]).with_name("solution")))
-                self.assertIn(BASE + ex["solution-page"] + "/#sol:" + key, chapter.links)
-                self.assertIn(BASE + ex["statement-page"] + "/#ex:" + key, appendix.links)
+                                 "Awaiting solution." in source(Path(ex["source"]).with_name("solution"), self.book))
+                self.assertIn(self.base + ex["solution-page"] + "/#sol:" + key, chapter.links)
+                self.assertIn(self.base + ex["statement-page"] + "/#ex:" + key, appendix.links)
 
     def test_internal_destinations_and_artwork(self):
         images = set()
@@ -481,9 +570,9 @@ class WebNotes(unittest.TestCase):
             self.assertFalse([key for key, count in doc.ids.items() if count != 1], path)
             for link in doc.links:
                 url = urlsplit(urljoin(path, link))
-                if url.netloc or url.scheme or not url.path.startswith(BASE):
+                if url.netloc or url.scheme or not url.path.startswith(self.base):
                     continue
-                if url.path.startswith(BASE + "figures/") or url.path.endswith(".md"):
+                if url.path.startswith(self.base + "figures/") or url.path.endswith(".md"):
                     self.assertTrue((SITE / url.path.lstrip("/")).is_file(), link)
                     continue
                 target = self.docs[url.path]
@@ -491,32 +580,47 @@ class WebNotes(unittest.TestCase):
                     self.assertIn(unquote(url.fragment), target.ids, f"{path} -> {link}")
             for src, alt in doc.images:
                 self.assertTrue(alt.strip() and alt != "image", (path, src))
+                self.assertTrue(src.startswith(self.base + "figures/"), (path, src))
                 self.assertTrue((SITE / src.lstrip("/")).is_file(), src)
                 images.add(Path(src).name)
-        self.assertEqual(images, {f.name for f in (FRAGMENTS / "figures").glob("*") if f.suffix in ARTWORK})
+        self.assertEqual(images, {f.name for f in (self.fragments / "figures").glob("*") if f.suffix in ARTWORK})
         for name in images:
-            data = (SITE / BASE.strip("/") / "figures" / name).read_bytes()
-            self.assertTrue(data == (FRAGMENTS / "figures" / name).read_bytes(), f"Altered figure: {name}")
+            data = (SITE / self.base.strip("/") / "figures" / name).read_bytes()
+            self.assertTrue(data == (self.fragments / "figures" / name).read_bytes(), f"Altered figure: {name}")
             if name.endswith(".svg"):
                 svg = ElementTree.fromstring(data)
                 _, _, width, height = map(float, svg.attrib["viewBox"].split())
                 self.assertGreater(min(width, height), 0, name)
                 self.assertTrue(any(e.tag.endswith(("path", "image", "use")) for e in svg.iter()), name)
 
+    def test_citations_resolve_to_this_books_bibliography(self):
+        references = self.base + "references/"
+        cited = {key.strip() for group in re.findall(r"\\cite(?:\[[^\]]*\]){0,2}\{([^{}]+)\}", self.tex)
+                 for key in group.split(",")}
+        self.assertTrue(cited)
+        targets = {urljoin(route, href) for route, doc in self.docs.items()
+                   for href in doc.main_links if urlsplit(href).fragment.startswith("ref-")}
+        self.assertTrue(all(target.startswith(references + "#") for target in targets))
+        for key in cited:
+            with self.subTest(citation=key):
+                self.assertIn(references + "#ref-" + key, targets)
+                self.assertIn("ref-" + key, self.docs[references].ids)
+
     def test_math_and_margin_notes(self):
         original = list(self.pages.items())
         original.extend((ex[field + "-page"], ex[field]) for ex in self.exercises.values()
                         for field in ("statement", "solution"))
-        notes = [urljoin(BASE + page + "/", link) for page, doc in original for link in doc.links
+        notes = [urljoin(self.base + page + "/", link) for page, doc in original for link in doc.links
                  if re.search(r"#fn\d+$", link)]
         primary = re.sub(r"\\begin\{restatedproblem\}.*?\\end\{restatedproblem\}", "", self.tex, flags=re.S)
-        self.assertEqual(len(notes), len(re.findall(r"\\(?:marginnote|sidenote|footnote)\b", primary)))
+        self.assertEqual(len(notes), len(re.findall(r"\\(?:marginnote|sidenote|footnote|historynote)\b", primary)))
         for link in notes:
             target, anchor = link.split("#")
             self.assertIn(target + "#" + anchor.replace("fn", "fnref"),
                           {urljoin(target, href) for href in self.docs[target].links})
         totals = sum((doc.tags for _, doc in original), Counter())
-        self.assertEqual(totals["margin-figure"], primary.count(r"\begin{marginfigure}"))
+        portraits = re.findall(r"\\historyportrait(?:pair)?\b", primary)
+        self.assertEqual(totals["margin-figure"], primary.count(r"\begin{marginfigure}") + len(portraits))
         self.assertGreater(totals["math"], 0)
         self.assertGreater(totals["mtable"], 0)
         self.assertEqual(totals["math"], totals["annotated-equation"])
@@ -526,16 +630,21 @@ class WebNotes(unittest.TestCase):
             self.assertNotIn(r"\xyzweb", "".join(doc.text))
 
     def test_all_figures_follow_manuscript_order_in_the_articles(self):
-        figures = re.findall(r"\\begin\{(marginfigure|figure\*?)\}(.*?)\\end\{\1\}", self.tex, re.S)
-        manuscript = []
-        for kind, body in figures:
-            label = re.search(r"\\label\{(fig:[^{}]+)\}", body)
-            self.assertIsNotNone(label, f"Missing figure label for {kind}: {body[:100]}")
-            manuscript.append(label[1])
+        figures = re.finditer(r"\\begin\{(marginfigure|figure\*?)\}(.*?)\\end\{\1\}", self.tex, re.S)
+        for figure in figures:
+            kind, body = figure.groups()
+            self.assertRegex(body, r"\\label\{fig:[^{}]+\}", f"Missing figure label for {kind}: {body[:100]}")
+        # A captionof{figure} inside a minipage has the same label as a figure float.
+        labelled = [(label.start(), label[1]) for label in re.finditer(r"\\label\{(fig:[^{}]+)\}", self.tex)]
+        for portrait in re.finditer(r"\\historyportrait\*?\s*\{([^{}]+)\}", self.tex):
+            labelled.append((portrait.start(), "fig:portrait:" + portrait[1]))
+        for pair in re.finditer(r"\\historyportraitpair\*?(?:\s*\{[^{}]*\}){6}\s*\{([^{}]+)\}", self.tex):
+            labelled.append((pair.start(), "fig:portrait:" + pair[1]))
+        manuscript = [label for _, label in sorted(labelled)]
         pages = sorted(self.pages, key=lambda slug: int(self.pages[slug].metadata["order"]))
         # The appendix gives a restated exercise's figures local HTML IDs.
         articles = [figure.removeprefix("restated-") if figure else figure
-                    for slug in pages for figure in self.docs[BASE + slug + "/"].article_figures]
+                    for slug in pages for figure in self.docs[self.base + slug + "/"].article_figures]
         self.assertEqual(articles, manuscript)
 
     def test_margin_notes_keep_an_inline_copy_and_a_link_back_to_the_passage(self):
@@ -549,23 +658,13 @@ class WebNotes(unittest.TestCase):
                 if doc.inline_notes:
                     self.assertEqual(doc.ids["right-aside"], 1)
 
-    def test_published_math_uses_katex(self):
-        styles = {"/" + css.relative_to(SITE).as_posix() for css in SITE.rglob("*.css")
-                  if ".katex-mathml" in css.read_text()}
-        for page, doc in (self.collections | self.docs).items():
-            if doc.tags["math"]:
-                with self.subTest(page=page):
-                    self.assertEqual(doc.tags["typeset-equation"], doc.tags["math"])
-                    self.assertEqual(doc.tags["annotated-equation"], doc.tags["math"])
-                    linked = {urlsplit(urljoin(page, href)).path for href in doc.stylesheets}
-                    self.assertTrue(linked & styles or ".katex-mathml" in "".join(doc.text))
-
     def test_public_markdown_matches_reader_and_expands_shared_exercises(self):
-        self.assertFalse(list(FRAGMENTS.rglob("*.html")))
+        self.assertFalse(list(self.fragments.rglob("*.html")))
         copies = {}
         for route, doc in self.docs.items():
-            resource = BASE + "index.md" if route == BASE else route.rstrip("/") + ".md"
+            resource = self.base + "index.md" if route == self.base else route.rstrip("/") + ".md"
             self.assertEqual(doc.copy_markdown_url, resource)
+            self.assertEqual(doc.document_links["alternate", "text/markdown"], resource)
             self.assertNotIn(resource, doc.reader_links)
             self.assertIn("Copy for LLM", doc.text)
             text = (SITE / resource.lstrip("/")).read_text()
@@ -580,11 +679,70 @@ class WebNotes(unittest.TestCase):
                 self.assertEqual(equations, doc.equations)
         for ex in self.exercises.values():
             statement = ex["statement"].markdown.strip()
-            appendix = copies[BASE + ex["solution-page"] + "/"]
-            self.assertIn(statement, copies[BASE + ex["statement-page"] + "/"])
-            self.assertIn(statement, copies[BASE + "problems/"])
+            appendix = copies[self.base + ex["solution-page"] + "/"]
+            self.assertIn(statement, copies[self.base + ex["statement-page"] + "/"])
+            self.assertIn(statement, copies[self.base + "problems/"])
             self.assertIn(statement, appendix)
             self.assertIn(ex["solution"].markdown.strip(), appendix)
+
+
+class LinearAlgebraEdition(ReadingEditionChecks, unittest.TestCase):
+    slug = "linear-algebra"
+
+
+class AnalysisEdition(ReadingEditionChecks, unittest.TestCase):
+    slug = "maths-analysis"
+
+    def test_historical_note_and_paired_portrait(self):
+        portrait = "fig:portrait:bolzano-weierstrass"
+        route = self.base + "analysis-i/sequences-of-real-numbers/"
+        self.assertIn(portrait, self.docs[route].article_figures)
+        html = (SITE / route.strip("/") / "index.html").read_text()
+        match = re.search(r'<figure\b[^>]*\bid="' + re.escape(portrait) + r'"[^>]*>.*?</figure>', html, re.S)
+        self.assertIsNotNone(match)
+        figure = Document(match[0])
+        files = [("bolzano.jpg", "Bernard Bolzano"), ("weierstrass.jpg", "Karl Weierstrass")]
+        self.assertEqual(figure.images, [(self.base + "figures/" + file, name) for file, name in files])
+        self.assertIn("Bernard Bolzano (left) and Karl Weierstrass (right)", "".join(figure.text))
+        for file, _ in files:
+            self.assertEqual((SITE / self.base.strip("/") / "figures" / file).read_bytes(),
+                             (self.book / "figures/portraits" / file).read_bytes())
+        for citation in ("PortraitBolzano", "PortraitWeierstrass", "BookofproofsPortraits"):
+            self.assertIn(self.base + "references/#ref-" + citation, {urljoin(route, href) for href in figure.links})
+        notes = [Document(note) for note in re.findall(r'<li\b[^>]*\bdata-margin-note[^>]*>.*?</li>', html, re.S)]
+        self.assertTrue(any({route + "#" + portrait, self.base + "references/#ref-Bolzano1817"}
+                            <= {urljoin(route, href) for href in note.links} for note in notes))
+
+    def test_subject_index_links_each_term_to_its_manuscript_occurrences(self):
+        routes = {page.metadata["title"]: self.base + slug + "/" for slug, page in self.pages.items()}
+        index = routes["Index"]
+        self.assertIn(index, self.docs[self.base].main_links)
+        html = (SITE / index.strip("/") / "index.html").read_text()
+        listing = ContentsList(html, container="article").root
+        chapter = "Copyright"
+        expected = Counter()
+        for match in re.finditer(r"\\(?:chapter\*?\{(?P<chapter>[^{}]+)\}|index\{(?P<term>[^{}]+)\})", self.tex):
+            if match["chapter"]:
+                chapter = match["chapter"]
+            else:
+                expected[(match["term"], routes[chapter])] += 1
+        actual, destinations = Counter(), []
+
+        def read_terms(parent, ancestors):
+            for item in parent.findall("li"):
+                term = (item.text or "").strip(" ,\t\n").replace("’", "'")
+                parts = [*ancestors, term]
+                for link in item.findall("a"):
+                    self.assertRegex((link.text or "").strip(), r"^\d+$")
+                    url = urlsplit(urljoin(index, link.get("href")))
+                    self.assertIn(url.fragment, self.docs[url.path].ids)
+                    actual[("!".join(parts), url.path)] += 1
+                    destinations.append((url.path, url.fragment))
+                read_terms(item, parts)
+
+        read_terms(listing, [])
+        self.assertEqual(actual, expected)
+        self.assertEqual(len(destinations), len(set(destinations)))
 
 
 class ReaderBrowser(unittest.TestCase):
@@ -608,8 +766,8 @@ class ReaderBrowser(unittest.TestCase):
     def reader_site(self):
         class ReaderFiles(SimpleHTTPRequestHandler):
             def translate_path(self, path):
-                if path == "/copy-markdown.html":
-                    return str(ROOT / "tests/web-notes/copy-markdown.html")
+                if path in ("/copy-markdown.html", "/book-switcher.html", "/reading-settings.html"):
+                    return str(ROOT / "tests/web-notes" / path.lstrip("/"))
                 return super().translate_path(path)
 
             def log_message(self, *args):
@@ -630,6 +788,22 @@ class ReaderBrowser(unittest.TestCase):
         result = re.search(r"<output>([^<]*)</output>", html)
         self.assertIsNotNone(result, "The browser did not run the copy fixture")
         self.assertEqual(result[1], "Copied the chapter")
+
+    def test_reading_settings_scale_math_and_theme_the_site(self):
+        with self.reader_site() as site, tempfile.TemporaryDirectory() as tmp:
+            html = self.dump_dom(site + "/reading-settings.html", Path(tmp), "--virtual-time-budget=10000")
+        result = re.search(r"<output>([^<]*)</output>", html)
+        self.assertIsNotNone(result)
+        self.assertEqual(result[1], "Reader scale and site appearance verified")
+
+    def test_book_selector_targets_the_other_published_edition(self):
+        with self.reader_site() as site, tempfile.TemporaryDirectory() as tmp:
+            for slug, title in BOOK_TITLES.items():
+                with self.subTest(destination=slug):
+                    html = self.dump_dom(site + "/book-switcher.html#" + slug, Path(tmp), "--virtual-time-budget=8000")
+                    result = re.search(r"<output>([^<]*)</output>", html)
+                    self.assertIsNotNone(result)
+                    self.assertEqual(result[1], "Selected " + title)
 
     def test_margin_uses_the_width_left_for_reading(self):
         chapter = BASE + "linear-algebra-i/kernel-image-and-rank/"
@@ -732,10 +906,11 @@ class FragmentPublication(unittest.TestCase):
 
 
 class ContentsList(HTMLParser):
-    """Keep the list hierarchy and its links and buttons from one sidebar landmark."""
+    """Keep a landmark's list hierarchy, labels, links and disclosure controls."""
 
-    def __init__(self, html):
+    def __init__(self, html, container="aside"):
         super().__init__()
+        self.container = container
         self.in_contents = False
         self.root = ElementTree.Element("nav")
         self.stack = [self.root]
@@ -744,22 +919,22 @@ class ContentsList(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
-        if tag == "aside":
-            self.in_contents = attrs.get("aria-label") == "Book contents"
+        if tag == self.container:
+            self.in_contents = tag == "article" or attrs.get("aria-label") == "Book contents"
         if self.in_contents and tag in {"li", "a", "button", "svg"}:
             self.stack.append(ElementTree.SubElement(self.stack[-1], tag, attrs))
         elif self.in_contents and tag == "path" and self.stack[-1].tag == "svg":
             ElementTree.SubElement(self.stack[-1], tag, attrs)
 
     def handle_endtag(self, tag):
-        if tag == "aside":
+        if tag == self.container:
             self.in_contents = False
         elif self.in_contents and tag in {"li", "a", "button", "svg"}:
             self.stack.pop()
 
     def handle_data(self, data):
         node = self.stack[-1]
-        if node.tag in {"a", "button"}:
+        if node.tag in {"li", "a", "button"}:
             node.text = (node.text or "") + data
 
 
@@ -795,8 +970,13 @@ class PublishedBookContents(unittest.TestCase):
                     self.assertEqual(icons[0].get("focusable"), "false")
 
     def test_chapter_contents_follow_the_manuscript_hierarchy(self):
-        part = "linear-algebra-i"
-        route = BASE + part + "/vector-spaces-and-bases/"
+        for base, part, chapter in [(BASE, "linear-algebra-i", "vector-spaces-and-bases"),
+                                    ("/notes/maths-analysis/", "analysis-i", "sets-and-foundations")]:
+            with self.subTest(book=base):
+                self.check_chapter_hierarchy(base, part, chapter)
+
+    def check_chapter_hierarchy(self, base, part, chapter):
+        route = base + part + "/" + chapter + "/"
         html = (SITE / route.strip("/") / "index.html").read_text()
         nav = ContentsList(html).root
 
@@ -806,9 +986,11 @@ class PublishedBookContents(unittest.TestCase):
 
         labels = [button.get("aria-label") or button.text for button in nav.iter("button")]
         self.assertNotIn("Chapters", labels)
+        for link in nav.iter("a"):
+            self.assertTrue(urljoin(route, link.get("href")).startswith(base), link.get("href"))
         parts = linked_children(nav)
-        self.assertIn(BASE + "#" + part, parts)
-        chapters = linked_children(parts[BASE + "#" + part])
+        self.assertIn(base + "#" + part, parts)
+        chapters = linked_children(parts[base + "#" + part])
         self.assertIn(route, chapters)
         topics = linked_children(chapters[route])
 

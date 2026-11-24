@@ -15,19 +15,20 @@ function release(tag: string, filename: string, state = "uploaded") {
   return { tag_name: tag, draft: false, prerelease: false, assets: [{ name: filename, state, browser_download_url: url }] };
 }
 
-test("a public book PDF supersedes the archived v3 after the shared repository becomes public", async () => {
+test("each book switches from its own archived PDF to its newest complete public release", async () => {
   let published = false;
   let now = Date.now();
   const originalClock = Date.now;
   const originalFetch = globalThis.fetch;
   const pages: string[] = [];
   const newest = release("linear-algebra-v11", "linear-algebra-v11.pdf");
+  const analysis = release("maths-analysis-v7", "introduction-to-mathematical-analysis-v7.pdf");
   Date.now = () => now;
   globalThis.fetch = async input => {
     const page = new URL(input instanceof Request ? input.url : input).searchParams.get("page")!;
     pages.push(page);
     if (!published) return new Response(null, { status: 404 });
-    if (page === "2") return Response.json([newest]);
+    if (page === "2") return Response.json([newest, analysis]);
     assert.deepEqual(pages, ["1"]);
     return Response.json([
       { ...release("linear-algebra-v16", "linear-algebra-v16.pdf"), draft: true },
@@ -44,6 +45,9 @@ test("a public book PDF supersedes the archived v3 after the shared repository b
     assert.equal(archived.status, 302);
     assert.equal(archived.headers.get("Location"), "https://github.com/lbxa/linear-algebra/releases/download/v3/linear-algebra-v3.pdf");
     assert.deepEqual(pages, ["1"]);
+    const archivedAnalysis = await download("maths-analysis");
+    assert.equal(archivedAnalysis.status, 302);
+    assert.equal(archivedAnalysis.headers.get("Location"), "https://github.com/lbxa/maths-analysis/releases/download/v6/introduction-to-mathematical-analysis-v6.pdf");
 
     pages.length = 0;
     published = true;
@@ -51,6 +55,11 @@ test("a public book PDF supersedes the archived v3 after the shared repository b
     const current = await download("linear-algebra");
     assert.equal(current.status, 302);
     assert.equal(current.headers.get("Location"), newest.assets[0].browser_download_url);
+    assert.deepEqual(pages, ["1", "2"]);
+    pages.length = 0;
+    const currentAnalysis = await download("maths-analysis");
+    assert.equal(currentAnalysis.status, 302);
+    assert.equal(currentAnalysis.headers.get("Location"), analysis.assets[0].browser_download_url);
     assert.deepEqual(pages, ["1", "2"]);
   } finally {
     globalThis.fetch = originalFetch;

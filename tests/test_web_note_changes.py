@@ -12,7 +12,7 @@ from types import SimpleNamespace
 import unittest
 from urllib.parse import urljoin
 
-from verify_web_notes import BASE, BOOK, Document, ROOT, inspect_markdown, markdown_parts
+from verify_web_notes import BASE, BOOK, Document, ROOT, compact, inspect_markdown, markdown_parts
 from fragments import MANIFEST, fragments, inventory
 from render import render
 
@@ -54,7 +54,7 @@ class StructuralOutline(unittest.TestCase):
 
     def test_markdown_math_figures_and_grouped_notes(self):
         fixture = ROOT / "tests/web-notes/markdown-fidelity.tex"
-        book = SimpleNamespace(book=BOOK, prepare=fixture.read_text, markers=[], figures={}, problems={}, labels={})
+        book = SimpleNamespace(book=BOOK, base=BASE, prepare=fixture.read_text, markers=[], figures={}, problems={}, labels={})
         binary = os.environ.get("PANDOC") or shutil.which("pandoc") or ROOT / ".tools/pandoc"
         (fragment,) = fragments(render(book, binary, {}), [], {}).values()
         _, markdown = markdown_parts(fragment.decode())
@@ -83,7 +83,7 @@ class StructuralOutline(unittest.TestCase):
         # The Tufte class omits subsubsection and subparagraph in print. Exercise
         # those HTML levels at the Pandoc boundary without changing the manuscript.
         fixture = ROOT / "tests/web-notes/structural-headings.tex"
-        book = SimpleNamespace(book=BOOK, prepare=fixture.read_text, markers=[], figures={}, problems={},
+        book = SimpleNamespace(book=BOOK, base=BASE, prepare=fixture.read_text, markers=[], figures={}, problems={},
                                labels={"sec:fixture:outline": ("1.1", "Outline fixture section", "section")})
         binary = os.environ.get("PANDOC") or shutil.which("pandoc") or ROOT / ".tools/pandoc"
         pages = render(book, binary, {})
@@ -112,7 +112,7 @@ class BookChanges(unittest.TestCase):
         self.book = self.root / "books/linear-algebra"
         self.export = self.root / "src/generated/notes/linear-algebra"
         self.marker = self.export / MANIFEST
-        shutil.copytree(BOOK, self.book, ignore=shutil.ignore_patterns("build", "images", "output", ".git"))
+        shutil.copytree(ROOT / "books", self.root / "books", ignore=shutil.ignore_patterns("build", "images", "output", ".git"))
         for folder in ("src", "public", "scripts/web-notes"):
             shutil.copytree(ROOT / folder, self.root / folder)
         for name in ("astro.config.mjs", "tsconfig.json", "wrangler.jsonc", "package.json", "bun.lock"):
@@ -134,8 +134,9 @@ class BookChanges(unittest.TestCase):
         self.assertEqual(result.returncode == 0, success, result.stdout[-5000:])
         return result.stdout
 
-    def generate(self, *args, **kwargs):
-        return self.command([sys.executable, "-B", "scripts/web-notes/build.py", *args], **kwargs)
+    def generate(self, *args, book="linear-algebra", **kwargs):
+        scope = ["--book", book] if book else []
+        return self.command([sys.executable, "-B", "scripts/web-notes/build.py", *scope, *args], **kwargs)
 
     def replace(self, file, old, new):
         text = file.read_text()
@@ -144,6 +145,39 @@ class BookChanges(unittest.TestCase):
 
     def page(self, slug):
         return (self.root / "dist/client" / BASE.strip("/") / slug / "index.html").read_text()
+
+    def test_identical_exercise_keys_stay_in_their_books(self):
+        common_key = "hw04:polynomial-root-limit"
+        analysis_export = self.export.with_name("maths-analysis")
+        analysis_stamp = (analysis_export / MANIFEST).read_bytes()
+        self.env.pop("SOURCE_DATE_EPOCH", None)
+        statement = self.book / SOURCE / "problem.tex"
+        self.replace(statement, rf"\label{{ex:{KEY}}}", rf"\label{{ex:{common_key}}}")
+        self.replace(statement, rf"\solutionlink{{{KEY}}}", rf"\solutionlink{{{common_key}}}")
+        appendix = self.book / "sections/appendices/exercise-solutions.tex"
+        self.replace(appendix, rf"\solutionheading{{{KEY}}}", rf"\solutionheading{{{common_key}}}")
+        offline = {**self.env, "PATH": str(self.root / "empty-path"), "PANDOC": "absent-pandoc"}
+        self.generate("--check", book="maths-analysis", env=offline)
+        self.assertIn("linear-algebra", self.generate("--check", book=None, env=offline, success=False))
+        self.command(["bun", "run", "build"])
+        self.assertEqual((analysis_export / MANIFEST).read_bytes(), analysis_stamp)
+
+        statements = {}
+        for slug, folder in (("linear-algebra", "hw04/02-rank-nullity"), ("maths-analysis", "hw04/01-polynomial-root-limit")):
+            metadata, body = markdown_parts((self.export.with_name(slug) / "exercises" / folder / "statement.md").read_text())
+            self.assertEqual(metadata["key"], common_key)
+            html, _ = inspect_markdown([body])[0]
+            statements[slug] = compact(Document(html).text)
+            base = f"/notes/{slug}/"
+            for page, anchor in ((metadata["statement-page"], "ex:"), (metadata["solution-page"], "sol:"), ("problems", "")):
+                with self.subTest(book=slug, page=page):
+                    reader = Document((self.root / "dist/client" / base.strip("/") / page / "index.html").read_text())
+                    self.assertIn(statements[slug], compact(reader.section_text[anchor + common_key]))
+                    self.assertEqual(reader.ids[anchor + common_key], 1)
+                    target = (metadata["statement-page"] + "/#ex:" if anchor == "sol:"
+                              else metadata["solution-page"] + "/#sol:")
+                    self.assertIn(base + target + common_key, reader.links)
+        self.assertNotEqual(statements["linear-algebra"], statements["maths-analysis"])
 
     def test_move_rename_and_reorder_exercise(self):
         old_output = self.export / "exercises" / Path(SOURCE).relative_to("problems")

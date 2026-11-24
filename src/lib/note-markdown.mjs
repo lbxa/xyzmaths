@@ -174,6 +174,10 @@ export function portableMarkdown(markdown, pageUrl, placement = missingPlacement
   markdown = placeInlineMarginFigures(markdown);
   const edits = [];
   function dropLine(start, end) {
+    // Parser ranges start at the directive itself, past a list item's indentation.
+    // Remove that whitespace with its line so the next block keeps its own indent.
+    const lineStart = start ? markdown.lastIndexOf("\n", start - 1) + 1 : 0;
+    if (/^[ \t]*$/.test(markdown.slice(lineStart, start))) start = lineStart;
     if (markdown[end] === "\n") end++;
     if (markdown[end] === "\n") end++;
     edits.push([start, end]);

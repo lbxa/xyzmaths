@@ -1,14 +1,14 @@
 ---
-import ProblemNavigation from "@/components/ProblemNavigation.astro";
+import WeeklyProblemPreview from "@/components/WeeklyProblemPreview.astro";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import CollectionLayout from "@/layouts/CollectionLayout.astro";
-import { linearAlgebra } from "@/lib/books";
+import { books } from "@/lib/books";
 import { readerLinkStyle } from "@/lib/reader-links";
-import { formatProblemDate, getWeeklyProblems, problemHref } from "@/lib/weekly-problems";
+import { getWeeklyProblems } from "@/lib/weekly-problems";
 
 export const prerender = true;
-const [latest] = await getWeeklyProblems();
-const { frontispiece } = linearAlgebra;
+const [latest, ...previous] = await getWeeklyProblems();
+const previousLimit = 3;
 const description = "Mathematics books and weekly problem editorials by Lucas Barbosa.";
 const sectionLink = readerLinkStyle + " inline-flex items-center gap-phi-1 [&_svg]:size-phi-2";
 ---
@@ -21,28 +21,34 @@ const sectionLink = readerLinkStyle + " inline-flex items-center gap-phi-1 [&_sv
   <div class="grid items-start gap-phi-4 md:grid-cols-[3fr_2fr] md:gap-phi-5">
     <section aria-labelledby="books" class="min-w-0 border-t border-ink pt-phi-2">
       <h2 id="books" class="text-heading font-bold"><a href="/books/" class={sectionLink}>XYZ Books <ArrowRightIcon /></a></h2>
-      <h3 class="mt-phi-3 text-lede font-bold"><a href={linearAlgebra.href} class={readerLinkStyle}>{linearAlgebra.title}</a></h3>
-      <p class="mt-phi-0 leading-copy">{linearAlgebra.description}</p>
-      <nav aria-label="Linear Algebra editions" class="mt-phi-2 flex flex-wrap gap-x-phi-2 gap-y-phi-1 font-mono text-meta">
-        <a href={linearAlgebra.href} class:list={[readerLinkStyle, "inline-flex items-center font-bold pointer-coarse:min-h-touch-target"]}>Read online</a>
-        <a href={linearAlgebra.manuscript.href} data-astro-reload class:list={[readerLinkStyle, "inline-flex items-center pointer-coarse:min-h-touch-target"]}>Download manuscript (PDF)</a>
-      </nav>
-      {frontispiece && <figure class="mt-phi-3">
-        <a href={linearAlgebra.href + frontispiece.destination} class:list={[readerLinkStyle, "inline-block max-w-full"]}>
-          <img src={linearAlgebra.href + frontispiece.image} alt={frontispiece.alt} class="h-auto max-h-phi-7 max-w-full" />
-        </a>
-        <figcaption class="mt-phi-0 text-sidenote italic">{frontispiece.caption}</figcaption>
-      </figure>}
+      {books.map(book => <section class="mt-phi-3">
+        <h3 class="text-lede font-bold"><a href={book.href} class={readerLinkStyle}>{book.title}</a></h3>
+        <p class="mt-phi-0 leading-copy">{book.description}</p>
+        <nav aria-label={book.title + " editions"} class="mt-phi-2 flex flex-wrap gap-x-phi-2 gap-y-phi-1 font-mono text-meta">
+          <a href={book.href} class:list={[readerLinkStyle, "inline-flex items-center font-bold pointer-coarse:min-h-touch-target"]}>Read online</a>
+          <a href={book.manuscript.href} data-astro-reload class:list={[readerLinkStyle, "inline-flex items-center pointer-coarse:min-h-touch-target"]}>Download manuscript (PDF)</a>
+        </nav>
+        {book.frontispiece && <figure class="mt-phi-3">
+          <a href={book.href + book.frontispiece.destination} class:list={[readerLinkStyle, "inline-block max-w-full"]}>
+            <img src={book.href + book.frontispiece.image} alt={book.frontispiece.alt} class="h-auto max-h-phi-7 max-w-full" />
+          </a>
+          <figcaption class="mt-phi-0 text-sidenote italic">{book.frontispiece.caption}</figcaption>
+        </figure>}
+      </section>)}
     </section>
     <section aria-labelledby="pow" class="min-w-0 border-t border-ink pt-phi-2">
       <h2 id="pow" class="text-heading font-bold"><a href="/pow/" class={sectionLink}>XYZ PoW <ArrowRightIcon /></a></h2>
       <p class="mt-phi-3 text-lede italic">Problem of the Week</p>
-      {latest && <>
-        <p class="mt-phi-2 font-mono text-meta">Latest problem · <time datetime={latest.data.date.toISOString().slice(0, 10)}>{formatProblemDate(latest.data.date)}</time></p>
-        <h3 class="mt-phi-0 text-lede font-bold"><a href={problemHref(latest.id)} class={readerLinkStyle}>{latest.data.title}</a></h3>
-        <p class="mt-phi-0 leading-copy">{latest.data.description}</p>
-        <ProblemNavigation id={latest.id} title={latest.data.title} />
-      </>}
+      {latest && <div class="mt-phi-2"><WeeklyProblemPreview problem={latest} featured /></div>}
+      {previous.length > 0 && <section aria-labelledby="previous-problems" class="mt-phi-3 border-t border-rule/50 pt-phi-2">
+        <h3 id="previous-problems" class="text-lede font-bold">Previous problems</h3>
+        <ol class="mt-phi-2 divide-y divide-rule/50">
+          {previous.slice(0, previousLimit).map(problem => <li class="py-phi-2 first:pt-0 last:pb-0">
+            <WeeklyProblemPreview problem={problem} heading="h4" />
+          </li>)}
+        </ol>
+        {previous.length > previousLimit && <a href="/pow/" class:list={[sectionLink, "mt-phi-2 font-mono text-meta"]}>All problems <ArrowRightIcon /></a>}
+      </section>}
     </section>
   </div>
 </CollectionLayout>

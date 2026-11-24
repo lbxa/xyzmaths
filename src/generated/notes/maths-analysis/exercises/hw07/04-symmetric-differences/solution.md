@@ -1,0 +1,35 @@
+:::div{class="proof"}
+
+*Solution.* Fix $x$ and take $h$ sufficiently small that $x-h$ and $x+h$ lie in the domain. We differentiate with respect to $h$, keeping $x$ fixed. Twice differentiability makes $f$ and $f'$ continuous, and $f''$ is continuous by assumption. We apply L’Hôpital’s rule on each side of $h=0$.
+
+For part (i), since the limit is in $0/0$ form, we can apply L’Hôpital’s rule,
+
+$$
+\begin{aligned}
+      \lim_{h\to0}\frac{f(x+h)-f(x-h)}{2h}
+        &\overset{\mathrm{L'H}}{=}
+          \lim_{h\to0}\frac{f'(x+h)+f'(x-h)}2\\[4pt]
+        &=\frac{f'(x)+f'(x)}2\\
+        &=f'(x).
+    \end{aligned}
+$$
+
+Here the denominator derivative is $2\ne0$, and continuity of $f'$ gives the derivative-ratio limit.
+
+Similarly, part (ii) is also in $0/0$ form,
+
+$$
+\begin{aligned}
+      \lim_{h\to0}\frac{f(x+h)+f(x-h)-2f(x)}{h^2}
+        &\overset{\mathrm{L'H}}{=}
+          \lim_{h\to0}\frac{f'(x+h)-f'(x-h)}{2h}\\[4pt]
+        &\overset{\mathrm{L'H}}{=}
+          \lim_{h\to0}\frac{f''(x+h)+f''(x-h)}2\\[4pt]
+        &=\frac{f''(x)+f''(x)}2\\
+        &=f''(x).
+    \end{aligned}
+$$
+
+For the first application, the denominator derivative $2h$ is nonzero when $h\ne0$. The intermediate quotient is again of $0/0$ form by continuity of $f'$. Its denominator derivative is $2$, and continuity of $f''$ supplies the final limit. ◻
+
+:::

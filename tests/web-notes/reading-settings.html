@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Book text size and site appearance</title>
+<iframe width="1100" height="800" title="Book reader"></iframe>
+<output>Waiting for the reader</output>
+<script type="module">
+  const frame = document.querySelector("iframe");
+  const output = document.querySelector("output");
+  const find = selector => frame.contentDocument.querySelector(selector);
+  const style = selector => frame.contentWindow.getComputedStyle(find(selector));
+  function check(condition, message) {
+    if (!condition) throw new Error(message);
+  }
+  async function goTo(path) {
+    const loaded = new Promise(resolve => frame.addEventListener("load", resolve, { once: true }));
+    frame.src = path;
+    await loaded;
+    await frame.contentDocument.fonts.ready;
+  }
+  async function openSettings(path, label) {
+    await goTo(path);
+    const button = find('button[aria-label="' + label + '"]');
+    const island = button.closest("astro-island");
+    if (island.hasAttribute("ssr")) {
+      await new Promise(resolve => island.addEventListener("astro:hydrate", resolve, { once: true }));
+    }
+    button.click();
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+  function chooseTheme(label) {
+    const radios = [...frame.contentDocument.querySelectorAll('[role="radio"]')];
+    const radio = radios.find(item => item.textContent.trim().replace(/^Aa/, "") === label);
+    check(radio, "Missing option " + label);
+    radio.click();
+  }
+  async function chooseAppearance(label) {
+    const trigger = find('[role="combobox"][aria-label="Appearance"]');
+    trigger.click();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const options = [...frame.contentDocument.querySelectorAll('[role="listbox"] [role="option"]')];
+    const option = options.find(item => item.textContent.trim() === label);
+    check(option, "Missing appearance option " + label);
+    option.click();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    check(find('[role="dialog"]') && trigger.getAttribute("aria-expanded") === "false", "Choosing an appearance should return to settings");
+  }
+  try {
+    await openSettings("/notes/linear-algebra/linear-algebra-i/vector-spaces-and-bases/", "Reading settings");
+    const tiles = [...frame.contentDocument.querySelectorAll('[aria-label="Theme"] [role="radio"]')].map(tile => tile.getBoundingClientRect());
+    check(tiles.length === 6 && tiles[0].top === tiles[2].top && tiles[3].top > tiles[0].top && tiles[0].left === tiles[3].left,
+      "The six theme previews should form two rows of three");
+    check(tiles.every(tile => tile.width >= 44 && Math.abs(tile.width - tile.height) < 1), "Theme previews should be square touch targets");
+    const stepper = find('[aria-label="Book text size"]').getBoundingClientRect();
+    const appearance = find('[role="combobox"][aria-label="Appearance"]').getBoundingClientRect();
+    check(stepper.right < appearance.left && Math.abs(stepper.top - appearance.top) < 1, "Reading controls should share one row");
+    const scalable = ["article", "article h1", "article p .katex", "article .katex-display .katex", "article figcaption"];
+    const fixed = ["[data-site-header]", "[aria-label='Reading controls']", "#right-aside", "[role='dialog']"];
+    const sizes = selectors => selectors.map(selector => parseFloat(style(selector).fontSize));
+    const before = sizes(scalable);
+    const surrounding = sizes(fixed);
+    for (let i = 0; i < 5; i++) {
+      find('button[aria-label="Increase text size"]').click();
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    check(find('button[aria-label="Increase text size"]').disabled, "Maximum text size is unbounded");
+    sizes(scalable).forEach((size, i) => check(Math.abs(size - 2 * before[i]) < 0.01, scalable[i] + " did not double"));
+    sizes(fixed).forEach((size, i) => check(size === surrounding[i], fixed[i] + " scaled with the manuscript"));
+    await chooseAppearance("Light");
+    chooseTheme("Calm");
+    const light = style("main").backgroundColor;
+    await chooseAppearance("Dark");
+    const dark = style("main").backgroundColor;
+    check(light !== dark, "Light and dark look identical");
+    check(style("#left-aside").backgroundColor === dark, "The contents did not adopt the theme");
+    frame.width = "320";
+    await goTo("/notes/linear-algebra/linear-algebra-i/determinants/");
+    const main = find("main");
+    check(main.scrollWidth <= main.clientWidth + 1, "A wide inline equation pushed the page sideways");
+    await openSettings("/books/", "Appearance settings");
+    check(style("main").backgroundColor === dark, "The catalog lost the selected palette");
+    check(!find('[aria-label="Book text size"]'), "Catalog exposes book-only text size");
+    check(style("main").fontSize === style("html").fontSize, "Book text size leaked into the catalog");
+    output.textContent = "Reader scale and site appearance verified";
+  } catch (error) {
+    output.textContent = error.message;
+  }
+</script>
+</html>

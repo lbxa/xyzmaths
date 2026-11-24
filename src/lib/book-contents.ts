@@ -1,5 +1,5 @@
 import { getCollection } from "astro:content";
-import type { Book } from "./books";
+import { books, type Book } from "./books";
 
 export interface ContentsEntry {
   kind: "group" | "page" | "section";
@@ -21,9 +21,23 @@ export async function getBookPages(book: Book) {
   return pages.sort((a, b) => a.data.order - b.data.order);
 }
 
+export function getBookPaths() {
+  return books.map(book => ({ params: { book: book.slug }, props: { book } }));
+}
+
+export async function getBookPagePaths() {
+  const paths = await Promise.all(books.map(async book => {
+    const pages = await getBookPages(book);
+    return pages.map(entry => ({
+      params: { book: book.slug, page: entry.data.path }, props: { book, entry },
+    }));
+  }));
+  return paths.flat();
+}
+
 export async function getBookOverview(book: Book) {
   const groups = Array.from(Map.groupBy(await getBookPages(book), ({ data }) => data.group), ([title, entries]) => ({
-    id: entries[0].id.split("/")[0], title, entries,
+    id: entries[0].data.path.split("/")[0], title, entries,
     numbered: Boolean(entries[0].data.part && title !== "References"),
   }));
   // Both editions open with the chapters. The reader sidebar follows print order.
@@ -71,15 +85,15 @@ export async function getBookContents(book: Book) {
   const [pages, assignments] = await Promise.all([getBookPages(book), getBookAssignments(book)]);
   const groups = new Map<string, ContentsEntry & { children: ContentsEntry[] }>();
   const readingOrder: HeadingLink[] = [];
-  for (const { id, data } of pages) {
+  for (const { data } of pages) {
     const title = data.part ?? data.group;
     let group = groups.get(title);
     if (!group) {
       group = { kind: "group", title, children: [] };
-      if (data.part) group.href = book.href + "#" + id.split("/")[0];
+      if (data.part) group.href = book.href + "#" + data.path.split("/")[0];
       groups.set(title, group);
     }
-    const href = book.href + id + "/";
+    const href = book.href + data.path + "/";
     const page: HeadingLink = {
       kind: "page", title: data.title, href, page: data.printPage, children: nestHeadings(data.outline, href),
     };
@@ -92,7 +106,7 @@ export async function getBookContents(book: Book) {
     kind: "page", title: "All problems", href: problemsHref,
     children: assignments.map(({ id, title, problems }) => ({
       kind: "section", title, href: problemsHref + "#" + id,
-      children: problems.map(({ entry, title }) => ({ kind: "section", title, href: problemsHref + "#" + entry.id })),
+      children: problems.map(({ entry, title }) => ({ kind: "section", title, href: problemsHref + "#" + entry.data.key })),
     })),
   };
   const entries = Array.from(groups.values(), group =>

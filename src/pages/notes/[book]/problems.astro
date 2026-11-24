@@ -1,0 +1,26 @@
+---
+import { render } from "astro:content";
+import BookNotes from "../../../layouts/BookNotes.astro";
+import { getBookAssignments, getBookPaths } from "../../../lib/book-contents";
+import { manuscriptLinkStyles, readerLinkStyle } from "../../../lib/reader-links";
+export const prerender = true;
+export const getStaticPaths = getBookPaths;
+const { book } = Astro.props;
+const assignments = await getBookAssignments(book);
+---
+<BookNotes book={book} title="All problems">
+  <h1>All problems</h1>
+  {assignments.map(({ id, title, problems }) => <section id={id}>
+    <h2>{title}</h2>
+    {problems.map(async ({ entry, title }) => {
+      const { key, number, statementPage, solutionPage } = entry.data;
+      const { Content } = await render(entry);
+      return <section id={key} class="my-phi-3 border-t border-rule">
+        <h3>{title}</h3>
+        <div class={manuscriptLinkStyles}><Content /></div>
+        <p><a href={`${book.href}${statementPage}/#ex:${key}`} class={readerLinkStyle}>Exercise {number} in the chapter</a>
+          {" · "}<a href={`${book.href}${solutionPage}/#sol:${key}`} class={readerLinkStyle}>Appendix solution</a></p>
+      </section>;
+    })}
+  </section>)}
+</BookNotes>

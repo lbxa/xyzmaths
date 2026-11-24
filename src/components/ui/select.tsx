@@ -29,16 +29,18 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
 function SelectTrigger({
   className,
   children,
+  variant = "outline",
   ...props
-}: SelectPrimitive.Trigger.Props) {
+}: SelectPrimitive.Trigger.Props & { variant?: "outline" | "pill" }) {
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(
         touchTarget,
-        "inline-flex min-h-phi-3 w-fit min-w-0 cursor-pointer items-center gap-phi-tight rounded-control border border-rule bg-canvas px-phi-tight py-phi-fine font-mono text-meta text-ink",
-        "hover:border-ink hover:bg-ink/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink data-popup-open:border-ink disabled:cursor-not-allowed disabled:opacity-50",
-        "[&_svg]:size-phi-2",
+        "inline-flex min-w-0 cursor-pointer items-center text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:cursor-not-allowed disabled:opacity-50",
+        variant === "pill"
+          ? "min-h-touch-target justify-center gap-phi-0 rounded-full bg-settings-control px-phi-1 font-interface text-sm font-medium hover:bg-ink/20 data-popup-open:bg-ink/20 [&>svg]:size-(--text-lede) [&_span>svg]:size-phi-1"
+          : "min-h-phi-3 w-fit gap-phi-tight rounded-control border border-rule bg-canvas px-phi-tight py-phi-fine font-mono text-meta hover:border-ink hover:bg-ink/5 data-popup-open:border-ink [&_svg]:size-phi-2",
         className
       )}
       {...props}

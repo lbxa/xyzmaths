@@ -1,3 +1,5 @@
+![XYZ Maths](docs/xyz-splash-banner.png)
+
 # XYZ Maths
 
 XYZ Maths is the home of Lucas Barbosa's mathematics books and problem
@@ -15,10 +17,10 @@ for prerequisites, editor setup, and release artifacts.
 
 The homepage links to two collections.
 
-- **XYZ Books** at `/books/` lists published web editions and their LaTeX
-  manuscripts on GitHub Releases. Linear Algebra keeps its reader, chapter and
-  exercise URLs under `/notes/linear-algebra/`. See the
-  [web notes guide](docs/web-notes.md) to generate and verify it.
+- **XYZ Books** at `/books/` lists _Linear Algebra_ at `/notes/linear-algebra/`
+  and _Introduction to Mathematical Analysis_ at `/notes/maths-analysis/`.
+  Each has a web reader, an exercise index, and its own manuscript PDF on
+  GitHub Releases. The [web notes guide](docs/web-notes.md) covers both editions.
 - **XYZ PoW** at `/pow/` gives each Problem of the Week a statement, a
   worked solution and an editorial explaining the method.
 

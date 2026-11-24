@@ -2,12 +2,14 @@
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import BookSelector from "../components/BookSelector";
+import ReadingSettings from "../components/ReadingSettings";
 import SeoHead from "../components/SeoHead.astro";
 import { TooltipButton, TooltipLink } from "../components/TooltipControls";
 import { BookContentsIcon, CloseIcon } from "../components/ui/icons";
 import { books } from "../lib/books";
 import { readerLinkStyle } from "../lib/reader-links";
 import { readingWidthStorageKey } from "../lib/reading-width";
+import { preferencePrefix, readerDefaults, readerOptions } from "../lib/reader-preferences";
 
 interface Props {
   title: string;
@@ -17,6 +19,7 @@ interface Props {
   currentBook?: string;
   section?: "books" | "pow";
   canonicalPath?: string;
+  markdownHref?: string;
   contentsLabel?: string;
   type?: "website" | "article";
 }
@@ -29,6 +32,7 @@ const {
   currentBook,
   section,
   canonicalPath,
+  markdownHref,
   contentsLabel,
   type,
 } = Astro.props;
@@ -50,7 +54,15 @@ const documentTitle = isSectionIndex || title === siteTitle ? siteTitle : `${tit
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script define:vars={{ readingWidthStorageKey }}>
+    <script define:vars={{ readingWidthStorageKey, preferencePrefix, readerDefaults, readerOptions }}>
+      // Apply saved preferences before the browser paints or React hydrates.
+      const root = document.documentElement;
+      for (const [key, choices] of Object.entries(readerOptions)) {
+        if (root.dataset[key]) continue;
+        let value;
+        try { value = localStorage.getItem(preferencePrefix + key); } catch {}
+        root.dataset[key] = choices.includes(value) ? value : readerDefaults[key];
+      }
       if (!document.documentElement.hasAttribute("data-reading-width")) {
         let width = "centred";
         try {
@@ -62,6 +74,8 @@ const documentTitle = isSectionIndex || title === siteTitle ? siteTitle : `${tit
       }
     </script>
     <meta name="generator" content={Astro.generator} />
+    <link rel="describedby" type="text/plain" href="/llms.txt" />
+    {markdownHref && <link rel="alternate" type="text/markdown" href={markdownHref} />}
     <SeoHead
       documentTitle={documentTitle}
       description={description}
@@ -81,7 +95,7 @@ const documentTitle = isSectionIndex || title === siteTitle ? siteTitle : `${tit
     >
       <pre
         data-ascii-output
-        class="m-0 max-w-full select-none overflow-hidden font-mono text-meta leading-none text-canvas sm:text-lede md:text-heading"
+        class="m-0 max-w-full select-none overflow-hidden font-mono text-meta leading-none text-on-frame sm:text-lede md:text-heading"
       ></pre>
     </div>
     <a href="#main-content" class:list={[readerLinkStyle, "sr-only focus:fixed focus:start-phi-2 focus:top-phi-2 focus:z-50 focus:not-sr-only focus:bg-canvas focus:px-phi-tight focus:py-phi-fine"]}>Skip to content</a>
@@ -99,7 +113,7 @@ const documentTitle = isSectionIndex || title === siteTitle ? siteTitle : `${tit
         </div>}
         <div class:list={[
           "flex min-w-0 flex-wrap items-center gap-x-phi-2 md:ms-auto",
-          hasContents ? "col-span-full justify-between border-t border-rule/40 pt-phi-0 md:border-0 md:pt-0" : "justify-end",
+          hasContents ? "col-span-full justify-between border-t border-rule/40 pt-phi-0 md:border-0 md:pt-0" : "justify-end max-[24rem]:contents",
         ]}>
           {hasContents && <div class="md:hidden">
             <TooltipButton client:load tip="Open the book contents" variant="outline"
@@ -109,13 +123,17 @@ const documentTitle = isSectionIndex || title === siteTitle ? siteTitle : `${tit
               {contentsLabel}
             </TooltipButton>
           </div>}
-          <nav aria-label="Primary" class="flex flex-wrap items-center justify-end gap-x-phi-1 font-mono text-meta sm:gap-x-phi-2">
+          <nav aria-label="Primary" class:list={[
+            "flex flex-wrap items-center justify-end gap-x-phi-1 font-mono text-meta sm:gap-x-phi-2",
+            !hasContents && "max-[24rem]:col-span-full max-[24rem]:row-start-2 max-[24rem]:justify-start",
+          ]}>
             {sections.map(item => <a
               href={item.href}
               aria-current={activeSection === item ? (isSectionIndex ? "page" : "location") : undefined}
               class:list={[readerLinkStyle, "inline-flex items-center whitespace-nowrap px-phi-tight py-phi-fine pointer-coarse:min-h-touch-target"]}
             >{item.title}</a>)}
           </nav>
+          {!currentBook && <div class="justify-self-end max-[24rem]:col-start-2 max-[24rem]:row-start-1 [@media(scripting:none)]:hidden"><ReadingSettings client:load /></div>}
         </div>
       </header>
 
@@ -157,7 +175,7 @@ const documentTitle = isSectionIndex || title === siteTitle ? siteTitle : `${tit
         <main
           id="main-content"
           tabindex="-1"
-          class="relative min-h-0 min-w-0 scroll-pt-phi-2 overflow-y-auto overscroll-contain bg-canvas px-phi-2 py-phi-3 sm:py-phi-4 md:px-phi-3 xl:py-phi-5 print:overflow-visible print:p-0"
+          class="relative min-h-0 min-w-0 scroll-pt-phi-2 overflow-y-auto overscroll-contain bg-canvas px-phi-2 py-phi-3 sm:py-phi-4 md:px-phi-3 xl:py-phi-5 print:overflow-visible print:p-0 [&_figure_img]:bg-diagram-paper"
         >
           <slot />
         </main>
@@ -223,6 +241,7 @@ const documentTitle = isSectionIndex || title === siteTitle ? siteTitle : `${tit
     <script>
       import { currentFragment } from "../lib/contents-location";
       import { getReadingWidth } from "../lib/reading-width";
+      import { getReaderPreferences, preferenceEvent, syncStoredPreference } from "../lib/reader-preferences";
 
       const tabletQuery = window.matchMedia("(min-width: 48rem)");
       let drawerController: AbortController | undefined;
@@ -319,8 +338,17 @@ const documentTitle = isSectionIndex || title === siteTitle ? siteTitle : `${tit
       };
 
       document.addEventListener("astro:page-load", setupContentsDrawer);
+      window.addEventListener("storage", syncStoredPreference);
+      const syncBrowserChrome = () => {
+        const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+        if (meta) meta.content = getComputedStyle(document.body).backgroundColor;
+      };
+      document.addEventListener("astro:page-load", syncBrowserChrome);
+      window.addEventListener(preferenceEvent, syncBrowserChrome);
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncBrowserChrome);
       document.addEventListener("astro:before-swap", (event) => {
         drawerController?.abort();
+        Object.assign(event.newDocument.documentElement.dataset, getReaderPreferences());
         event.newDocument.documentElement.dataset.readingWidth = getReadingWidth();
       });
 

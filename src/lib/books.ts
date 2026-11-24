@@ -31,5 +31,23 @@ export const linearAlgebra: Book = {
   },
 };
 
-// Add a book here when its reading edition has published web routes.
-export const books: readonly Book[] = [linearAlgebra];
+export const mathematicalAnalysis: Book = {
+  slug: "maths-analysis",
+  title: "Introduction to Mathematical Analysis",
+  href: "/notes/maths-analysis/",
+  author: "Lucas Barbosa",
+  description: "Graduate course notes on real analysis, from countability and completeness to limits, differentiation, and the convergence of sequences of functions.",
+  manuscript: {
+    href: "/books/maths-analysis/manuscript.pdf",
+    assetStem: "introduction-to-mathematical-analysis",
+    archivedPdf: "https://github.com/lbxa/maths-analysis/releases/download/v6/introduction-to-mathematical-analysis-v6.pdf",
+  },
+  frontispiece: {
+    image: "figures/number-systems.svg",
+    destination: "analysis-i/sets-and-foundations/#fig:number-systems",
+    caption: "Containment of the number systems",
+    alt: "Nested rectangles place the natural, rational, real algebraic, real, and complex numbers inside one another. The transcendental reals lie outside the algebraic rectangle.",
+  },
+};
+
+export const books: readonly Book[] = [linearAlgebra, mathematicalAnalysis];

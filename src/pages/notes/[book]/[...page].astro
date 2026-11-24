@@ -1,0 +1,13 @@
+---
+import { render } from "astro:content";
+import BookNotes from "../../../layouts/BookNotes.astro";
+import { getBookPagePaths } from "../../../lib/book-contents";
+import { manuscriptLinkStyles } from "../../../lib/reader-links";
+export const prerender = true;
+export const getStaticPaths = getBookPagePaths;
+const { book, entry } = Astro.props;
+const { Content } = await render(entry);
+---
+<BookNotes book={book} title={entry.data.title}>
+  <div class={manuscriptLinkStyles}><Content /></div>
+</BookNotes>

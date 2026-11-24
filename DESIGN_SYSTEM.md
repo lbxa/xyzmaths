@@ -32,11 +32,13 @@ Book notes and their contents lists use the `font-serif` token, which prefers th
 
 Inline and display equations inherit the surrounding text’s font size, including in captions and footnotes. KaTeX supplies the math fonts and scales subscripts, superscripts, and fraction components. Wide display equations scroll horizontally inside the reading column.
 
+The reader’s text-size control scales the manuscript from 80% to 200%, including headings, inline notes and equations. The surrounding controls, navigation and separate margin rail keep their usual type sizes.
+
 Use the named `meta`, `lede`, `heading`, and `title` tokens to create hierarchy. Typography should remain matter-of-fact and readable rather than editorially decorative.
 
 ### Color
 
-The palette is deliberately small:
+Original in light appearance uses the following palette.
 
 - `canvas`: white document surface
 - `ink`: black text and strong rules
@@ -44,6 +46,8 @@ The palette is deliberately small:
 - `rule`: neutral structural lines
 - `link`: classic hyperlink blue
 - `link-visited`: classic visited-link purple
+
+Original, Quiet, Paper, Bold, Calm and Focus each provide a light and a dark palette for the entire site. Automatic follows the device’s appearance. Keep both palettes and their previews in `src/styles/tokens.css`. Manuscript figures with dark line work get a light backing in dark appearance.
 
 Do not introduce gradients, soft brand palettes, tinted cards, or decorative accent colors without a functional need.
 
@@ -81,6 +85,7 @@ Use imagery sparingly. Appropriate assets include mathematical diagrams, archiva
 - Link each weekly problem, its solution and its editorial from the archive and the top of all three pages. Keep the statement spoiler-free. Give the direct answer and calculation in the solution, and explain how to find and justify the method in the editorial. Show the publication date and credit the problem source.
 - Centre the manuscript and its reading-order links together in a column up to 72ch wide. Wide mode fills the main pane within its 16px phone and 26px desktop gutters. Keep prose left-aligned in both modes.
 - Align the reading controls to the right edge of the main pane. Place the two Hugeicons text-width buttons immediately before **Copy for LLM** and show the selected width in reverse contrast.
+- Place **Reading settings** beside the width control. The **Themes & Settings** popover has a joined pair of type-size buttons beside the appearance selector, above six square theme previews in two rows. Use the system interface face for the controls, the manuscript face for each preview, and a single strong outline for the selected preset. On other pages, expose appearance and theme from the header. Remember each choice across pages and visits.
 - Let headings and rules carry hierarchy before adding containers.
 - Preserve real whitespace around the document while allowing the document itself to be information-dense.
 - Place the book selector beside the header title. Show the current book in the control and list books that have a web edition.
