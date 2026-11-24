@@ -4,16 +4,10 @@ import "katex/dist/katex.min.css";
 import ProblemNavigation from "@/components/ProblemNavigation.astro";
 import CollectionLayout from "@/layouts/CollectionLayout.astro";
 import { manuscriptLinkStyles, readerLinkStyle } from "@/lib/reader-links";
-import { formatProblemDate, getWeeklyProblems, problemHref, problemViews, type ProblemView } from "@/lib/weekly-problems";
+import { formatProblemDate, getWeeklyProblemPaths, problemHref, problemMarkdownHref, type ProblemView } from "@/lib/weekly-problems";
 
 export const prerender = true;
-export async function getStaticPaths() {
-  const problems = await getWeeklyProblems();
-  return problems.flatMap(entry => problemViews.map(view => ({
-    params: { slug: entry.id, view: view.segment || undefined },
-    props: { entry, view },
-  })));
-}
+export const getStaticPaths = getWeeklyProblemPaths;
 
 interface Props {
   entry: CollectionEntry<"weeklyProblems">;
@@ -31,7 +25,7 @@ const next = {
 const { Content } = await render(entry);
 ---
 
-<CollectionLayout section="pow" type="article" title={data.title} description={description}>
+<CollectionLayout section="pow" type="article" title={data.title} description={description} markdownHref={problemMarkdownHref(entry.id, view.segment)}>
   <article>
     <header class="border-b border-rule/50 pb-phi-2">
       <a href="/pow/" class:list={[readerLinkStyle, "font-mono text-meta"]}>Problem of the Week</a>

@@ -90,6 +90,7 @@ class Document(HTMLParser):
         self.in_copy_control = False
         self.reading_button = None
         self.stylesheets = []
+        self.document_links = {}
         self.images = []
         self.equations = []
         self.annotation = None
@@ -183,6 +184,8 @@ class Document(HTMLParser):
                 self.reader_links.append(attrs["href"])
         if tag == "link" and "stylesheet" in attrs.get("rel", "").split():
             self.stylesheets.append(attrs["href"])
+        if tag == "link" and attrs.get("rel") in {"describedby", "alternate"}:
+            self.document_links[attrs["rel"], attrs.get("type")] = attrs["href"]
         if tag == "span" and "katex-html" in attrs.get("class", "").split() and attrs.get("aria-hidden") == "true":
             self.tags["typeset-equation"] += 1
         if tag == "img":
@@ -351,6 +354,38 @@ class WebNotes(unittest.TestCase):
                     for label, href in views.items():
                         self.assertEqual((links[href].text or "").strip(), label)
                         self.assertEqual(links[href].get("aria-current") == "page", href == route, href)
+
+    def test_llms_index_and_markdown_navigation(self):
+        index = (SITE / "llms.txt").read_text()
+        self.assertTrue(index.startswith("# XYZ Maths\n\n> "))
+        links = re.findall(r"^- \[.+?\]\(([^)]+)\)", index, re.MULTILINE)
+        self.assertTrue(all(url.startswith("https://xyzmaths.org/") for url in links))
+        paths = {urlsplit(url).path for url in links}
+        self.assertTrue({"/books/", "/pow/"} <= paths)
+        for slug in BOOK_TITLES:
+            self.assertTrue({f"/notes/{slug}/index.md", f"/notes/{slug}/problems.md",
+                             f"/books/{slug}/manuscript.pdf"} <= paths)
+        for route, doc in (self.collections | self.docs).items():
+            self.assertEqual(doc.document_links["describedby", "text/plain"], "/llms.txt", route)
+        markdown_views = {}
+        for slug in self.weekly_slugs:
+            views = weekly_views(slug)
+            self.assertIn(views["Problem"] + "index.md", paths)
+            for view, route in views.items():
+                with self.subTest(problem=slug, view=view):
+                    doc = self.collections[route]
+                    resource = doc.document_links["alternate", "text/markdown"]
+                    self.assertEqual(resource, route + "index.md")
+                    body = (SITE / resource.lstrip("/")).read_text()
+                    markdown_views[route] = body
+                    for label, other in views.items():
+                        if other != route:
+                            self.assertIn(f"[{label}](https://xyzmaths.org{other}index.md)", body)
+                    code = re.findall(r"```cpp\n(.*?)\n```", body, re.DOTALL)
+                    self.assertEqual([block.rstrip("\n") for block in code], doc.cpp_blocks)
+        equations = inspect_markdown(list(markdown_views.values()), "equations")
+        for route, math in zip(markdown_views, equations, strict=True):
+            self.assertEqual(math, self.collections[route].equations, route)
 
     def test_worked_pages_publish_the_canonical_cpp(self):
         for slug in self.weekly_slugs:
@@ -629,6 +664,7 @@ class ReadingEditionChecks:
         for route, doc in self.docs.items():
             resource = self.base + "index.md" if route == self.base else route.rstrip("/") + ".md"
             self.assertEqual(doc.copy_markdown_url, resource)
+            self.assertEqual(doc.document_links["alternate", "text/markdown"], resource)
             self.assertNotIn(resource, doc.reader_links)
             self.assertIn("Copy for LLM", doc.text)
             text = (SITE / resource.lstrip("/")).read_text()

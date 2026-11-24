@@ -27,8 +27,8 @@ export const weeklyProblemLoader: Loader = {
         const referenceCode = files.has(program) ? await readFile(join(directory, program), "utf8") : undefined;
         const data = await parseData({ id, filePath, data: { ...attrs, referenceCode } });
         const html = render(markdown);
-        const digest = generateDigest({ data, html });
-        if (store.get(id)?.digest !== digest) store.set({ id, digest, data, rendered: { html } });
+        const digest = generateDigest({ data, html, markdown });
+        if (store.get(id)?.digest !== digest) store.set({ id, digest, data, body: markdown, rendered: { html } });
       }
       for (const id of stale) store.delete(id);
     }

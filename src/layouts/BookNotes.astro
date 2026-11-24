@@ -30,6 +30,7 @@ const readingOrderLink = `${readerLinkStyle} inline-flex w-full min-w-0 max-w-fu
   currentBook={book.slug}
   section="books"
   canonicalPath={currentPath}
+  markdownHref={markdownHref}
   contentsLabel="Book contents"
 >
   <BookContents client:load slot="left-aside" entries={entries} currentPath={currentPath} bookHref={book.href} />

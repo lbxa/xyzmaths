@@ -21,10 +21,10 @@ export const collections = {
       statement: z.string().trim().min(1),
       solution: z.string().trim().min(1),
       referenceCode: z.string().min(1).optional(),
-    }).transform(({ statement, solution, ...metadata }) => ({
-      ...metadata,
-      statementHtml: renderProblemText(statement),
-      solutionHtml: renderProblemText(solution),
+    }).transform(data => ({
+      ...data,
+      statementHtml: renderProblemText(data.statement),
+      solutionHtml: renderProblemText(data.solution),
     })),
   }),
   bookPages: defineCollection({

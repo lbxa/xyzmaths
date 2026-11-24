@@ -19,6 +19,7 @@ interface Props {
   currentBook?: string;
   section?: "books" | "pow";
   canonicalPath?: string;
+  markdownHref?: string;
   contentsLabel?: string;
   type?: "website" | "article";
 }
@@ -31,6 +32,7 @@ const {
   currentBook,
   section,
   canonicalPath,
+  markdownHref,
   contentsLabel,
   type,
 } = Astro.props;
@@ -72,6 +74,8 @@ const documentTitle = isSectionIndex || title === siteTitle ? siteTitle : `${tit
       }
     </script>
     <meta name="generator" content={Astro.generator} />
+    <link rel="describedby" type="text/plain" href="/llms.txt" />
+    {markdownHref && <link rel="alternate" type="text/markdown" href={markdownHref} />}
     <SeoHead
       documentTitle={documentTitle}
       description={description}
