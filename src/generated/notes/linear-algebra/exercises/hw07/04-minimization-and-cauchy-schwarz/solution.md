@@ -1,0 +1,97 @@
+:::div{class="proof"}
+
+*Solution.* **4.1.** A quadratic $f(t)=at^2+bt+c$ with $a>0$ is an upward-opening parabola and has a unique minimum. By bilinearity and symmetry of the real inner product,
+
+$$
+\begin{aligned}
+      f(t)&=|v-tw|^2=(v-tw,v-tw)\\
+        &=(v,v)-t(v,w)-t(w,v)+t^2(w,w)\\
+        &=(w,w)t^2-2(v,w)t+(v,v).
+    \end{aligned}
+$$
+
+Since $w\ne0$, positive definiteness gives $a=(w,w)>0$. Thus $f$ has a unique minimum.
+
+**4.2.** Complete the square in $f(t)=at^2+bt+c$. Factoring out $a$ from the first two terms gives
+
+$$
+f(t)=a\left(t^2+\frac{b}{a}t\right)+c.
+$$
+
+Since $(t-d)^2=t^2-2dt+d^2$, the required shift satisfies $-2d=b/a$, or $d=-b/(2a)$. Adding and subtracting $(b/(2a))^2$ gives
+
+$$
+\begin{aligned}
+      f(t)&=a\left(t^2+\frac{b}{a}t
+        +\left(\frac{b}{2a}\right)^2
+        -\left(\frac{b}{2a}\right)^2\right)+c\\
+        &=a\left(\left(t+\frac{b}{2a}\right)^2
+          -\left(\frac{b}{2a}\right)^2\right)+c\\
+        &=a\left(t+\frac{b}{2a}\right)^2
+          +\left(c-\frac{b^2}{4a}\right).
+    \end{aligned}
+$$
+
+Because $a>0$, the squared term has its unique minimum at zero. Consequently,
+
+$$
+t_{\min}=-\frac{b}{2a},\qquad
+    f_{\min}=c-\frac{b^2}{4a}.
+$$
+
+Substituting $a=(w,w)$, $b=-2(v,w)$, and $c=(v,v)$ yields
+
+$$
+t_{\min}=\frac{(v,w)}{(w,w)},\qquad
+    f_{\min}=(v,v)-\frac{(v,w)^2}{(w,w)}.
+$$
+
+**4.3.** First suppose $w\ne0$. The preceding calculation also applies when $v=0$. Positive definiteness gives
+
+$$
+f(t)=|v-tw|^2\ge0\qquad\text{for every }t\in\mathbb{R}.
+$$
+
+Thus its global minimum satisfies
+
+$$
+f_{\min}=(v,v)-\frac{(v,w)^2}{(w,w)}\ge0.
+$$
+
+Since $(w,w)>0$, multiplying by $(w,w)$ gives
+
+$$
+(v,w)^2\le(v,v)(w,w).
+$$
+
+If equality holds, then $f_{\min}=0$, so
+
+$$
+|v-t_{\min}w|^2=0.
+$$
+
+Positive definiteness implies $v-t_{\min}w=0$. Hence $v=sw$ with $s=t_{\min}$.
+
+Conversely, if $v=sw$ for some $s\in\mathbb{R}$, then
+
+$$
+f(s)=|v-sw|^2=0.
+$$
+
+Since $f(t)\ge0$ for every $t$, its minimum is zero. Therefore
+
+$$
+(v,v)-\frac{(v,w)^2}{(w,w)}=0,
+$$
+
+which gives equality in the Cauchy–Schwarz inequality. If instead $w=sv$, our assumption $w\ne0$ forces $s\ne0$. Then $v=s^{-1}w$, so the same argument applies.
+
+Finally, if $w=0$, bilinearity gives $(v,0)=0$ and $(0,0)=0$, so
+
+$$
+(v,w)^2=0=(v,v)(w,w).
+$$
+
+Equality holds, and the required alternative $w=sv$ is satisfied by $s=0$. This completes the inequality and its equality characterization for all $v,w\in V$. ◻
+
+:::

@@ -1,0 +1,24 @@
+---
+import CollectionLayout from "@/layouts/CollectionLayout.astro";
+import { books } from "@/lib/books";
+import { readerLinkStyle } from "@/lib/reader-links";
+
+export const prerender = true;
+const description = "Read the books online or download the LaTeX manuscripts as PDFs from GitHub Releases.";
+---
+<CollectionLayout section="books" title="XYZ Books" description={description}>
+  <article class="w-full max-w-reading font-serif leading-copy">
+    <h1 class="text-title font-bold">XYZ Books</h1>
+    <p class="mt-phi-2">{description}</p>
+    <ul class="mt-phi-3">
+      {books.map(book => <li class="border-t border-rule/50 py-phi-3">
+        <h2 class="text-heading font-bold"><a href={book.href} class={readerLinkStyle}>{book.title}</a></h2>
+        <p class="mt-phi-0 italic">{book.author}</p>
+        <p class="my-phi-2">{book.description}</p>
+        <a href={book.manuscript.href} class:list={[readerLinkStyle, "inline-flex items-center pointer-coarse:min-h-touch-target"]} data-astro-reload>
+          Download manuscript (PDF)<span class="sr-only"> for {book.title}</span>
+        </a>
+      </li>)}
+    </ul>
+  </article>
+</CollectionLayout>

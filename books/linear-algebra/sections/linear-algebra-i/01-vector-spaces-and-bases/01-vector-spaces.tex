@@ -1,0 +1,71 @@
+% !TEX root = ../../../main.tex
+\section{Vector spaces}
+\label{sec:linear-algebra-i:vector-spaces}
+
+% Sources: Lucas's supplied MA-GY 7033 Quiz Prep.pdf, pp. 2--3,
+% and his typed early-week notes supplied November 9, 2026.
+% On November 9 Lucas authorized standard associativity, the choice R or C,
+% the scalar identity 1v=v, and distributivity over vector addition.
+Let \(\mathbb F\) be a field, such as \(\R\) or \(\C\).
+
+\begin{definition}
+  A vector space over \(\mathbb F\) is a nonempty set \(V\) with
+  addition and scalar multiplication
+  \[
+    \begin{aligned}
+      V\times V&\longrightarrow V,& (v,w)&\longmapsto v+w,\\
+      \mathbb F\times V&\longrightarrow V,& (a,v)&\longmapsto av,
+    \end{aligned}
+  \]
+  satisfying the following axioms for all \(u,v,w\in V\) and
+  \(a,b\in\mathbb F\).
+
+  \emph{Addition.}
+  \begin{enumerate}[({A}1)][4]
+    \setlength{\itemsep}{3pt}
+    \setlength{\parsep}{0pt}
+    \item \((u+v)+w=u+(v+w)\) (associativity).
+    \item \(v+w=w+v\) (commutativity).
+    \item There is a vector \(0_V\in V\) such that \(v+0_V=v\)
+      for every \(v\in V\).
+    \item Each \(v\in V\) has an inverse \(-v\in V\) with
+      \(v+(-v)=0_V\).
+  \end{enumerate}
+
+  \emph{Scalar multiplication.}
+  \begin{enumerate}[({S}1)][4]
+    \setlength{\itemsep}{3pt}
+    \setlength{\parsep}{0pt}
+    \item \((ab)v=a(bv)\) (associativity).
+    \item \((a+b)v=av+bv\) (distributivity over scalar addition).
+    \item \(a(v+w)=av+aw\) (distributivity over vector addition).
+    \item \(1v=v\) (scalar identity).
+  \end{enumerate}
+\end{definition}
+
+The elements of \(V\) are vectors, and the elements of \(\mathbb F\) are
+scalars. The vector \(0_V\) is called the zero vector or the origin.
+We write it as \(0\) when the vector space is clear from the context.
+
+The word \emph{vector} describes an object's role under addition and scalar
+multiplication. Coordinate columns, functions, and matrices can all play
+this role. The axioms specify the common structure that allows us to work
+with these different objects in the same way.
+
+In the real plane, vector addition can be drawn by completing a
+parallelogram, as in \autoref{fig:linear-algebra-i:vector-addition}.
+\begin{marginfigure}
+  \centering
+  \input{figures/vector-addition}
+  \caption[Vector addition]{A real-plane schematic of \(v+w\).
+    The dashed sides are translated copies of \(v\) and \(w\).}
+  \label{fig:linear-algebra-i:vector-addition}
+\end{marginfigure}
+
+The parallelogram makes addition visible in the plane. In a function space
+or a matrix space, the same operation is performed on functions or matrices.
+The expression \(av+bw\) therefore has a meaning beyond arrows in a drawing.
+It is a construction using the two vector-space operations, which we study
+next through linear combinations and span.
+
+\input{problems/hw01/01-axiom-consequences/problem}

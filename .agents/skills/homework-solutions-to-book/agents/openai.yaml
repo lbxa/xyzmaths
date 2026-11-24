@@ -1,0 +1,4 @@
+interface:
+  display_name: "Homework Solutions to Book"
+  short_description: "Import your proofs with focused mathematical repairs"
+  default_prompt: "Use $homework-solutions-to-book to incorporate my supplied solutions into this book, preserving my proof strategy and voice."

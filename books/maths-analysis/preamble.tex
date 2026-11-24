@@ -1,0 +1,180 @@
+% Shared packages and typography for the book and homework handouts.
+% Handouts set this directory when TeXShop compiles from problems/.
+\providecommand{\analysisroot}{.}
+\usepackage[T1]{fontenc}
+% Give titletoc a separate part number before nameref wraps \@part.
+\usepackage{etoolbox}
+\makeatletter
+\@ifclassloaded{tufte-book}{%
+  \patchcmd{\@part}
+    {\thepart\hspace{1em}}
+    {\protect\numberline{\thepart}}
+    {}
+    {\PackageError{analysis-notes}{Could not format part contents labels}
+      {Check the book class definition of \string\@part.}}
+}{}
+\makeatother
+
+\usepackage{nameref}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{aliascnt}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usepackage{booktabs}
+\usepackage{multicol} % Formula sheet and multicolumn specimen examples.
+\usepackage{needspace} % Keep a section opening together when space is short.
+% Packages used by the temporary Tufte specimen content.
+\usepackage{fancyvrb,xspace,units,makeidx}
+\fvset{fontsize=\small}
+\usepackage{url}
+\usepackage{lipsum} % Remove after all placeholder prose has been replaced.
+% Vendored AMS styles resolve from both the book and problems/ working directory.
+\makeatletter
+\providecommand{\input@path}{}
+\edef\input@path{{\analysisroot/styles/}%
+  {\analysisroot/styles/biblatex-ams/bbx/}%
+  {\analysisroot/styles/biblatex-ams/cbx/}\input@path}
+\makeatother
+% AMS author-based labels; bibliography alphabetized by author, year, and title.
+\usepackage[backend=biber,natbib=true,bibstyle=analysis-ams,
+  citestyle=ams-alphabetic,sorting=nyt]{biblatex}
+% Group sources as [Key1, Key2], as in the reference paper.
+\renewcommand*{\multicitedelim}{\addcomma\space}
+\expandafter\addbibresource\expandafter{\analysisroot/bibliography.bib}
+% Long source permalinks must wrap within the bibliography's text column.
+\usepackage{xurl}
+
+\graphicspath{{\analysisroot/figures/}}
+\setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
+\setcounter{secnumdepth}{1}
+
+% Retain the borrowed title/contents design only for the book.
+% Adapted from Kevin Godby's Tufte-LaTeX title/contents example:
+% https://groups.google.com/forum/#!topic/tufte-latex/ujdzrktC1BQ
+\makeatletter
+\@ifclassloaded{tufte-book}{%
+  \makeindex
+  % Leave room for two-digit appendix figure numbers such as C.13.
+  \patchcmd{\@tufte@lof@line}{\@tempdima 2.0em}{\@tempdima 3.0em}
+    {}
+    {\PackageError{analysis-notes}{Could not widen list-of-figures numbers}
+      {Check the Tufte list-of-figures definition.}}
+  \setcounter{tocdepth}{0} % Parts and chapters only.
+  % Title-only chapter headings; retain counters for sections and references.
+  \titleformat{\chapter}[block]
+    {\relax\ifthenelse{\NOT\boolean{@tufte@symmetric}}{\begin{fullwidth}}{}}
+    {}
+    {0pt}
+    {\huge\rmfamily\itshape}
+    [\ifthenelse{\NOT\boolean{@tufte@symmetric}}{\end{fullwidth}}{}%
+      % The fullwidth list must not overwrite the chapter's paragraph hook.
+      % Otherwise the first section can lose its normal space after prose.
+      \@endpefalse]
+  \renewcommand{\maketitlepage}{%
+    \begingroup
+    \setlength{\parindent}{0pt}
+    {\fontsize{24}{24}\selectfont\textit{\@author}\par}
+    \vspace{1.75in}
+    \begin{fullwidth}
+      \raggedright
+      {\fontsize{36}{44}\selectfont\@title\par}
+    \end{fullwidth}
+    \vspace{0.5in}
+    {\fontsize{14}{14}\selectfont\textsf{\smallcaps{\@date}}\par}
+    \vfill
+    {\fontsize{14}{14}\selectfont\textit{\@publisher}\par}
+    \thispagestyle{empty}
+    \endgroup
+  }
+  \titlecontents{part}
+    [0pt]
+    {\addvspace{0.75\baselineskip}\normalfont\normalsize}
+    {\allcaps{Part~\thecontentslabel}\quad\allcaps}
+    {\allcaps}
+    {}
+    [\vspace{0.5\baselineskip}]
+  % Hide chapter numbers in the contents as well.
+  \titlecontents{chapter}
+    [4em]
+    {\normalfont\normalsize}
+    {\textit}
+    {\textit}
+    {\qquad\thecontentspage}
+    [\vspace{0.5\baselineskip}]
+}{}
+\makeatother
+
+% Enable book and handout links after the Tufte contents customizations.
+% The classes' nohyper option defers loading; keep sidenotes unlinked.
+\makeatletter
+\usepackage[hidelinks,hyperfootnotes=false,bookmarksdepth=0]{hyperref}
+% Tufte's pre-expanded author can contain fragile formatting commands.
+% Let hyperref strip formatting from the unexpanded author for PDF metadata.
+\pdfstringdefDisableCommands{\let\thanklessauthor\@author}
+% One caption convention for the book and homework handouts. Load after
+% hyperref, and explicitly retain Tufte's margin typography and alignment.
+\usepackage{caption}
+\DeclareCaptionFont{tufte}{\@tufte@caption@font}
+\DeclareCaptionJustification{tufte}{\@tufte@caption@justification}
+\captionsetup{
+  font=tufte,labelfont=bf,labelsep=period,
+  justification=tufte,singlelinecheck=false,parindent=0pt,
+  % Tufte builds captions in separate margin boxes; link to the caption.
+  hypcap=false
+}
+\makeatother
+
+% Arrange margin content as a page-sized column, keeping captions with figures.
+% https://ctan.org/pkg/marginfix
+\usepackage{marginfix}
+\setlength{\marginparpush}{12pt}
+\setlength{\marginheightadjustment}{-6pt}
+\makeatletter
+\@ifclassloaded{tufte-book}{%
+  % Keep an exercise heading with the opening lines of its statement.
+  \AtBeginDocument{%
+    \BeforeBeginEnvironment{exercise}{\Needspace{3\baselineskip}}%
+  }
+}{}
+% Treat offsets as preferred positions, not whitespace inside the measured box.
+% Negative internal space can hide occupied height from the margin scheduler.
+\renewcommand{\marginnote}[2][0pt]{%
+  \ifthenelse{\boolean{@tufte@loadnatbib}}{%
+    \let\cite\@tufte@infootnote@cite
+  }{}%
+  \gdef\@tufte@citations{}%
+  \mparshift{#1}%
+  \marginpar{%
+    \@tufte@marginnote@font\@tufte@marginnote@justification
+    \@tufte@margin@par\noindent #2%
+  }%
+  \@tufte@print@citations
+  \ifthenelse{\boolean{@tufte@loadnatbib}}{%
+    \let\cite\@tufte@normal@cite
+  }{}%
+}
+\renewenvironment{@tufte@margin@float}[2][-1.2ex]
+  {\FloatBarrier
+    \def\analysis@margin@offset{#1}%
+    \begin{lrbox}{\@tufte@margin@floatbox}%
+      \begin{minipage}[t]{\marginparwidth}%
+        \@tufte@caption@font
+        \def\@captype{#2}%
+        \@tufte@caption@justification
+        \@tufte@margin@par\noindent
+  }
+  {\end{minipage}%
+    \end{lrbox}%
+    \ifdim\dimexpr\ht\@tufte@margin@floatbox+\dp\@tufte@margin@floatbox\relax
+        <\dimexpr\textheight+\marginheightadjustment\relax
+      \mparshift{\analysis@margin@offset}%
+      \marginpar{\usebox{\@tufte@margin@floatbox}}%
+    \else
+      \PackageError{analysis-notes}{Margin float is taller than the usable margin}
+        {Use a main-text figure or table instead; keep labels readable.}%
+    \fi
+  }
+% Keep Tufte's standard height handling for ordinary and full-width floats.
+% Their margin captions must not reserve vertical space in the main text.
+\makeatother

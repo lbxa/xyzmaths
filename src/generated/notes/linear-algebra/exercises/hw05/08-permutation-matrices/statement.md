@@ -1,0 +1,71 @@
+---
+key: "hw05:permutation-matrices"
+source: "problems/hw05/08-permutation-matrices/problem"
+title: "Exercise"
+number: "5.4.8"
+assignment: "hw05"
+question: 8
+statement-page: "linear-algebra-i/determinants"
+solution-page: "appendices/exercise-solutions"
+---
+
+Given a permutation $\sigma\in S_n$, the *permutation matrix* $P_\sigma$ is the matrix whose $k$-th column is $c_k=e_{\sigma(k)}$, i.e.,
+
+$$
+P_\sigma=\bigl[e_{\sigma(1)}\mid\cdots\mid e_{\sigma(n)}\bigr].
+$$
+
+For example, take $n=3$ and let $\sigma$ be the permutation given by
+
+$$
+\begin{aligned}
+      \sigma(1)&=2\\
+      \sigma(2)&=1\\
+      \sigma(3)&=3.
+    \end{aligned}
+$$
+
+Its permutation matrix is
+
+$$
+\begin{aligned}
+      P_\sigma
+        &=\bigl[e_{\sigma(1)}\mid e_{\sigma(2)}\mid e_{\sigma(3)}\bigr]\\
+        &=\bigl[e_2\mid e_1\mid e_3\bigr]\\
+        &=\begin{bmatrix}0&1&0\\1&0&0\\0&0&1\end{bmatrix}.
+    \end{aligned}
+$$
+
+:::list
+
+1.  **(a)** Show that a matrix is a permutation matrix if and only if every entry is $0$ or $1$ and there is exactly one $1$ in each row and each column.
+
+2.  **(b)** Show that if
+
+    $$
+    M=\bigl[c_1\mid\cdots\mid c_n\bigr],
+    $$
+
+    then
+
+    $$
+    MP_\sigma=\bigl[c_{\sigma(1)}\mid\cdots\mid c_{\sigma(n)}\bigr],
+    $$
+
+3.  **(c)** Given a permutation $\sigma$ and $v=(v^1,\ldots,v^n)\in\mathbb{R}^n$, describe the linear map defined by $P_\sigma$. In other words, what is $P_\sigma v$?
+
+4.  **(d)** Show that, for any two permutations $\sigma$ and $\tau$,
+
+    $$
+    P_{\sigma\circ\tau}=P_\sigma P_\tau
+    $$
+
+    by showing that for any $k\in\{1,\ldots,n\}$,
+
+    $$
+    P_{\sigma\circ\tau}e_k=P_\sigma P_\tau e_k.
+    $$
+
+5.  **(e)** Show that $\det(P_\sigma)=\varepsilon(\sigma)$.
+
+:::

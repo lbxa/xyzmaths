@@ -1,38 +1,78 @@
 ---
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
+import BookSelector from "../components/BookSelector";
 import SeoHead from "../components/SeoHead.astro";
+import { TooltipButton, TooltipLink } from "../components/TooltipControls";
+import { BookContentsIcon, CloseIcon } from "../components/ui/icons";
+import { books } from "../lib/books";
+import { readerLinkStyle } from "../lib/reader-links";
+import { readingWidthStorageKey } from "../lib/reading-width";
 
 interface Props {
   title: string;
-  description?: string;
+  description: string;
   image?: string;
   imageAlt?: string;
+  currentBook?: string;
+  section?: "books" | "pow";
+  canonicalPath?: string;
+  contentsLabel?: string;
+  type?: "website" | "article";
 }
 
 const {
   title,
-  description = "XYZ Mathematics Club",
+  description,
   image,
   imageAlt,
+  currentBook,
+  section,
+  canonicalPath,
+  contentsLabel,
+  type,
 } = Astro.props;
+const bookOptions = books.map(({ slug, title, href }) => ({ slug, title, href }));
+const hasContents = Boolean(contentsLabel && Astro.slots.has("left-aside"));
+const closeContentsLabel = `Close ${contentsLabel?.toLowerCase() ?? "contents"}`;
+const sections = [
+  { id: "books", title: "XYZ Books", href: "/books/" },
+  { id: "pow", title: "XYZ PoW", href: "/pow/" },
+];
+const activeSection = sections.find(item => item.id === section);
+const siteTitle = activeSection?.title ?? "XYZ Maths";
+const isSectionIndex = activeSection?.href === Astro.url.pathname.replace(/\/?$/, "/");
+const documentTitle = isSectionIndex || title === siteTitle ? siteTitle : `${title} | ${siteTitle}`;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" transition:animate="none">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script define:vars={{ readingWidthStorageKey }}>
+      if (!document.documentElement.hasAttribute("data-reading-width")) {
+        let width = "centred";
+        try {
+          if (localStorage.getItem(readingWidthStorageKey) === "wide") width = "wide";
+        } catch {
+          // Use the default measure when the browser blocks storage.
+        }
+        document.documentElement.dataset.readingWidth = width;
+      }
+    </script>
     <meta name="generator" content={Astro.generator} />
     <SeoHead
-      title={title}
+      documentTitle={documentTitle}
       description={description}
       image={image}
       imageAlt={imageAlt}
+      canonicalPath={canonicalPath}
+      type={type}
     />
     <ClientRouter />
   </head>
-  <body class="flex min-h-screen bg-frame p-phi-1 text-ink sm:p-phi-2 md:h-dvh md:min-h-0 md:overflow-hidden">
+  <body class="flex h-dvh overflow-hidden bg-frame p-phi-0 text-ink sm:p-phi-2 print:block print:h-auto print:overflow-visible print:bg-canvas print:p-0">
     <div
       data-ascii-intro
       aria-hidden="true"
@@ -44,88 +84,84 @@ const {
         class="m-0 max-w-full select-none overflow-hidden font-mono text-meta leading-none text-canvas sm:text-lede md:text-heading"
       ></pre>
     </div>
-
+    <a href="#main-content" class:list={[readerLinkStyle, "sr-only focus:fixed focus:start-phi-2 focus:top-phi-2 focus:z-50 focus:not-sr-only focus:bg-canvas focus:px-phi-tight focus:py-phi-fine"]}>Skip to content</a>
     <div
       data-site-shell
-      class="mx-auto grid w-full max-w-display grow overflow-hidden rounded-display border border-rule bg-frame shadow-display md:h-full md:min-h-0 md:grid-rows-[minmax(0,1fr)] md:[grid-template-columns:minmax(0,1fr)_var(--spacing-phi-8)] xl:[grid-template-columns:var(--layout-site-columns)]"
+      class="mx-auto flex min-h-0 w-full max-w-display flex-col overflow-hidden rounded-display border border-rule bg-canvas shadow-display print:block print:overflow-visible print:rounded-none print:border-0 print:shadow-none"
     >
-      <button
-        type="button"
-        data-drawer-backdrop
-        data-open="false"
-        aria-label="Close side panel"
-        class="pointer-events-none fixed inset-0 z-30 bg-frame/70 opacity-0 data-[open=true]:pointer-events-auto data-[open=true]:opacity-100"
-      ></button>
+      <header data-site-header class="grid shrink-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-phi-2 gap-y-phi-1 border-b border-ink px-phi-2 py-phi-0 pointer-coarse:py-phi-1 sm:px-phi-3 md:flex md:min-h-phi-4 print:hidden">
+        <TooltipLink client:load tip="Go to the XYZ Maths homepage" href="/" aria-label={activeSection ? `${siteTitle}, XYZ Maths home` : "XYZ Maths home"} className={readerLinkStyle + " inline-flex w-fit items-center gap-phi-1 whitespace-nowrap font-serif text-lede font-bold leading-none tracking-tight sm:text-heading"}>
+          <span aria-hidden="true" class="size-phi-3 shrink-0 bg-[url('/favicon.svg')] bg-contain bg-no-repeat max-[24rem]:hidden"></span>
+          {siteTitle}
+        </TooltipLink>
+        {currentBook && <div class="min-w-0 max-w-full justify-self-start">
+          <BookSelector client:load books={bookOptions} currentBook={currentBook} />
+        </div>}
+        <div class:list={[
+          "flex min-w-0 flex-wrap items-center gap-x-phi-2 md:ms-auto",
+          hasContents ? "col-span-full justify-between border-t border-rule/40 pt-phi-0 md:border-0 md:pt-0" : "justify-end",
+        ]}>
+          {hasContents && <div class="md:hidden">
+            <TooltipButton client:load tip="Open the book contents" variant="outline"
+              type="button" data-drawer-toggle="left" aria-controls="left-aside" aria-expanded="false"
+            >
+              <BookContentsIcon data-icon="inline-start" />
+              {contentsLabel}
+            </TooltipButton>
+          </div>}
+          <nav aria-label="Primary" class="flex flex-wrap items-center justify-end gap-x-phi-1 font-mono text-meta sm:gap-x-phi-2">
+            {sections.map(item => <a
+              href={item.href}
+              aria-current={activeSection === item ? (isSectionIndex ? "page" : "location") : undefined}
+              class:list={[readerLinkStyle, "inline-flex items-center whitespace-nowrap px-phi-tight py-phi-fine pointer-coarse:min-h-touch-target"]}
+            >{item.title}</a>)}
+          </nav>
+        </div>
+      </header>
 
-      <aside
-        id="left-aside"
-        data-drawer="left"
-        data-open="false"
-        aria-label="Additional information"
-        tabindex="-1"
-        class="fixed inset-y-0 left-0 z-40 order-3 w-[min(85vw,var(--spacing-phi-8))] -translate-x-full overflow-y-auto overscroll-contain border-r border-rule bg-canvas p-phi-3 shadow-display data-[open=true]:translate-x-0 xl:sticky xl:inset-y-auto xl:top-0 xl:z-auto xl:order-1 xl:h-full xl:min-h-0 xl:w-auto xl:translate-x-0 xl:border-t-0 xl:shadow-none"
-      >
-        <div class="mb-phi-3 flex justify-end xl:hidden">
+      <div class:list={[
+        "grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)] print:block",
+        hasContents && "md:[grid-template-columns:var(--layout-contents)_minmax(0,1fr)]",
+      ]}>
+        {hasContents && <>
           <button
             type="button"
-            data-drawer-close="left"
-            class="cursor-pointer border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta"
-          >
-            Close <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <slot name="left-aside" />
-      </aside>
+            data-drawer-backdrop
+            data-open="false"
+            aria-label="Close side panel"
+            tabindex="-1"
+            class="invisible fixed inset-0 z-30 bg-frame/70 data-[open=true]:visible print:hidden"
+          ></button>
 
-      <main
-        id="main-content"
-        class="order-1 bg-canvas p-phi-3 sm:p-phi-4 md:h-full md:min-h-0 md:overflow-y-auto md:overscroll-contain xl:order-2 xl:p-phi-5"
-      >
-        <nav
-          aria-label="Side panel controls"
-          class="sticky top-0 z-20 mb-phi-3 flex items-center justify-between gap-phi-2 border-b border-rule bg-canvas pb-phi-2 md:-mt-phi-2 xl:hidden"
+          <aside
+            id="left-aside"
+            data-drawer="left"
+            data-open="false"
+            aria-label={contentsLabel}
+            tabindex="-1"
+            class="invisible fixed inset-y-0 start-0 z-40 w-[min(90vw,var(--spacing-phi-8))] overflow-y-auto overscroll-contain rounded-e-panel border-e border-rule/50 bg-canvas px-phi-2 py-phi-3 data-[open=true]:visible md:visible md:static md:z-auto md:w-auto md:rounded-none xl:px-phi-3 print:hidden"
+          >
+            <div class="mb-phi-2 flex justify-end md:hidden">
+              <TooltipButton client:load tip={closeContentsLabel} variant="outline" size="icon"
+                type="button"
+                data-drawer-close="left"
+                aria-label={closeContentsLabel}
+              >
+                <CloseIcon />
+              </TooltipButton>
+            </div>
+            <slot name="left-aside" />
+          </aside>
+        </>}
+
+        <main
+          id="main-content"
+          tabindex="-1"
+          class="relative min-h-0 min-w-0 scroll-pt-phi-2 overflow-y-auto overscroll-contain bg-canvas px-phi-2 py-phi-3 sm:py-phi-4 md:px-phi-3 xl:py-phi-5 print:overflow-visible print:p-0"
         >
-          <button
-            type="button"
-            data-drawer-toggle="left"
-            aria-controls="left-aside"
-            aria-expanded="false"
-            class="inline-flex cursor-pointer items-center gap-phi-1 border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta"
-          >
-            <span aria-hidden="true">☰</span> Information
-          </button>
-          <button
-            type="button"
-            data-drawer-toggle="right"
-            aria-controls="right-aside"
-            aria-expanded="false"
-            class="inline-flex cursor-pointer items-center gap-phi-1 border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta md:hidden"
-          >
-            Navigation <span aria-hidden="true">☰</span>
-          </button>
-        </nav>
-        <slot />
-      </main>
-
-      <aside
-        id="right-aside"
-        data-drawer="right"
-        data-open="false"
-        aria-label="Site navigation"
-        tabindex="-1"
-        class="fixed inset-y-0 right-0 z-40 order-2 w-[min(85vw,var(--spacing-phi-8))] translate-x-full overflow-y-auto overscroll-contain border-l border-rule bg-canvas p-phi-3 shadow-display data-[open=true]:translate-x-0 md:sticky md:inset-y-auto md:top-0 md:z-auto md:order-3 md:h-full md:min-h-0 md:w-auto md:translate-x-0 md:shadow-none xl:order-3"
-      >
-        <div class="mb-phi-3 flex justify-start md:hidden">
-          <button
-            type="button"
-            data-drawer-close="right"
-            class="cursor-pointer border border-rule bg-canvas px-phi-2 py-phi-1 font-mono text-meta"
-          >
-            <span aria-hidden="true">×</span> Close
-          </button>
-        </div>
-        <slot name="right-aside" />
-      </aside>
+          <slot />
+        </main>
+      </div>
     </div>
 
     <script>
@@ -185,130 +221,71 @@ const {
     </script>
 
     <script>
+      import { currentFragment } from "../lib/contents-location";
+      import { getReadingWidth } from "../lib/reading-width";
+
       const tabletQuery = window.matchMedia("(min-width: 48rem)");
-      const wideQuery = window.matchMedia("(min-width: 80rem)");
       let drawerController: AbortController | undefined;
 
-      const setupDrawers = () => {
+      const setupContentsDrawer = () => {
         drawerController?.abort();
         drawerController = new AbortController();
         const { signal } = drawerController;
         const shell = document.querySelector<HTMLElement>("[data-site-shell]");
         if (!shell) return;
 
-        const panels = Array.from(
-          shell.querySelectorAll<HTMLElement>("[data-drawer]"),
-        );
-        const triggers = Array.from(
-          shell.querySelectorAll<HTMLButtonElement>("[data-drawer-toggle]"),
-        );
-        const closeButtons = Array.from(
-          shell.querySelectorAll<HTMLButtonElement>("[data-drawer-close]"),
-        );
-        const backdrop = shell.querySelector<HTMLButtonElement>(
-          "[data-drawer-backdrop]",
-        );
-        let returnFocus: HTMLElement | null = null;
+        const drawer = shell.querySelector<HTMLElement>("#left-aside");
+        const trigger = shell.querySelector<HTMLButtonElement>("[data-drawer-toggle]");
+        const closeButton = drawer?.querySelector<HTMLButtonElement>("[data-drawer-close]");
+        const backdrop = shell.querySelector<HTMLButtonElement>("[data-drawer-backdrop]");
+        const header = shell.querySelector<HTMLElement>("[data-site-header]");
+        const main = shell.querySelector<HTMLElement>("main");
+        if (!drawer || !trigger || !closeButton || !backdrop || !header || !main) return;
 
-        const isPermanent = (name: string) =>
-          name === "left" ? wideQuery.matches : tabletQuery.matches;
-
-        const activeDrawer = () =>
-          panels.find(
-            (panel) =>
-              panel.dataset.open === "true" &&
-              !isPermanent(panel.dataset.drawer ?? ""),
-          );
-
-        const sync = () => {
-          panels.forEach((panel) => {
-            const name = panel.dataset.drawer ?? "";
-            const visible = isPermanent(name) || panel.dataset.open === "true";
-            panel.inert = !visible;
-            panel.setAttribute("aria-hidden", String(!visible));
-
-            if (isPermanent(name)) {
-              panel.removeAttribute("role");
-              panel.removeAttribute("aria-modal");
-            } else {
-              panel.setAttribute("role", "dialog");
-              panel.setAttribute("aria-modal", "true");
-            }
-          });
-
-          triggers.forEach((trigger) => {
-            const name = trigger.dataset.drawerToggle ?? "";
-            const panel = panels.find((item) => item.dataset.drawer === name);
-            trigger.setAttribute(
-              "aria-expanded",
-              String(panel?.dataset.open === "true"),
-            );
-          });
-
-          const drawerOpen = Boolean(activeDrawer());
-          if (backdrop) backdrop.dataset.open = String(drawerOpen);
-          document.body.style.overflow = drawerOpen ? "hidden" : "";
+        const setOpen = (open: boolean) => {
+          const docked = tabletQuery.matches;
+          drawer.dataset.open = String(open);
+          drawer.inert = !docked && !open;
+          drawer.setAttribute("aria-hidden", String(drawer.inert));
+          if (docked) {
+            drawer.removeAttribute("role");
+            drawer.removeAttribute("aria-modal");
+          } else {
+            drawer.setAttribute("role", "dialog");
+            drawer.setAttribute("aria-modal", "true");
+          }
+          trigger.setAttribute("aria-expanded", String(open));
+          backdrop.dataset.open = String(open);
+          header.inert = open;
+          main.inert = open;
+        };
+        const dismiss = () => {
+          setOpen(false);
+          trigger.focus();
         };
 
-        const closeDrawers = (restoreFocus = true) => {
-          panels.forEach((panel) => {
-            panel.dataset.open = "false";
-          });
-          sync();
-
-          if (restoreFocus) returnFocus?.focus();
-          returnFocus = null;
-        };
-
-        const openDrawer = (name: string, trigger: HTMLElement) => {
-          closeDrawers(false);
-          const panel = panels.find((item) => item.dataset.drawer === name);
-          if (!panel || isPermanent(name)) return;
-
-          returnFocus = trigger;
-          panel.dataset.open = "true";
-          sync();
-          panel.focus();
-        };
-
-        triggers.forEach((trigger) => {
-          trigger.addEventListener(
-            "click",
-            () => {
-              openDrawer(trigger.dataset.drawerToggle ?? "", trigger);
-            },
-            { signal },
-          );
-        });
-
-        closeButtons.forEach((button) => {
-          button.addEventListener("click", () => closeDrawers(), { signal });
-        });
-        backdrop?.addEventListener("click", () => closeDrawers(), { signal });
-
-        panels.forEach((panel) => {
-          panel.querySelectorAll("a").forEach((link) => {
-            link.addEventListener(
-              "click",
-              () => {
-                if (!isPermanent(panel.dataset.drawer ?? "")) {
-                  closeDrawers(false);
-                }
-              },
-              { signal },
-            );
-          });
-        });
+        trigger.addEventListener("click", () => {
+          if (tabletQuery.matches) return;
+          setOpen(true);
+          closeButton.focus();
+        }, { signal });
+        closeButton.addEventListener("click", dismiss, { signal });
+        backdrop.addEventListener("click", dismiss, { signal });
+        drawer.addEventListener("click", (event) => {
+          if (drawer.dataset.open === "true" && event.target instanceof Element && event.target.closest("a[href]")) {
+            setOpen(false);
+          }
+        }, { signal });
 
         document.addEventListener(
           "keydown",
           (event) => {
-            const drawer = activeDrawer();
-            if (!drawer) return;
+            if (drawer.dataset.open !== "true") return;
 
             if (event.key === "Escape") {
+              if (event.defaultPrevented || document.querySelector('[role="tooltip"]:not([data-ending-style])')) return;
               event.preventDefault();
-              closeDrawers();
+              dismiss();
               return;
             }
 
@@ -317,7 +294,7 @@ const {
               drawer.querySelectorAll<HTMLElement>(
                 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
               ),
-            );
+            ).filter((element) => element.getClientRects().length > 0);
             if (focusable.length === 0) {
               event.preventDefault();
               drawer.focus();
@@ -337,16 +314,50 @@ const {
           { signal },
         );
 
-        const handleBreakpointChange = () => closeDrawers(false);
-        tabletQuery.addEventListener("change", handleBreakpointChange, { signal });
-        wideQuery.addEventListener("change", handleBreakpointChange, { signal });
-        sync();
+        tabletQuery.addEventListener("change", () => setOpen(false), { signal });
+        setOpen(false);
       };
 
-      document.addEventListener("astro:page-load", setupDrawers);
-      document.addEventListener("astro:before-swap", () => {
+      document.addEventListener("astro:page-load", setupContentsDrawer);
+      document.addEventListener("astro:before-swap", (event) => {
         drawerController?.abort();
-        document.body.style.overflow = "";
+        event.newDocument.documentElement.dataset.readingWidth = getReadingWidth();
+      });
+
+      // The reader scrolls inside main. Save its position alongside Astro's window position.
+      const saveReadingPosition = () => {
+        const top = document.getElementById("main-content")?.scrollTop;
+        if (top !== undefined && history.state && history.state.readingScrollTop !== top) {
+          history.replaceState({ ...history.state, readingScrollTop: top }, "");
+        }
+      };
+      document.addEventListener("click", (event) => {
+        if (event.target instanceof Element && event.target.closest("a[href]")) saveReadingPosition();
+      }, { capture: true });
+      window.addEventListener("pagehide", saveReadingPosition);
+
+      const restoreReadingPosition = () => {
+        const href = location.href;
+        const top = history.state?.readingScrollTop;
+        requestAnimationFrame(() => {
+          const main = document.getElementById("main-content");
+          if (!main || location.href !== href) return;
+          if (typeof top === "number") {
+            main.scrollTop = top;
+          } else if (location.hash) {
+            const target = document.getElementById(currentFragment().slice(1));
+            if (target && main.contains(target)) target.scrollIntoView({ block: "start", behavior: "instant" });
+          }
+        });
+      };
+      let readingPath = location.pathname;
+      window.addEventListener("pageshow", restoreReadingPosition);
+      window.addEventListener("popstate", () => {
+        if (location.pathname === readingPath) restoreReadingPosition();
+      });
+      document.addEventListener("astro:after-swap", () => {
+        readingPath = location.pathname;
+        restoreReadingPosition();
       });
     </script>
   </body>

@@ -1,0 +1,192 @@
+# Contributing
+
+Help turn this shared outline into reliable notes for Introduction to
+Mathematical Analysis. Contributions can be small: clarify an argument, fix a
+symbol, add an example, or improve a diagram.
+
+## Choose a topic
+
+Check existing issues and pull requests for overlapping work. Coordinate
+chapter reordering and changes to shared notation with other contributors.
+For a correction, identify the topic and explain the mathematical issue;
+include a source or counterexample when useful.
+
+Create a focused branch in your fork or checkout, such as `notes/supremum`.
+Keep unrelated topics in separate pull requests to make review easier.
+
+## Share portable editor settings
+
+Open XYZ Maths as the workspace to use the [shared editor settings](../../.vscode/settings.json).
+See [CUSTOMISATION.md](CUSTOMISATION.md) for the book's setup.
+
+## Edit the right files
+
+- Write notes in the smallest relevant file under `sections/analysis-i/`.
+  For example, supremum belongs in
+  `sections/analysis-i/01-sets-and-foundations/06-supremum.tex`.
+- Replace the complete `TUFTE PLACEHOLDER` block for a topic with course
+  content, including its temporary grouping and `\sloppy` wrapper. Retain
+  attribution for any specimen material you keep or adapt.
+- Add a new topic to its chapter's explicit `\input` list. Add new chapters
+  to the corresponding `part.tex`. Keep Analysis II disabled until needed.
+- Put reusable notation in `macros.tex`, layout changes in `preamble.tex`,
+  and bibliography entries in `bibliography.bib`.
+- Store figures in `figures/` with descriptive names such as
+  `supremum-upper-bounds.pdf`. Include editable diagram sources when available.
+- Add homework as `problems/hwNN.tex`, starting from
+  [`problems/template.tex`](problems/template.tex) and preserving its
+  `\analysisroot` setup and TeXShop engine directive.
+  Build it with Make from the book directory or typeset it directly in
+  TeXShop. Keep nested problem and solution root directives pointing to that
+  homework. See [TeXShop setup](CUSTOMISATION.md#texshop-homework-previews).
+
+## Write consistent mathematics and LaTeX
+
+Use two-space indentation and lowercase, hyphenated filenames. Preserve the
+`% !TEX root` hint in topic files. File numbers control organization; labels
+should describe the subject and remain stable when files move:
+
+```tex
+\section{Supremum}
+\label{sec:analysis-i:supremum}
+```
+
+Use the existing `definition`, `property`, `theorem`, `lemma`, `proposition`, `corollary`,
+`example`, `exercise`, `remark`, and `proof` environments. Reuse notation such
+as `\R` and `\N`. Refer to labels with `\autoref` instead of typing result
+names or numbers, and use stable bibliography keys with `\cite`.
+
+The shared convention gives full, capitalised names such as `Figure 1.1`,
+`Table 1.1`, `Theorem 1.2.3`, and `Exercise 1.2.4`. Equations render as
+`Equation (1.2)` and sections as `§ 1.2`. Write only `\autoref{fig:...}`,
+`\autoref{thm:...}`, `\autoref{eq:...}`, or `\autoref{sec:...}`; the command
+supplies the name and nonbreaking space and links the complete reference.
+For ranges, use `\autoref{sec:first}--\autoref{sec:last}`. Use `\autoref*`
+only for an intentionally unlinked reference. Page numbers still use
+`\pageref`; solution navigation retains its descriptive `\hyperref` links.
+Define new numbered result environments with `\newsharedtheorem` so their
+automatic names stay distinct while sharing the existing theorem counter.
+
+Use `property` for a formally stated property, with an optional descriptive
+title and a stable `thm:` label. It uses upright text and the shared
+section-based result counter; LUBP in the supremum section is an example.
+
+Use `\marginnote{...}` for secondary observations in the book and homework
+handouts. Notes sit beside the relevant passage without numeric markers in
+either the margin or the main text. Place the command at that passage.
+The shared `marginfix` configuration stacks notes and complete margin figures,
+leaves space between them, and moves excess content intact to the next page.
+Use `\marginnote[<offset>]{...}` or `marginfigure`'s optional offset only
+to suggest alignment with a passage; the scheduler may adjust that position.
+Do not use negative space or forced page breaks to fix crowded margins.
+Use a main-text or full-width figure if a chart and its caption cannot fit
+in one margin at a readable size. Retain Tufte's standard height handling
+for ordinary and full-width figures, so their margin captions do not push
+down the main text.
+Do not use numbered `\sidenote` or `\footnote` commands for these notes.
+
+Place each shared problem's `\solutionlink{hwNN:topic}` immediately before
+`\end{exercise}`, after the complete statement and any hints. It appends an
+italic solution link in the main body and is suppressed in handouts and
+appendix restatements.
+
+Add source metadata to `bibliography.bib`. Citations use bracketed
+author-based labels such as `[Wal17]` in the main text, for example
+`theory~\cite{Waldschmidt2017}.` Use
+`\cite[32]{Bringhurst2005}` for a page reference and comma-separated keys
+for multiple sources. Do not wrap citations in sidenotes or use Tufte's
+old vertical-offset arguments. The bibliography after the course chapters
+and before the appendices uses AMS formatting and lists cited sources
+alphabetically by author, then year and title. The shared
+[bibliography styles](styles/README.md) apply to the book and handouts.
+Keep author names, dates, volume/issue numbers, page ranges or article IDs,
+and links in their dedicated `.bib` fields. The shared style supplies author
+initials, title typography, punctuation, and journal detail order; do not
+embed those presentation choices in source metadata.
+Run `make book` (or
+`make watch`) so latexmk runs Biber and the required LaTeX passes; a single
+pdfLaTeX pass can leave bold citation keys instead of resolved author-based
+labels.
+The shared LaTeX Workshop recipe also runs latexmk; its PDF is `main.pdf`
+beside the book source. See [CUSTOMISATION.md](CUSTOMISATION.md) for details.
+
+Historical margin notes should explain the motivating problem and impact,
+with original texts or correspondence and careful attribution. Use
+`\historynote` for additions awaiting review, and consult the
+[history inventory](docs/history-inventory.md). Portraits use the shared
+helpers and the [portrait source ledger](figures/portraits/README.md).
+Retain the separate image licences and identify gaps in original provenance.
+
+State assumptions precisely, define symbols before using them, and check each
+proof step. Clearly identify unfinished arguments. Write explanations in your
+own words and credit published source texts and reused figures. Present the
+mathematics as a self-contained book, without references to unpublished
+lectures, class discussions, or handwritten notes. Credit Professor Yisong
+Yang of NYU Courant in the acknowledgements; keep classroom wording and
+source provenance in TeX comments and internal README records. State any
+assumptions or omitted proofs directly, and retain citations to retrievable
+published sources.
+
+Preserve the established Tufte layout: italic chapter titles, chapter-level
+contents, and margin notes. Keep the class's `nohyper` option and the late
+`hyperref` load in `preamble.tex`; that ordering preserves the custom contents
+while enabling citation and bibliography links. The caption-font patch after
+that load keeps captions at the same size as margin notes. Changes need a PDF
+check.
+
+## Preview while editing
+
+Run `make watch` for the book or `make watch-problems HW=hw01` for a homework
+handout. Replace `hw01` with the file's basename, without `.tex`; Homework 01 is
+the default. Open `build/main.pdf` or `build/problems/hw01.pdf` in your PDF
+viewer. Changes to the selected document and its included files trigger a
+rebuild. Stop with Ctrl-C.
+
+## Validate the change
+
+Run in `books/maths-analysis/`.
+
+```sh
+make check
+```
+
+This builds the book, standalone formula sheet, and every homework from both the book directory and
+`problems/`. The second pass matches TeXShop's working directory and writes
+`problems/hwNN.pdf`, using a separate cache from `build/problems/`. Either
+build mode failing makes the check fail. Use `make check-texshop` for a
+focused check of all subdirectory builds.
+
+Read `build/main.pdf`, any affected `build/problems/hwNN.pdf`, and the
+corresponding `problems/hwNN.pdf`. Check the
+contents and references, equations, citations, figure placement, and margin
+collisions. Inspect build logs for errors, undefined references, and overfull
+boxes. Review mathematical correctness separately from whether LaTeX compiles.
+
+There is currently no automated mathematical test suite or coverage target.
+For Markdown-only changes, check links and examples; a PDF rebuild is needed
+when changing the book's text or layout.
+
+## Submit a pull request
+
+Use an imperative commit subject, for example `Add supremum examples`. In the
+pull request, include:
+
+- Topics changed and a short explanation of the improvement.
+- Relevant sources and linked issues, if any.
+- Build results and any remaining mathematical questions.
+- A screenshot of affected pages when changing layout or diagrams.
+
+Add or update your entry in
+[`sections/front-matter/acknowledgements.tex`](sections/front-matter/acknowledgements.tex).
+Commit source files and source figure assets; leave generated PDFs, logs, and
+auxiliary files in the ignored `build/` directory.
+
+## Licensing and attribution
+
+Submit original text and illustration contributions, including their editable
+sources, under [CC BY-NC-ND 4.0](LICENSE-CC-BY-NC-ND-4.0.txt). Contributions to build scripts
+and typesetting infrastructure use the [Apache License, Version 2.0](LICENSE).
+For reused material, record the source, author, and applicable license, and
+retain its required notices. The existing Tufte specimens retain Apache 2.0
+terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Keep those notices
+with any retained or adapted template content.

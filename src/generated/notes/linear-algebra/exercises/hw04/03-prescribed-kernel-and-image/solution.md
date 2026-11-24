@@ -1,0 +1,68 @@
+:::div{class="proof"}
+
+*Solution.* **(a)** Seek a map of the form
+
+$$
+L(x,y,z)=(ax+by+cz)(1,2,1).
+$$
+
+For both generators of $K$ to lie in the kernel, we require $a+b=0$ and $b+c=0$. Choose $a=c=1$ and $b=-1$. This gives
+
+$$
+L(x,y,z)=(x-y+z)(1,2,1).
+$$
+
+**(b)** In the standard bases, the matrix of $L$ is
+
+$$
+M=
+      \begin{pmatrix}
+        1&-1&1\\
+        2&-2&2\\
+        1&-1&1
+      \end{pmatrix},
+$$
+
+since
+
+$$
+M\begin{pmatrix}x\\y\\z\end{pmatrix}
+        =\begin{pmatrix}x-y+z\\2(x-y+z)\\x-y+z\end{pmatrix}.
+$$
+
+**(c)** We verify both equalities by proving both inclusions. The two generators satisfy $L(1,1,0)=0$ and $L(0,1,1)=0$. By linearity, every vector $a(1,1,0)+b(0,1,1)$ also maps to zero. Hence $K\subseteq\ker L$.
+
+Conversely, if $v=(x,y,z)\in\ker L$, then $x-y+z=0$, so $y=x+z$. Thus
+
+$$
+v=(x,x+z,z)=x(1,1,0)+z(0,1,1)\in K.
+$$
+
+Therefore $\ker L=K$.
+
+Every output of $L$ is a multiple of $(1,2,1)$, giving $\operatorname{im}L\subseteq S$. Conversely, every vector of $S$ has the form $t(1,2,1)$, and
+
+$$
+L(t,0,0)=t(1,2,1).
+$$
+
+Hence $S\subseteq\operatorname{im}L$, and $\operatorname{im}L=S$.
+
+**(d)** The kernel has dimension $2$, and the image has dimension $1$. Thus
+
+$$
+\operatorname{nullity}L=2,
+      \qquad
+      \operatorname{rank}L=1,
+$$
+
+and
+
+$$
+\operatorname{rank}L+\operatorname{nullity}L
+        =1+2=3=\dim\mathbb{R}^3.
+$$
+
+ ◻
+
+:::

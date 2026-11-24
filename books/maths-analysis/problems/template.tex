@@ -1,0 +1,38 @@
+% !TEX TS-program = pdflatexmk
+% !TEX program = pdflatex
+% Copy to problems/hwNN.tex. Typeset in TeXShop, or use make problem HW=hwNN.
+% Keep this path setup so builds work from the book directory and problems/.
+\documentclass[nohyper,nobib,nofonts]{tufte-handout}
+% Resolve shared inputs before loading the preamble and macros.
+\newcommand{\analysisroot}{..}
+\IfFileExists{preamble.tex}{\renewcommand{\analysisroot}{.}}{}
+\makeatletter
+\edef\input@path{{\analysisroot/}}
+\makeatother
+\input{preamble}
+\input{macros}
+
+\title{Homework 01}
+\author{Lucas Barbosa, \texttt{lc6424}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Sets and foundations}
+\label{sec:hw01:sets-and-foundations}
+
+% Replace the specimen below with inputs of shared problem/solution pairs.
+% Each nested source's editor root must point to ../../hwNN.tex.
+% Keep its document class and shared preamble here, not in those fragments.
+% See CUSTOMISATION.md for the complete TeXShop workflow.
+\begin{exercise}
+  \label{ex:hw01:placeholder}
+  \lipsum[1]
+\end{exercise}
+
+\begin{proof}[Solution]
+  \lipsum[2]
+\end{proof}
+
+\end{document}

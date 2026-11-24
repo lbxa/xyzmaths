@@ -1,7 +1,7 @@
 {
-  "name": "XYZ Mathematics Club",
+  "name": "XYZ Maths",
   "short_name": "XYZ Maths",
-  "description": "A student-founded community exploring mathematics beyond the curriculum.",
+  "description": "Mathematics books and weekly problem editorials by Lucas Barbosa.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

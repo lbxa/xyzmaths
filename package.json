@@ -3,9 +3,13 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=26"
   },
   "scripts": {
+    "notes:generate": "python3 -B scripts/web-notes/build.py",
+    "notes:check": "python3 -B scripts/web-notes/build.py --check",
+    "notes:test": "astro build && python3 -B tests/verify_web_notes.py && bun test tests/book-margin.test.ts tests/manuscript-release.test.ts",
+    "notes:test:changes": "python3 -B tests/test_web_note_changes.py",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
@@ -15,17 +19,29 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.2.9"
+    "@astrojs/react": "^7.1.9",
+    "@base-ui/react": "^1.9.0",
+    "astro": "^7.4.13",
+    "class-variance-authority": "^0.7.1",
+    "cn": "^0.5.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "allowScripts": {
     "esbuild": true
   },
   "devDependencies": {
-    "@astrojs/cloudflare": "^14.2.5",
-    "@astrojs/sitemap": "^3.7.3",
-    "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^26.4.0",
-    "tailwindcss": "^4.3.3",
-    "wrangler": "^4.127.1"
+    "@astrojs/cloudflare": "^14.4.9",
+    "@astrojs/sitemap": "^3.7.6",
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "katex": "0.18.9",
+    "satteri": "0.11.7",
+    "tailwindcss": "^4.3.5",
+    "vite-plugin-svgr": "^5.2.0",
+    "wrangler": "^4.166.0",
+    "yaml": "2.9.1"
   }
 }

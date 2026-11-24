@@ -1,0 +1,49 @@
+% !TEX root = ../../../main.tex
+% Sources: LEC01, IMG_9110; LEC03, IMG_9128--IMG_9130.
+\section{Induction and the Archimedean property}
+\label{sec:analysis-i:mathematical-induction}
+\label{sec:analysis-i:archimedean}
+
+\subsection{The natural-number tools}
+Induction and the well-ordering principle were introduced in
+\autoref{sec:analysis-i:sets-and-countable-sets}, before their use in
+enumeration. We now combine them with completeness. Induction controls
+each finite stage of an argument, while the Archimedean property lets us
+choose a stage beyond any prescribed real bound.
+
+\subsection{Small steps eventually pass any bound}
+\autoref{thm:analysis-i:archimedean} was proved directly from LUBP
+in \autoref{sec:analysis-i:supremum}. Taking the step size to be $1$
+shows that $\N$ is unbounded in $\R$. Given $\delta>0$, we can therefore
+choose $N>1/\delta$. For every $n\geq N$, we have $1/n<\delta$, which
+is the estimate behind $1/n\to0$. The same estimate will give rational
+approximations with arbitrarily small error in the next section.
+
+\subsection{The integer part}
+\begin{proposition}
+  For every $x\in\R$, there is a unique $m\in\Z$ such that
+  \[
+    m\leq x<m+1.
+  \]
+  This integer is the \emph{floor} or \emph{integer part} of $x$, denoted
+  by $\lfloor x\rfloor$.
+\end{proposition}
+\begin{proof}
+  First suppose $x\geq0$. By the Archimedean property, the set of natural
+  numbers greater than $x$ is nonempty. Let $n$ be its least member.
+  Then $n-1\leq x<n$, so $m=n-1$ has the required property. For a general
+  real $x$, choose $k\in\N$ with $x+k\geq0$. The first case gives an
+  integer $r$ with $r\leq x+k<r+1$, and $m=r-k$ works.
+  Finally, two distinct integers differ by at least one, so they cannot
+  both satisfy the displayed inequalities. This proves uniqueness.
+\end{proof}
+We use $\lfloor x\rfloor$ for the integer part to distinguish it from
+interval notation. For example, $\lfloor\pi\rfloor=3$,
+whereas $\lfloor-\pi\rfloor=-4$. The floor is not truncation toward zero.
+
+\subsection{Exercise on bounds and convergence}
+An explicit sequence connects the definitions of Cauchy convergence,
+infimum, and supremum. The Archimedean property supplies the indices
+needed in its estimates.
+
+\input{problems/hw02/04-decreasing-sequence/problem}

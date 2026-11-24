@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Copy the hydrated reader page</title>
+<iframe title="Book reader"></iframe>
+<output>Waiting for the reader</output>
+<script type="module">
+  const frame = document.querySelector("iframe");
+  const output = document.querySelector("output");
+  const chapter = "/notes/linear-algebra/linear-algebra-i/vector-spaces-and-bases";
+
+  try {
+    const loaded = new Promise(resolve => frame.addEventListener("load", resolve, { once: true }));
+    frame.src = chapter + "/";
+    await loaded;
+    const control = frame.contentDocument.querySelector("copy-markdown");
+    const tooltip = control.querySelector("astro-island");
+    if (tooltip?.hasAttribute("ssr")) {
+      await new Promise(resolve => tooltip.addEventListener("astro:hydrate", resolve, { once: true }));
+    }
+    await frame.contentWindow.customElements.whenDefined("copy-markdown");
+
+    const response = await fetch(chapter + ".md");
+    if (!response.ok) throw new Error("Chapter Markdown unavailable");
+    const expected = await response.text();
+    const copied = new Promise(resolve => {
+      Object.defineProperty(frame.contentWindow.navigator, "clipboard", {
+        value: {
+          write: async ([item]) => resolve((await item.getType("text/plain")).text()),
+          writeText: resolve,
+        },
+      });
+    });
+    output.textContent = "The hydrated button did not copy";
+    const button = control.querySelector("button");
+    if (button.disabled || !button.getClientRects().length) throw new Error("Copy button unavailable");
+    button.click();
+    if (await copied !== expected) throw new Error("The clipboard differs from the chapter Markdown");
+    output.textContent = "Copied the chapter";
+  } catch (error) {
+    output.textContent = error.message;
+  }
+</script>
+</html>

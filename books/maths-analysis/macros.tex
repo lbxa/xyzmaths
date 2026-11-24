@@ -1,0 +1,159 @@
+% Shared notation and environments. Keep topic-specific macros local.
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+
+% Draft additions awaiting the author's review. Keep ordinary result styles.
+% Remove the wrapper after approval to restore the surrounding text colour.
+\definecolor{pendingreviewcolor}{HTML}{486581}
+\newenvironment{pendingreview}{%
+  \par\color{pendingreviewcolor}%
+}{\par}
+\newcommand{\pendingreviewtext}[1]{\textcolor{pendingreviewcolor}{#1}}
+
+% Unstarred historical notes and portraits await author review.
+% Use starred forms after approval, preserving the same shared layout.
+% Set approved text to black explicitly so queued margins cannot inherit
+% the review colour of neighbouring, unapproved material.
+% Use once at the substantive treatment; subsequent mentions link back.
+\NewDocumentCommand{\historynote}{s m}{%
+  \marginnote{\IfBooleanTF{#1}{\textcolor{black}{#2}}{\pendingreviewtext{#2}}}%
+}
+% Historical reproductions use the available margin width at native proportions.
+% Credits and original-object metadata live in the cited record and ledger.
+\NewDocumentCommand{\historyportrait}{s m m m}{%
+  \begin{marginfigure}
+    \centering
+    \includegraphics[width=\linewidth,keepaspectratio]{portraits/#2.jpg}
+    \caption[#3.]{\IfBooleanTF{#1}
+      {\textcolor{black}{#3.~\cite{#4,BookofproofsPortraits}}}
+      {\pendingreviewtext{#3.~\cite{#4,BookofproofsPortraits}}}}
+    \label{fig:portrait:#2}
+  \end{marginfigure}%
+}
+\NewDocumentCommand{\historyportraitpair}{s m m m m m m m}{%
+  \begin{marginfigure}
+    \centering
+    \makebox[\linewidth][c]{%
+      \includegraphics[width=0.49\linewidth,keepaspectratio]{portraits/#2.jpg}%
+      \hspace{0.02\linewidth}%
+      \includegraphics[width=0.49\linewidth,keepaspectratio]{portraits/#5.jpg}%
+    }
+    \caption[#3 and #6.]{\IfBooleanTF{#1}
+      {\textcolor{black}{#3 (left) and #6 (right).
+        Portrait sources~\cite{#4,#7,BookofproofsPortraits}.}}
+      {\pendingreviewtext{#3 (left) and #6 (right).
+        Portrait sources~\cite{#4,#7,BookofproofsPortraits}.}}}
+    \label{fig:portrait:#8}
+  \end{marginfigure}%
+}
+
+% One convention for named, linked cross-references in every document.
+\renewcommand*{\figureautorefname}{Figure}
+\renewcommand*{\tableautorefname}{Table}
+\renewcommand*{\partautorefname}{Part}
+\renewcommand*{\chapterautorefname}{Chapter}
+\renewcommand*{\appendixautorefname}{Appendix}
+\renewcommand*{\sectionautorefname}{\S}
+\renewcommand*{\subsectionautorefname}{\S}
+\renewcommand*{\subsubsectionautorefname}{\S}
+\renewcommand*{\theoremautorefname}{Theorem}
+% Hyperref appends ~, the reference number, and \null to the name.
+% Consume that number here to retain the usual equation parentheses.
+\def\equationautorefname~#1\null{Equation~(#1)\null}
+
+% Keep submission-specific layout hints out of shared book exercises.
+\makeatletter
+\newcommand{\handoutonly}[1]{\@ifclassloaded{tufte-handout}{#1}{}}
+% Append this italic link after the complete exercise, before its end tag.
+% The handouts print solutions immediately; only the book needs these links.
+\newcommand{\solutionlink}[1]{%
+  \@ifclassloaded{tufte-book}{%
+    \ifhmode\unskip\space\else\noindent\fi
+    \textit{\hyperref[sol:#1]{Solution on page~\pageref*{sol:#1}.}}%
+  }{}%
+}
+\makeatother
+
+% Select the original exercise number for the next appendix restatement.
+\newcommand{\restatedexercisekey}{}
+\newcommand{\solutionheading}[1]{%
+  \renewcommand{\restatedexercisekey}{#1}%
+}
+
+% Reuse the exercise's theorem styling and original number. Register only
+% the solution anchor, not a second exercise label or solution link.
+\newenvironment{restatedproblem}{%
+  \let\restatedproblemlabel\label
+  \renewenvironment{exercise}{%
+    \begin{restatedexercise}%
+    \phantomsection
+    \restatedproblemlabel{sol:\restatedexercisekey}%
+  }{\end{restatedexercise}}%
+  \renewcommand{\label}[1]{}%
+  \renewcommand{\solutionlink}[1]{}%
+}{\par}
+
+% Publication month and year used on the copyright page.
+\newcommand{\monthyear}{%
+  \ifcase\month\or January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or December\fi
+  \space\number\year
+}
+
+% One shared counter makes results unambiguous within each section.
+% Alias counters let autoref identify the kind of result, not just its number.
+\newcommand{\newsharedtheorem}[2]{%
+  \newaliascnt{#1}{theorem}%
+  \newtheorem{#1}[#1]{#2}%
+  \aliascntresetthe{#1}%
+  % Follow later changes to the theorem format, including handout numbering.
+  \expandafter\renewcommand\csname the#1\endcsname{\thetheorem}%
+  \expandafter\providecommand\csname #1autorefname\endcsname{#2}%
+}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newsharedtheorem{lemma}{Lemma}
+\newsharedtheorem{proposition}{Proposition}
+\newsharedtheorem{corollary}{Corollary}
+\newtheorem*{conjecture}{Conjecture}
+\theoremstyle{definition}
+\newsharedtheorem{definition}{Definition}
+\newsharedtheorem{property}{Property}
+\newsharedtheorem{example}{Example}
+\newsharedtheorem{exercise}{Exercise}
+\newtheorem*{restatedexercise}{\autoref{ex:\restatedexercisekey}}
+\theoremstyle{remark}
+\newsharedtheorem{remark}{Remark}
+
+% Catalogue numbered theorem statements using their existing counters and
+% hyperlink anchors. Match the book's figure/table list formatting.
+\makeatletter
+\@ifclassloaded{tufte-book}{%
+  \newcommand{\listoftheorems}{%
+    \begingroup
+    % Begin directly after the figure list, without a blank facing page.
+    \let\cleardoublepage\clearpage
+    \chapter*{List of Theorems}%
+    \@starttoc{loe}%
+    \endgroup
+  }
+  \let\l@theorem\@tufte@lof@line
+  \providecommand*{\toclevel@theorem}{2}
+}{}
+% Scan this patch directly so etoolbox can handle its parameter characters.
+\ifdefined\listoftheorems
+  \pretocmd{\@begintheorem}{%
+    \ifstrequal{#1}{Theorem}{%
+      \ifblank{#2}{}{%
+        \addcontentsline{loe}{theorem}{\protect\numberline{#2}#3}%
+      }%
+    }{}%
+  }{}{%
+    \PackageError{analysis-notes}{Could not register theorem list entries}
+      {Check the amsthm definition of \string\@begintheorem.}%
+  }
+\fi
+\makeatother

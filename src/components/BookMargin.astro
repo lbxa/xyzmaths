@@ -1,0 +1,39 @@
+---
+import { manuscriptLinkStyles } from "@/lib/reader-links";
+---
+<div class="@container/reader">
+  <book-margin class:list={[
+    "block min-w-0 grid-cols-1 items-start gap-x-phi-3 [@media_screen]:@2xl/reader:grid data-[margin-active]:grid-cols-[minmax(0,1fr)_var(--layout-margin)]",
+    "[&_.footnotes:not(:has(li))]:m-0 [&_.footnotes:not(:has(li))]:border-0 [&_.footnotes:not(:has(li))]:p-0",
+    "[&_[data-margin-note]:target]:bg-ink/5 [&_.footnote-ref:target]:bg-ink/5 [&_.footnote-back]:ms-phi-tight",
+  ]}>
+    <slot />
+    <aside id="right-aside" aria-label="Margin notes" hidden class:list={[
+      "min-w-0 font-serif text-sidenote [overflow-wrap:anywhere] print:hidden",
+      manuscriptLinkStyles,
+      "[&_p+p]:mt-phi-0 [&_ul]:list-disc [&_ul]:ps-phi-2 [&_li_ol]:list-decimal [&_li_ol]:ps-phi-2",
+      "[&_.katex]:[font-size:inherit]! [&_.katex-display]:max-w-full [&_.katex-display]:overflow-x-auto [&_.katex-display>.katex]:min-w-max",
+      "[&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_code]:font-mono",
+    ]}>
+      <ol data-margin-items class="flex list-decimal flex-col gap-phi-2 ps-phi-3 [&>li]:min-w-0 [&>li]:[margin-block-start:var(--margin-offset,0px)] [&>li]:marker:text-rule"></ol>
+    </aside>
+  </book-margin>
+</div>
+
+<script>
+  import { mountBookMargin } from "@/lib/book-margin";
+
+  class BookMargin extends HTMLElement {
+    private cleanup?: () => void;
+
+    connectedCallback() {
+      this.cleanup = mountBookMargin(this);
+    }
+
+    disconnectedCallback() {
+      this.cleanup?.();
+    }
+  }
+
+  if (!customElements.get("book-margin")) customElements.define("book-margin", BookMargin);
+</script>

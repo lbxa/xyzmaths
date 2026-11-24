@@ -1,0 +1,55 @@
+% !TEX TS-program = pdflatexmk
+% !TEX program = pdflatex
+% Typeset in TeXShop, or run make problem HW=hw02 from the book directory.
+% Questions transcribed verbatim from Math Analysis I Assignment 2.pdf.
+% Original wording, including "seqeunce" and "continuous fraction", is retained.
+\documentclass[nohyper,nobib,nofonts]{tufte-handout}
+% Resolve shared inputs from either the book directory or problems/.
+\newcommand{\analysisroot}{..}
+\IfFileExists{preamble.tex}{\renewcommand{\analysisroot}{.}}{}
+\makeatletter
+\edef\input@path{{\analysisroot/}}
+\makeatother
+\input{preamble}
+\input{macros}
+\input{figures/interval-styles}
+\allowdisplaybreaks[1]
+
+% Photo order (duplicate/earlier shots are not repeated):
+% Q1: 9069 (=9067), 9070 (includes 9068), 9071, 9072, 9073 top.
+% Q2: 9073 lower portion, 9074.
+% Q3: 9075, 9076, 9077, 9079.
+% Q4: 9080, 9081, 9082, 9083, 9084.
+% Q5: 9085, 9086, 9087, 9088.
+% Q6: 9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097.
+
+% Match the assignment's question and subpart numbering.
+\renewcommand{\thetheorem}{\arabic{theorem}}
+\renewcommand{\labelenumi}{(\alph{enumi})}
+
+\title{Homework 02}
+\author[Lucas Barbosa, lc6424]{Lucas Barbosa, \texttt{lc6424}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\input{problems/hw02/01-nested-bounded-intervals/problem}
+\input{problems/hw02/01-nested-bounded-intervals/solution}
+
+\input{problems/hw02/02-nested-closed-intervals/problem}
+\input{problems/hw02/02-nested-closed-intervals/solution}
+
+\input{problems/hw02/03-nested-rational-intervals/problem}
+\input{problems/hw02/03-nested-rational-intervals/solution}
+
+\input{problems/hw02/04-decreasing-sequence/problem}
+\input{problems/hw02/04-decreasing-sequence/solution}
+
+\input{problems/hw02/05-factorial-sequence/problem}
+\input{problems/hw02/05-factorial-sequence/solution}
+
+\input{problems/hw02/06-newton-iteration/problem}
+\input{problems/hw02/06-newton-iteration/solution}
+
+\end{document}

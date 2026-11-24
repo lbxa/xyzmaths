@@ -1,0 +1,472 @@
+---
+title: "Formula sheet"
+group: "Appendices"
+order: 19
+page: "155"
+outline: [{"id": "sec:appendix:formula-sheet-coordinates-and-maps", "title": "D.1 Coordinates and maps", "level": 2}, {"id": "sec:appendix:formula-sheet-kernel-and-image", "title": "D.2 Kernel and image", "level": 2}, {"id": "sec:appendix:formula-sheet-area-and-signs", "title": "D.3 Area and signs", "level": 2}, {"id": "sec:appendix:formula-sheet-determinants", "title": "D.4 Determinant formulas", "level": 2}, {"id": "sec:appendix:formula-sheet-determinants-of-maps", "title": "D.5 Determinants of maps", "level": 2}, {"id": "sec:appendix:formula-sheet-eigenvalues-and-bases", "title": "D.6 Eigenvalues and bases", "level": 2}, {"id": "sec:appendix:formula-sheet-real-inner-products", "title": "D.7 Real inner products", "level": 2}, {"id": "sec:appendix:formula-sheet-norms-and-orthogonality", "title": "D.8 Norms and orthogonality", "level": 2}]
+---
+
+# Appendix D. Formula sheet {id="ch:appendix:formula-sheet"}
+
+Let $V,W$ be vector spaces over the same field $\mathbb F$. Unless stated otherwise, $\dim V=m$, $\dim W=n$ are finite, and $L:V\to W$ is linear.
+
+## D.1 Coordinates and maps {id="sec:appendix:formula-sheet-coordinates-and-maps"}
+
+**Span and independence** [§ 1.2](/notes/linear-algebra/linear-algebra-i/vector-spaces-and-bases/#sec:linear-algebra-i:linear-combinations-and-bases)
+
+$$
+\operatorname{span}\{v_1,\ldots,v_m\}
+      =\left\{\sum_{j=1}^m a_jv_j\;\middle|\;a_j\in\mathbb F\right\}.
+$$
+
+The vectors $v_1,\ldots,v_m$ are independent if
+
+$$
+\sum_{j=1}^m a_jv_j=0
+      \quad\Longrightarrow\quad a_1=\cdots=a_m=0.
+$$
+
+A basis of $V$ is independent and spans $V$. It has $\dim V$ vectors.
+
+**Multiplication by columns** [§ 2.1](/notes/linear-algebra/linear-algebra-i/matrices-and-vector-coordinates/#sec:linear-algebra-i:matrix-multiplication)
+
+For $A\in\mathbb F^{n\times m}$, $b\in\mathbb F^m$, and $B\in\mathbb F^{m\times s}$, writing $A_j,B_j$ for columns,
+
+$$
+Ab=\sum_{j=1}^m b^jA_j,\qquad AB=[AB_1\ \cdots\ AB_s].
+$$
+
+**Vector coordinates** [§ 2.2](/notes/linear-algebra/linear-algebra-i/matrices-and-vector-coordinates/#sec:linear-algebra-i:change-of-basis-for-vectors)
+
+For ordered bases $E,F$ of $V$, with $F=EM$,
+
+$$
+v=Ea=Fb,\qquad a=Mb,\qquad b=M^{-1}a.
+$$
+
+Column $j$ of $M$ gives the $E$-coordinates of $f_j$.
+
+**Linearity** [§ 3.2](/notes/linear-algebra/linear-algebra-i/linear-equations-and-maps/#sec:linear-algebra-i:linear-functions-and-maps)
+
+For $a,b\in\mathbb F$ and $v,w\in V$,
+
+$$
+L(av+bw)=aL(v)+bL(w),\qquad L(0_V)=0_W.
+$$
+
+On a basis $E$, $L(\sum_{j=1}^m a_je_j)=\sum_{j=1}^m a_jL(e_j)$.
+
+**Matrix of a map** [§ 3.3](/notes/linear-algebra/linear-algebra-i/linear-equations-and-maps/#sec:linear-algebra-i:change-of-basis-for-functions-and-maps)
+
+In ordered bases $E$ of $V$ and $F$ of $W$, the matrix $M\in\mathbb F^{n\times m}$ satisfies
+
+$$
+L(E)=FM,\qquad v=Ea\ \Longrightarrow\ L(v)=FMa.
+$$
+
+Column $j$ contains the $F$-coordinates of $L(e_j)$. For coordinate spaces with standard-basis matrix $C$,
+
+$$
+CE=FM,\qquad M=F^{-1}CE.
+$$
+
+**Changing both bases** [§ 3.3](/notes/linear-algebra/linear-algebra-i/linear-equations-and-maps/#sec:linear-algebra-i:change-of-basis-for-functions-and-maps)
+
+For $E'=EA$, $F'=FB$, with $A,B$ invertible,
+
+$$
+L(E')=F'M',\qquad M'=B^{-1}MA.
+$$
+
+If $L$ is an isomorphism, $L^{-1}$ has matrix $M^{-1}$ in the reversed bases.
+
+## D.2 Kernel and image {id="sec:appendix:formula-sheet-kernel-and-image"}
+
+**Kernel and nullity** [§ 4.1](/notes/linear-algebra/linear-algebra-i/kernel-image-and-rank/#sec:linear-algebra-i:kernel)
+
+$$
+\ker L=\{v\in V\mid L(v)=0_W\}.
+$$
+
+Its dimension is $k=\operatorname{nullity}L$. If $v_0$ solves $L(v)=w$, the solution set is
+
+$$
+v_0+\ker L=\{v_0+u\mid u\in\ker L\}.
+$$
+
+**Image and rank** [§ 4.3](/notes/linear-algebra/linear-algebra-i/kernel-image-and-rank/#sec:linear-algebra-i:rank)
+
+$$
+\operatorname{im}L=\{L(v)\mid v\in V\},\qquad
+      r=\operatorname{rank}L=\dim\operatorname{im}L.
+$$
+
+For a matrix with columns $c_1,\ldots,c_m$,
+
+$$
+\operatorname{im}M=\operatorname{span}\{c_1,\ldots,c_m\}.
+$$
+
+The equation $L(v)=w$ is solvable exactly when $w\in\operatorname{im}L$.
+
+**Rank–nullity and bounds** [§ 4.3](/notes/linear-algebra/linear-algebra-i/kernel-image-and-rank/#sec:linear-algebra-i:rank)
+
+$$
+\begin{aligned}
+        r+k&=m,\\
+        0\leq r&\leq\min(m,n),\\
+        \max(0,m-n)\leq k&\leq m.
+      \end{aligned}
+$$
+
+Full rank means $r=\min(m,n)$.
+
+**Injectivity and surjectivity** [§ 4.3](/notes/linear-algebra/linear-algebra-i/kernel-image-and-rank/#sec:linear-algebra-i:rank)
+
+$$
+\begin{aligned}
+        L\text{ injective}&\ \Longleftrightarrow\ \ker L=\{0_V\}\\
+                         &\ \Longleftrightarrow\ k=0
+                           \ \Longleftrightarrow\ r=m,\\
+        L\text{ surjective}&\ \Longleftrightarrow\ \operatorname{im}L=W\\
+                           &\ \Longleftrightarrow\ r=n.
+      \end{aligned}
+$$
+
+$L$ is an isomorphism exactly when $m=n=r$ and $k=0$.
+
+**Differentiation** [§ 4.4](/notes/linear-algebra/linear-algebra-i/kernel-image-and-rank/#sec:linear-algebra-i:differentiation)
+
+Without a finite-dimensional assumption,
+
+$$
+D:C^1(\mathbb{R})\to C^0(\mathbb{R}),\qquad D(f)=f',
+$$
+
+Differentiation is linear. For $D:\mathcal P_3(\mathbb{R})\to\mathcal P_2(\mathbb{R})$,
+
+$$
+\begin{aligned}
+        D(ax^3+bx^2+cx+d)&=3ax^2+2bx+c,\\
+        \ker D&=\operatorname{span}\{1\},\quad k=1,\\
+        \operatorname{im}D&=\mathcal P_2(\mathbb{R}),\quad r=3.
+      \end{aligned}
+$$
+
+The following formulas concern real vector spaces. Write $E=(e_1,\ldots,e_n)$ for an ordered basis and $M=(b^i_j)$ for a square matrix, with row index $i$ and column index $j$.
+
+## D.3 Area and signs {id="sec:appendix:formula-sheet-area-and-signs"}
+
+**Oriented area** [§ 5.1](/notes/linear-algebra/linear-algebra-i/determinants/#sec:linear-algebra-i:oriented-area-and-volume)
+
+With $A(e_1,e_2)=1$,
+
+$$
+\begin{aligned}
+        A(av+bw,z)&=aA(v,z)+bA(w,z),\\
+        A(v,aw+bz)&=aA(v,w)+bA(v,z),\\
+        A(w,v)&=-A(v,w),\qquad A(v,v)=0.
+      \end{aligned}
+$$
+
+The ordinary area is $|A(v,w)|$. If $v=ae_1+ce_2$, $w=be_1+de_2$, then
+
+$$
+A(v,w)=ad-bc=\det\begin{bmatrix}a&b\\c&d\end{bmatrix}.
+$$
+
+**Oriented volume** [§ 5.1](/notes/linear-algebra/linear-algebra-i/determinants/#sec:linear-algebra-i:oriented-area-and-volume)
+
+Normalize $\mathcal V(e_1,e_2,e_3)=1$. If $a,b$ lie in the $(e_1,e_2)$-plane and $c=ue_1+ve_2+he_3$, then
+
+$$
+\mathcal V(a,b,c)=hA(a,b).
+$$
+
+The ordinary volume is $|h|\,|A(a,b)|$. If $[v_1\ v_2\ v_3]=EM$, then
+
+$$
+\mathcal V(v_1,v_2,v_3)=\det M.
+$$
+
+**Permutation signs** [§ 5.2](/notes/linear-algebra/linear-algebra-i/determinants/#sec:linear-algebra-i:permutations)
+
+For $\sigma,\sigma_1,\sigma_2\in S_n$,
+
+$$
+\begin{aligned}
+        \varepsilon(\iota)&=1,\\
+        \varepsilon(\tau)&=-1\quad\text{for a transposition},\\
+        \varepsilon(\sigma_2\circ\sigma_1)
+          &=\varepsilon(\sigma_2)\varepsilon(\sigma_1),\\
+        \varepsilon(\sigma^{-1})&=\varepsilon(\sigma).
+      \end{aligned}
+$$
+
+For an arbitrary map $\phi\in T_n$, set $\varepsilon(\phi)=0$ when $\phi\notin S_n$.
+
+## D.4 Determinant formulas {id="sec:appendix:formula-sheet-determinants"}
+
+**Antisymmetry** [§ 5.3](/notes/linear-algebra/linear-algebra-i/determinants/#sec:linear-algebra-i:antisymmetric-multilinear-functions)
+
+For antisymmetric $A:V^n\to\mathbb{R}$ and $\phi\in T_n$,
+
+$$
+A(v_{\phi(1)},\ldots,v_{\phi(n)})
+        =\varepsilon(\phi)A(v_1,\ldots,v_n).
+$$
+
+Equal inputs give zero. For multilinear functions on real vector spaces, this vanishing property is equivalent to antisymmetry.
+
+**Expansion in a basis** [§ 5.3](/notes/linear-algebra/linear-algebra-i/determinants/#sec:linear-algebra-i:antisymmetric-multilinear-functions)
+
+Let $\dim V=n$ and $v_j=\sum_{i=1}^n b^i_j e_i$. For antisymmetric multilinear $A$,
+
+$$
+\begin{aligned}
+        A(v_1,\ldots,v_n)
+          &=A(e_1,\ldots,e_n)\\
+          &\quad\cdot\sum_{\sigma\in S_n}\varepsilon(\sigma)
+            b^{\sigma(1)}_1\cdots b^{\sigma(n)}_n.
+      \end{aligned}
+$$
+
+**Normalized determinant** [§ 5.4](/notes/linear-algebra/linear-algebra-i/determinants/#sec:linear-algebra-i:determinant)
+
+For the standard basis of $\mathbb{R}^n$, the antisymmetric multilinear function $D$ is normalized by
+
+$$
+D(e_1,\ldots,e_n)=1.
+$$
+
+If $M=[C_1\ \cdots\ C_n]$, then
+
+$$
+\begin{aligned}
+        \det M&=D(C_1,\ldots,C_n)\\
+          &=\sum_{\sigma\in S_n}\varepsilon(\sigma)
+            b^{\sigma(1)}_1\cdots b^{\sigma(n)}_n\\
+          &=\sum_{\sigma\in S_n}\varepsilon(\sigma)
+            b^1_{\sigma(1)}\cdots b^n_{\sigma(n)}.
+      \end{aligned}
+$$
+
+Here $\mathbb F=\mathbb{R}$ or $\mathbb{C}$, $\dim V=\dim W=n$, and matrices in determinant formulas are $n$-by-$n$.
+
+## D.5 Determinants of maps {id="sec:appendix:formula-sheet-determinants-of-maps"}
+
+**Pullbacks** [§ 6.1](/notes/linear-algebra/linear-algebra-i/determinants-of-linear-maps/#sec:linear-algebra-i:pullbacks-and-volume-functions)
+
+For $L:V\to W$ and $A\in\Lambda^k W^*$,
+
+$$
+\begin{aligned}
+        L^*&:\Lambda^k W^*\to\Lambda^k V^*,\\
+        (L^*A)(v_1,\ldots,v_k)&=A(L(v_1),\ldots,L(v_k)).
+      \end{aligned}
+$$
+
+The space $\Lambda^n V^*$ has dimension one.
+
+**Endomorphism determinant** [§ 6.2](/notes/linear-algebra/linear-algebra-i/determinants-of-linear-maps/#sec:linear-algebra-i:determinants-of-endomorphisms)
+
+For $L:V\to V$ and $A\in\Lambda^n V^*$,
+
+$$
+L^*A=(\det L)A.
+$$
+
+For nonzero $A$ and a basis $E=(e_1,\ldots,e_n)$,
+
+$$
+\det L=\frac{A(L(e_1),\ldots,L(e_n))}{A(e_1,\ldots,e_n)}.
+$$
+
+If $L(E)=EM$, then $\det L=\det M$.
+
+**Products and inverses** [§ 6.3](/notes/linear-algebra/linear-algebra-i/determinants-of-linear-maps/#sec:linear-algebra-i:multiplicativity-and-singularity)
+
+For endomorphisms $L,L_1,L_2$ of $V$,
+
+$$
+\begin{aligned}
+        \det(AB)&=(\det A)(\det B),\\
+        \det(L_2\circ L_1)&=(\det L_2)(\det L_1),\\
+        L\text{ invertible}&\ \Longleftrightarrow\ \det L\ne0,\\
+        \det(L^{-1})&=\frac1{\det L}\quad\text{if \(L\) is invertible}.
+      \end{aligned}
+$$
+
+**Transpose** [§ 6.4](/notes/linear-algebra/linear-algebra-i/determinants-of-linear-maps/#sec:linear-algebra-i:transposes-and-linear-systems)
+
+$$
+\begin{gathered}
+        (M^T)^j_i=M^i_j,\qquad (AB)^T=B^TA^T,\\
+        \det(M^T)=\det M.
+      \end{gathered}
+$$
+
+**Different domain and codomain** [§ 6.5](/notes/linear-algebra/linear-algebra-i/determinants-of-linear-maps/#sec:linear-algebra-i:determinants-between-spaces)
+
+For $L:V\to W$, the determinant is a map between lines,
+
+$$
+\det(L)=L^*:\Lambda^n W^*\to\Lambda^n V^*.
+$$
+
+## D.6 Eigenvalues and bases {id="sec:appendix:formula-sheet-eigenvalues-and-bases"}
+
+**Eigenvalues and eigenspaces** [§ 7.1](/notes/linear-algebra/linear-algebra-i/eigenvalues-and-diagonalization/#sec:linear-algebra-i:eigenvalues-and-eigenspaces)
+
+An eigenvector is nonzero and satisfies $L(v)=\lambda v$.
+
+$$
+\begin{gathered}
+        E_\lambda(L)=\ker(L-\lambda I),\\
+        \lambda\text{ eigenvalue}\ \Longleftrightarrow\ \det(L-\lambda I)=0.
+      \end{gathered}
+$$
+
+**Characteristic polynomial** [§ 7.2](/notes/linear-algebra/linear-algebra-i/eigenvalues-and-diagonalization/#sec:linear-algebra-i:characteristic-polynomials-and-similarity)
+
+$$
+\begin{aligned}
+        p_M(x)&=\det(M-xI),\\
+        p_L(x)&=\det(L-xI)=p_M(x)\quad\text{if \(L(E)=EM\)},\\
+        \deg p_M&=n,\qquad p_M(0)=\det M.
+      \end{aligned}
+$$
+
+Its leading coefficient is $(-1)^n$. Over $\mathbb{C}$, its $n$ roots are counted with multiplicity.
+
+**Similarity** [§ 7.2](/notes/linear-algebra/linear-algebra-i/eigenvalues-and-diagonalization/#sec:linear-algebra-i:characteristic-polynomials-and-similarity)
+
+If $F=EH$, $L(E)=EM$, and $L(F)=FN$, then
+
+$$
+N=H^{-1}MH,\qquad p_N=p_M,\qquad b=H^{-1}a.
+$$
+
+The coordinate eigenvectors are related by $a=Hb$.
+
+**Diagonalization** [§ 7.5](/notes/linear-algebra/linear-algebra-i/eigenvalues-and-diagonalization/#sec:linear-algebra-i:diagonalization)
+
+$$
+M=SDS^{-1},\qquad D=\operatorname{diag}(\lambda_1,\ldots,\lambda_n).
+$$
+
+The columns of $S$ form an eigenbasis. A map is diagonalizable exactly when its space has a basis of eigenvectors over the stated field.
+
+**Direct sums** [§ 7.6](/notes/linear-algebra/linear-algebra-i/eigenvalues-and-diagonalization/#sec:linear-algebra-i:direct-sums)
+
+For a direct sum,
+
+$$
+V=\bigoplus_{j=1}^k S_j,\qquad
+      \dim V=\sum_{j=1}^k\dim S_j.
+$$
+
+Each vector has a unique decomposition with one component in each $S_j$. Distinct eigenspaces are transversal. A map is diagonalizable exactly when its eigenspaces span the whole space.
+
+Here $V$ is a real inner-product space. The norms below are induced by its inner product.
+
+## D.7 Real inner products {id="sec:appendix:formula-sheet-real-inner-products"}
+
+**Defining properties** [§ 8.1](/notes/linear-algebra/linear-algebra-i/inner-products-and-norms/#sec:linear-algebra-i:real-inner-products)
+
+A real inner product $B:V\times V\to\mathbb{R}$ satisfies
+
+$$
+\begin{gathered}
+        B(v,v)\ge0,\qquad B(v,v)=0\quad\Longleftrightarrow\quad v=0,\\
+        B(v,w)=B(w,v).
+      \end{gathered}
+$$
+
+It is bilinear. Also write $(v,w)=B(v,w)$.
+
+**Coordinate and integral examples** [§ 8.2](/notes/linear-algebra/linear-algebra-i/inner-products-and-norms/#sec:linear-algebra-i:examples-of-inner-products)
+
+For real coordinate columns,
+
+$$
+v\cdot w=w^Tv=\sum_{j=1}^n v^jw^j.
+$$
+
+On real polynomials of degree at most $n$,
+
+$$
+(p,q)=\int_{-1}^1p(x)q(x)\,dx.
+$$
+
+On real trigonometric polynomials with frequencies at most $n$,
+
+$$
+(f,g)=\int_0^{2\pi}f(x)g(x)\,dx.
+$$
+
+**Matrix inner product** [§ 8.2](/notes/linear-algebra/linear-algebra-i/inner-products-and-norms/#sec:linear-algebra-i:examples-of-inner-products)
+
+For $A,B\in\mathrm M_{n\times n}(\mathbb{R})$,
+
+$$
+\begin{aligned}
+        \operatorname{tr}A&=\sum_{i=1}^n A^i_i,\\
+        (A,B)&=\operatorname{tr}(B^TA)
+          =\sum_{i=1}^n\sum_{j=1}^n B^i_jA^i_j.
+      \end{aligned}
+$$
+
+**Nondegeneracy** [§ 8.3](/notes/linear-algebra/linear-algebra-i/inner-products-and-norms/#sec:linear-algebra-i:inner-product-nondegeneracy)
+
+$$
+(v,w)=0\text{ for every }w\in V
+      \quad\Longleftrightarrow\quad v=0.
+$$
+
+If $(v_1,w)=(v_2,w)$ for every $w$, then $v_1=v_2$.
+
+## D.8 Norms and orthogonality {id="sec:appendix:formula-sheet-norms-and-orthogonality"}
+
+**Induced norm** [§ 8.4](/notes/linear-algebra/linear-algebra-i/inner-products-and-norms/#sec:linear-algebra-i:inner-product-norms-and-angles)
+
+$$
+\lVert v\rVert=\sqrt{(v,v)},\qquad
+      \lVert v\rVert^2=(v,v).
+$$
+
+It is nonnegative and is zero exactly for the zero vector.
+
+**Cauchy–Schwarz** [§ 8.4](/notes/linear-algebra/linear-algebra-i/inner-products-and-norms/#sec:linear-algebra-i:inner-product-norms-and-angles)
+
+$$
+\lvert(v,w)\rvert\le\lVert v\rVert\lVert w\rVert.
+$$
+
+Equality holds exactly when the pair $v,w$ is linearly dependent, including the cases with a zero vector.
+
+**Angles** [§ 8.4](/notes/linear-algebra/linear-algebra-i/inner-products-and-norms/#sec:linear-algebra-i:inner-product-norms-and-angles)
+
+For nonzero $v,w$, their angle $\theta\in[0,\pi]$ satisfies
+
+$$
+(v,w)=\lVert v\rVert\lVert w\rVert\cos\theta.
+$$
+
+**Orthogonality** [§ 8.5](/notes/linear-algebra/linear-algebra-i/inner-products-and-norms/#sec:linear-algebra-i:orthogonality-and-coordinate-products)
+
+Vectors are orthogonal when $(v,w)=0$. A family is mutually orthogonal when $(v_i,v_j)=0$ for $i\ne j$, and orthonormal when
+
+$$
+(v_i,v_j)=\delta_{ij}.
+$$
+
+**Choosing an inner product** [§ 8.5](/notes/linear-algebra/linear-algebra-i/inner-products-and-norms/#sec:linear-algebra-i:orthogonality-and-coordinate-products)
+
+For a fixed ordered basis $E$, write $v=Ea$, $w=Eb$, and set
+
+$$
+(v,w)_E=a\cdot b.
+$$
+
+Then $(e_i,e_j)_E=\delta_{ij}$. The inner product is additional structure chosen on the vector space.

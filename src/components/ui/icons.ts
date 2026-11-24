@@ -1,0 +1,15 @@
+export { default as AlertIcon } from "@/assets/icons/alert.svg?react";
+export { default as ArrowLeftIcon } from "@/assets/icons/arrow-left.svg?react";
+export { default as ArrowRightIcon } from "@/assets/icons/arrow-right.svg?react";
+export { default as BookContentsIcon } from "@/assets/icons/book-contents.svg?react";
+export { default as CentredTextIcon } from "@/assets/icons/reading-centered.svg?react";
+export { default as CheckIcon } from "@/assets/icons/check.svg?react";
+export { default as ChevronDownIcon } from "@/assets/icons/chevron-down.svg?react";
+export { default as ChevronRightIcon } from "@/assets/icons/chevron-right.svg?react";
+export { default as ChevronUpIcon } from "@/assets/icons/chevron-up.svg?react";
+export { default as CloseIcon } from "@/assets/icons/close.svg?react";
+export { default as CopyIcon } from "@/assets/icons/copy.svg?react";
+export { default as FolderIcon } from "@/assets/icons/folder.svg?react";
+export { default as PageIcon } from "@/assets/icons/page.svg?react";
+export { default as SectionIcon } from "@/assets/icons/section.svg?react";
+export { default as WideTextIcon } from "@/assets/icons/reading-wide.svg?react";

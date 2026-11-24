@@ -1,0 +1,7 @@
+---
+import BookOverview from "../../../components/BookOverview.astro";
+import { linearAlgebra } from "../../../lib/books";
+
+export const prerender = true;
+---
+<BookOverview book={linearAlgebra} />

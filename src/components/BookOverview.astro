@@ -1,0 +1,39 @@
+---
+import BookNotes from "../layouts/BookNotes.astro";
+import { TooltipLink } from "./TooltipControls";
+import { ArrowRightIcon } from "./ui/icons";
+import { getBookOverview } from "../lib/book-contents";
+import type { Book } from "../lib/books";
+import { readerLinkStyle } from "../lib/reader-links";
+
+interface Props { book: Book }
+const { book } = Astro.props;
+const { groups: overviewGroups, firstChapter } = await getBookOverview(book);
+---
+<BookNotes book={book} title={book.title}>
+  <header class="border-b border-rule/50 pb-phi-3">
+    <h1>{book.title}</h1>
+    <p class="text-lede italic">{book.author}</p>
+    <p>{book.description}</p>
+    <nav aria-label="Start reading" class="flex flex-wrap items-baseline gap-x-phi-3 gap-y-phi-1">
+      {firstChapter && <TooltipLink client:load tip={firstChapter.data.title} href={book.href + firstChapter.id + "/"} className={readerLinkStyle + " inline-flex items-center gap-phi-tight font-bold [&_svg]:size-phi-2"}>Start reading <ArrowRightIcon /></TooltipLink>}
+      <TooltipLink client:load tip="Open the published PDF from GitHub Releases" href={book.manuscript.href} className={readerLinkStyle} data-astro-reload>Download manuscript (PDF)</TooltipLink>
+      <TooltipLink client:load tip="Open the assignment index" href={book.href + "problems/"} className={readerLinkStyle}>Browse all problems by assignment</TooltipLink>
+    </nav>
+  </header>
+
+  {book.frontispiece && <figure class="text-center">
+    <a href={book.href + book.frontispiece.destination} class:list={[readerLinkStyle, "inline-block max-w-full"]}>
+      <img src={book.href + book.frontispiece.image} alt={book.frontispiece.alt} />
+    </a>
+    <figcaption><a href={book.href + book.frontispiece.destination} class={readerLinkStyle}>{book.frontispiece.caption}</a></figcaption>
+  </figure>}
+
+  {overviewGroups.map(({ id, title, numbered, entries }) => {
+    const List = numbered ? "ol" : "ul";
+    return <section>
+      <h2 id={id}>{title}</h2>
+      <List>{entries.map(page => <li><a href={book.href + page.id + "/"} class={readerLinkStyle}>{page.data.title}</a></li>)}</List>
+    </section>;
+  })}
+</BookNotes>

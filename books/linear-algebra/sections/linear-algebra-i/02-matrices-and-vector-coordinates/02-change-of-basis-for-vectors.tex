@@ -1,0 +1,46 @@
+% !TEX root = ../../../main.tex
+\section{Change of basis formula for vectors}
+\label{sec:linear-algebra-i:change-of-basis-for-vectors}
+
+The coordinates introduced by a basis describe a vector relative to that
+basis. A second basis gives a second description of the same vector.
+The matrix in this section translates between those descriptions. When a
+linear transformation is applied, it produces an output vector,
+as in the shear of
+\autoref{fig:linear-algebra-i:shear-grid-overview}. Both calculations use
+matrices because both reconstruct vectors from linear combinations.
+
+Let \(E=[e_1,\ldots,e_n]\) and \(F=[f_1,\ldots,f_n]\) be two ordered
+bases of \(V\). Each vector \(f_j\) has coordinates in the basis \(E\),
+so there is a matrix \(M\in\mathbb F^{n\times n}\) whose \(j\)-th column
+contains those coordinates. In matrix notation,
+\begin{marginfigure}
+  \centering
+  \input{figures/vector-basis-coordinates}
+  \caption[One vector in two bases]{The same vector \(v\) in two bases
+    of the real plane, shown schematically. Dashed lines complete the
+    components. The coordinates satisfy \(a=Mb\) when \(F=EM\).}
+  \label{fig:linear-algebra-i:vector-basis-coordinates}
+\end{marginfigure}
+\[
+  F=EM.
+\]
+Because \(F\) is also a basis, there is a matrix \(N\) with \(E=FN\).
+Substituting these expressions into one another gives
+\(E=EMN\) and \(F=FNM\). Uniqueness of coefficients in each basis
+gives \(MN=I_n\) and \(NM=I_n\). Thus \(N=M^{-1}\). The change-of-basis
+matrix is invertible, and it converts coordinates in either direction.
+
+If \(v\in V\) has coordinate columns \(a\) in basis \(E\) and \(b\) in
+basis \(F\), then \(v=Ea=Fb\). Using \(F=EM\),
+\[
+  v=Fb=EMb,
+  \qquad a=Mb,
+  \qquad b=M^{-1}a.
+\]
+Thus \(M\) converts \(F\)-coordinates to \(E\)-coordinates, and
+\(M^{-1}\) converts \(E\)-coordinates to \(F\)-coordinates.
+
+The vector stays fixed while its coordinate column changes.
+\autoref{fig:linear-algebra-i:vector-basis-coordinates} shows the two
+decompositions in the real plane.

@@ -1,0 +1,45 @@
+% !TEX program = pdflatex
+% Compile from this book directory with make book.
+% Keep nohyper to defer hyperlinks until after the custom contents setup.
+% nobib lets biblatex manage citations.
+\documentclass[nohyper,nobib,nofonts]{tufte-book}
+
+\input{preamble}
+\input{macros}
+
+\title{Linear Algebra}
+\author{Lucas Barbosa}
+\date{Class notes}
+\publisher{XYZ Maths}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\input{sections/front-matter/copyright}
+\tableofcontents
+\listoffigures
+\listoftables
+\listoftheorems
+\input{sections/front-matter/acknowledgements}
+\input{sections/front-matter/introduction}
+
+\mainmatter
+\input{sections/linear-algebra-i/part}
+% Enable this input when supplied notes for Linear Algebra II are available.
+% \input{sections/linear-algebra-ii/part}
+
+% References follow the course content and precede the appendices.
+\begingroup
+\setlength{\emergencystretch}{1em}
+\printbibliography[heading=bibintoc]
+\endgroup
+
+\appendix
+\input{sections/appendices/part}
+
+\backmatter
+% Enable the index when course content contains index entries.
+% \printindex
+
+\end{document}

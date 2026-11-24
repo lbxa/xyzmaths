@@ -1,0 +1,206 @@
+% !TEX root = ../../../main.tex
+% Sources: LEC03, IMG_9135--IMG_9138; Newton argument from LEC02, IMG_9118--IMG_9119.
+% Keep the section heading with its opening discussion after the wide figure.
+\clearpage
+\section{Roots and rational powers}
+\label{sec:analysis-i:roots-and-powers}
+
+\newthought{An inverse function needs a bijection.} We use the notation
+$\R_+=[0,\infty)$, including zero. For $n\in\N$, we will prove
+that $x\mapsto x^n$ is a bijection from $\R_+$ to itself. Only after that
+proof can we define $x^{1/n}$ as its inverse.
+
+\subsection{A difference of powers}
+The finite geometric identity
+\[
+  1+r+\cdots+r^{n-1}=\frac{1-r^n}{1-r}\qquad(r\ne1)
+\]
+follows by multiplying the sum by $1-r$ and cancelling consecutive terms.
+For $0\leq a<b$, substitute $r=a/b$ and multiply by $(b-a)b^{n-1}$.
+This gives
+\begin{equation}
+  b^n-a^n=(b-a)\sum_{j=0}^{n-1}b^{n-1-j}a^j.
+  \label{eq:analysis-i:power-difference}
+\end{equation}
+The sum is positive and has $n$ terms, each at most $b^{n-1}$. Consequently,
+\begin{equation}
+  0<b^n-a^n\leq n(b-a)b^{n-1}.
+  \label{eq:analysis-i:power-bound}
+\end{equation}
+In particular, the power map is strictly increasing on $[0,\infty)$,
+and hence injective. The upper bound controls how much the power changes
+when the input moves a short distance.
+
+\subsection{Completeness supplies every root}
+\begin{theorem}[Existence and uniqueness of roots]
+  \label{thm:analysis-i:positive-roots}
+  For every $n\in\N$ and every $y\geq0$, there is a unique $x\geq0$
+  such that $x^n=y$.
+\end{theorem}
+\begin{marginfigure}
+  \centering
+  \input{figures/foundations/root-square}
+  \caption[A square of prescribed area.]{The square $[0,s]\times[0,s]$ in
+    $\R^2$ has area $A=s^2$. Every $A\geq0$ determines a unique
+    nonnegative side length.}
+  \label{fig:analysis-i:root-square}
+\end{marginfigure}
+\begin{marginfigure}
+  \centering
+  \input{figures/foundations/root-cube}
+  \caption[A cube of prescribed volume.]{The cube
+    $[0,s]\times[0,s]\times[0,s]$ in $\R^3$ has volume $V=s^3$.
+    Every $V\geq0$ determines a unique nonnegative side length.}
+  \label{fig:analysis-i:root-cube}
+\end{marginfigure}
+\begin{proof}
+  Uniqueness follows from strict monotonicity. If $y=0$, take $x=0$.
+  Suppose henceforth that $y>0$, and put
+  \[
+    S=\{t\geq0\mid t^n<y\}.
+  \]
+  The set contains zero and also a positive element, for example
+  $t=\min\{1/2,y/2\}$, since $t^n\leq t<y$.
+  It is bounded above by $1+y$, because
+  $(1+y)^n\geq1+y>y$ and the power map is increasing.
+  LUBP therefore gives $x=\sup S>0$.
+
+  Suppose first that $x^n<y$. Choose $h>0$ so small that
+  \[
+    h<1,\qquad h<\frac{y-x^n}{n(x+1)^{n-1}}.
+  \]
+  Using \autoref{eq:analysis-i:power-bound} with $a=x$ and $b=x+h$
+  gives
+  \[
+    (x+h)^n-x^n\leq nh(x+h)^{n-1}
+      \leq nh(x+1)^{n-1}<y-x^n.
+  \]
+  Hence $x+h\in S$, contradicting that $x$ is an upper bound.
+
+  Suppose instead that $x^n>y$. Choose $h>0$ with
+  \[
+    h<x,\qquad h<\frac{x^n-y}{nx^{n-1}}.
+  \]
+  Now \autoref{eq:analysis-i:power-bound} with $a=x-h$ and $b=x$
+  yields $x^n-(x-h)^n\leq nhx^{n-1}<x^n-y$, so $(x-h)^n>y$.
+  Every $t\in S$ must then satisfy $t<x-h$, by strict monotonicity.
+  Thus $x-h$ is an upper bound of $S$ smaller than its least upper bound,
+  again a contradiction. The only remaining possibility is $x^n=y$.
+\end{proof}
+We may now define $y^{1/n}$ to be this unique nonnegative root.\marginnote{This
+proof uses completeness and an algebraic estimate. It does not require
+continuity or the intermediate value theorem, developed in
+\autoref{ch:analysis-i:continuity}. The two perturbations rule out being below and above $y$.} The inverse
+is strictly increasing too. Indeed, if $u<v$ but $u^{1/n}\geq v^{1/n}$,
+taking $n$th powers contradicts $u<v$.
+
+The cases $n=2$ and $n=3$ have familiar geometric interpretations.
+In $\R^2$, the square $[0,s]\times[0,s]$ has area $s^2$, as shown in
+\autoref{fig:analysis-i:root-square}. The theorem supplies its side
+length for any prescribed area $A\geq0$. For example, a square of area
+$2$ has side length $\sqrt2$.
+In $\R^3$, the cube $[0,s]\times[0,s]\times[0,s]$ has volume $s^3$,
+as shown in \autoref{fig:analysis-i:root-cube}. A prescribed volume
+$V\geq0$ likewise determines its side length, and volume $2$ gives
+$s=\sqrt[3]{2}$. These pictures illustrate the root theorem rather than
+replace its completeness argument.
+
+\subsection{Exercises on roots and boundaries}
+The existence of these roots lets us ask when they can be rational.
+For the prime-root exercise, recall
+\autoref{thm:analysis-i:euclid-prime-divisors}. If a prime divides
+a product of integers, it divides at least one factor. Repeated application
+gives $p\mid a^k\Longrightarrow p\mid a$.
+
+\input{problems/hw01/03-prime-roots/problem}
+
+\input{problems/hw01/09-irrational-roots/problem}
+
+The root theorem also lets us identify a Dedekind boundary by a cubic
+equation. For the negative side of the cubic, $x<0$ implies $x^3<0$.
+On the nonnegative side, use the strict monotonicity just established.
+In the next exercise, $A$ is the upper part of the partition. The letters
+are reversed from the lower-then-upper convention used in the proof chain.
+
+\input{problems/hw03/02-cubic-dedekind-cut/problem}
+
+\subsection{A rational exponent must be well defined}
+For $x\geq0$ and $m,n\in\N$, define
+\[
+  x^{m/n}=(x^m)^{1/n}.
+\]
+This agrees with $(x^{1/n})^m$, since its $n$th power is $x^m$ and it is
+nonnegative. We must also check that choosing a different representation
+of the fraction gives the same number.
+
+\begin{proposition}
+  If $m/n=p/q$ for positive integers $m,n,p,q$, then
+  $(x^m)^{1/n}=(x^p)^{1/q}$ for every $x\geq0$.
+\end{proposition}
+\begin{proof}
+  Let $u=(x^m)^{1/n}$ and $v=(x^p)^{1/q}$. Then
+  \[
+    u^{nq}=x^{mq}=x^{pn}=v^{nq},
+  \]
+  because $mq=pn$. Both $u$ and $v$ are nonnegative, and the $(nq)$th
+  power map is injective there. Therefore $u=v$.
+\end{proof}
+Thus positive rational powers have a consistent meaning. At zero they
+equal zero. For $x>0$, negative rational powers can subsequently be defined
+by reciprocals. Real exponents require a further limiting construction.
+The exponential series supplies this extension in
+\autoref{thm:analysis-i:logarithm-real-powers}.
+
+For the next exercise, $\Q_+$ denotes the positive rational numbers,
+and $\R_+=[0,\infty)$ as above. Its second part revisits the equivalent
+definitions of rational powers before establishing their algebraic laws.
+
+\input{problems/hw03/06-rational-exponent-laws/problem}
+
+\subsection{Exercise on odd roots of real numbers}
+The preceding root construction was restricted to nonnegative inputs.
+The next exercise asks for its extension to the whole real line for odd
+powers.
+
+\input{problems/hw03/08-odd-roots/problem}
+
+\subsection{Returning to iteration}
+We can now finish the square-root argument motivated in
+\autoref{sec:analysis-i:convergence-preview}. Let $a>0$, let
+$r=\sqrt a>0$ be the root supplied by
+\autoref{thm:analysis-i:positive-roots}, and start with $x_0>0$.
+Define $x_{n+1}=\tfrac12(x_n+a/x_n)$. Every iterate is positive, and
+\[
+  x_{n+1}-r=\frac{(x_n-r)^2}{2x_n}\geq0.
+\]
+Thus $x_n\geq r$ for $n\geq1$, and then
+$x_{n+1}-x_n=(a-x_n^2)/(2x_n)\leq0$.
+The monotone convergence theorem gives a limit $L\geq r>0$.
+The limit laws from \autoref{thm:analysis-i:limit-laws}, applied to
+$2x_nx_{n+1}=x_n^2+a$, give $L^2=a$. Root uniqueness therefore gives
+$L=r$. If $a$ and $x_0$ are rational, every iterate is rational.
+For prime $a$, \autoref{ex:hw01:prime-roots} shows that the limit
+is irrational.
+
+The next exercise applies the tangent slopes from
+\autoref{sec:analysis-i:convergence-preview} to $F(x)=x-a-1/x$.
+The root theorem, limit laws, and monotone convergence are now available
+for its fixed-point and convergence arguments. Its continued fraction
+denotes the positive solution of $b=a+1/b$.
+
+\input{problems/hw02/06-newton-iteration/problem}
+
+\subsection{Exercise on Fibonacci ratios}
+\historynote*{Leonardo of Pisa's \emph{Liber abaci} (1202, revised 1228)
+includes a rabbit-population problem producing this recurrence
+~\cite{FibonacciLiberAbaci}. The book's wider purpose was to teach
+calculation with Indo-Arabic numerals for practical problems. Here the
+ratios connect integer recurrences with algebraic limits. The rabbit
+story illustrates the sequence, rather than proving its first discovery.}
+The final recurrence connects an integer sequence with bounded ratios.
+Use induction for its growth and bounds, and the limit laws to identify
+a possible limit. The square root appearing in that calculation now
+has a rigorous construction. The last part assumes that the ratios
+converge. It does not ask for a convergence proof.
+
+\input{problems/hw03/04-fibonacci-ratios/problem}

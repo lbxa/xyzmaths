@@ -1,0 +1,81 @@
+---
+import { TooltipButton } from "@/components/TooltipControls";
+import { AlertIcon, CheckIcon, CopyIcon } from "@/components/ui/icons";
+
+interface Props { href: string }
+const { href } = Astro.props;
+---
+<copy-markdown hidden data-markdown-url={href} class="group/copy relative inline-flex">
+  <span class="pointer-events-none absolute end-0 bottom-full mb-phi-tight w-max max-w-[min(80vw,var(--spacing-phi-7))] text-end">
+    <span role="status" class="sr-only group-data-[copy-state=error]/copy:not-sr-only"></span>
+  </span>
+  <TooltipButton client:load type="button" variant="outline" size="icon" tip="Copy this page as Markdown for an LLM">
+    <span class="sr-only">Copy for LLM</span>
+    <span class="inline-flex group-data-[copy-state=success]/copy:hidden group-data-[copy-state=error]/copy:hidden">
+      <CopyIcon />
+    </span>
+    <span class="hidden group-data-[copy-state=success]/copy:inline-flex">
+      <CheckIcon />
+    </span>
+    <span class="hidden group-data-[copy-state=error]/copy:inline-flex">
+      <AlertIcon />
+    </span>
+  </TooltipButton>
+</copy-markdown>
+
+<script>
+  class CopyMarkdown extends HTMLElement {
+    private resetTimer?: number;
+
+    connectedCallback() {
+      if (!this.dataset.markdownUrl || !navigator.clipboard) return;
+      this.hidden = false;
+      // The tooltip hydrates the button. Keep the listener on its stable parent.
+      this.addEventListener("click", this.copy);
+    }
+
+    disconnectedCallback() {
+      this.removeEventListener("click", this.copy);
+      window.clearTimeout(this.resetTimer);
+    }
+
+    private async copy(event: MouseEvent) {
+      const button = event.target instanceof Element ? event.target.closest("button") : null;
+      const markdownUrl = this.dataset.markdownUrl;
+      if (!button || button.disabled || !markdownUrl) return;
+      const status = this.querySelector('[role="status"]')!;
+      const show = (state: "idle" | "copying" | "success" | "error", message = "") => {
+        this.dataset.copyState = state;
+        status.textContent = message;
+      };
+      const hadKeyboardFocus = button.matches(":focus-visible");
+      button.disabled = true;
+      window.clearTimeout(this.resetTimer);
+      show("copying", "Copying Markdown…");
+      try {
+        const text = fetch(markdownUrl).then(response => {
+          if (!response.ok) throw new Error("Markdown unavailable");
+          return response.text();
+        });
+        // Safari requires the clipboard operation to start during the click.
+        if (navigator.clipboard.write && typeof ClipboardItem !== "undefined") {
+          await navigator.clipboard.write([new ClipboardItem({
+            "text/plain": text.then(body => new Blob([body], { type: "text/plain" })),
+          })]);
+        } else {
+          await navigator.clipboard.writeText(await text);
+        }
+        show("success", "Markdown copied.");
+      } catch {
+        show("error", "Copy failed. Try again.");
+      } finally {
+        button.disabled = false;
+        if (hadKeyboardFocus && button.isConnected && document.activeElement === document.body) {
+          button.focus({ preventScroll: true });
+        }
+        if (this.isConnected) this.resetTimer = window.setTimeout(() => show("idle"), 2200);
+      }
+    }
+  }
+  if (!customElements.get("copy-markdown")) customElements.define("copy-markdown", CopyMarkdown);
+</script>

@@ -1,0 +1,69 @@
+---
+import { render, type CollectionEntry } from "astro:content";
+import "katex/dist/katex.min.css";
+import ProblemNavigation from "@/components/ProblemNavigation.astro";
+import CollectionLayout from "@/layouts/CollectionLayout.astro";
+import { manuscriptLinkStyles, readerLinkStyle } from "@/lib/reader-links";
+import { formatProblemDate, getWeeklyProblems, problemHref, problemViews, type ProblemView } from "@/lib/weekly-problems";
+
+export const prerender = true;
+export async function getStaticPaths() {
+  const problems = await getWeeklyProblems();
+  return problems.flatMap(entry => problemViews.map(view => ({
+    params: { slug: entry.id, view: view.segment || undefined },
+    props: { entry, view },
+  })));
+}
+
+interface Props {
+  entry: CollectionEntry<"weeklyProblems">;
+  view: ProblemView;
+}
+const { entry, view } = Astro.props;
+const { data } = entry;
+const isProblem = view.segment === "";
+const description = isProblem ? data.description : `${view.label} for ${data.title}.`;
+const next = {
+  "": { label: "Read the solution", href: problemHref(entry.id, "solution") },
+  solution: { label: "Read the editorial", href: problemHref(entry.id, "editorial") },
+  editorial: { label: "Back to the problem", href: problemHref(entry.id) },
+}[view.segment];
+const { Content } = await render(entry);
+---
+
+<CollectionLayout section="pow" type="article" title={data.title} description={description}>
+  <article>
+    <header class="border-b border-rule/50 pb-phi-2">
+      <a href="/pow/" class:list={[readerLinkStyle, "font-mono text-meta"]}>Problem of the Week</a>
+      <h1 class="mt-phi-2 text-title font-bold">{data.title}</h1>
+      <p class="mt-phi-2 font-mono text-meta leading-copy">
+        <time datetime={data.date.toISOString().slice(0, 10)}>{formatProblemDate(data.date)}</time> · {data.sourceLabel}
+      </p>
+      {isProblem && <p class="mt-phi-0 font-mono text-meta leading-copy">{data.topic} · Difficulty {data.difficulty}/10 · {data.estimatedTime} min</p>}
+      <ProblemNavigation id={entry.id} title={data.title} current={view.segment} />
+    </header>
+    <div class:list={[
+      "mt-phi-3 min-w-0 leading-copy [overflow-wrap:break-word]", manuscriptLinkStyles,
+      "[&_h2]:mb-phi-1 [&_h2]:mt-phi-4 [&_h2]:text-heading [&_h2]:font-bold [&_h2:first-child]:mt-0",
+      "[&_h3]:mt-phi-3 [&_h3]:text-lede [&_h3]:font-bold [&_p]:my-phi-2",
+      "[&_ol]:list-decimal [&_ul]:list-disc [&_:is(ol,ul)]:ps-phi-3",
+      "[&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_:is(th,td)]:border-b [&_:is(th,td)]:border-rule/50 [&_:is(th,td)]:p-phi-1",
+      "[&_code]:font-mono [&_pre]:overflow-x-auto [&_pre]:rounded-control [&_pre]:bg-ink/5 [&_pre]:p-phi-2 [&_pre]:text-meta [&_pre]:leading-copy",
+      "[&_.katex]:[font-size:inherit]! [&_.katex-display]:overflow-x-auto [&_.katex-display]:overflow-y-hidden [&_.katex-display>.katex]:min-w-max",
+    ]}>
+      {view.segment === "editorial" ? <Content /> : <Fragment set:html={isProblem ? data.statementHtml : data.solutionHtml} />}
+      {!isProblem && data.referenceCode && <>
+        <h2 id="implementation">C++ implementation</h2>
+        <pre><code class="language-cpp">{data.referenceCode}</code></pre>
+      </>}
+    </div>
+    <footer class="mt-phi-4 border-t border-rule/50 pt-phi-2">
+      <a href={next.href} class:list={[readerLinkStyle, "inline-flex items-center font-bold pointer-coarse:min-h-touch-target"]}>
+        {next.label}
+      </a>
+      <p class:list={[manuscriptLinkStyles, "mt-phi-2 text-sidenote leading-copy"]}>
+        Problem from <a href={data.source}>{data.sourceLabel}</a>.
+      </p>
+    </footer>
+  </article>
+</CollectionLayout>
